@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+        body {
+            display: flex;
+            background-color: #f5f5f5;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 220px;
+            background-color: #fff;
+            height: 100vh;
+            padding: 20px;
+            box-shadow: 2px 0px 5px rgba(0,0,0,0.1);
+        }
+        .sidebar h1 {
+            color: #84CBCB;
+            margin-bottom: 20px;
+            font-size: 24px;
+        }
+        .sidebar ul {
+            list-style-type: none;
+        }
+        .sidebar ul li {
+            margin: 15px 0;
+            cursor: pointer;
+            color: #333;
+        }
+        .sidebar ul li:hover {
+            color: #84CBCB;
+        }
+
+        /* Main Content */
+        .main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+        /* Top Header */
+        .header {
+            background-color: #84CBCB;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            padding-left: 20px;
+            color: white;
+            font-size: 18px;
+        }
+
+        /* Table Section */
+        .content {
+            display: flex;
+            flex: 1;
+        }
+        .table-container {
+            flex: 2;
+            padding: 20px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background-color: white;
+            box-shadow: 0px 2px 5px rgba(0,0,0,0.1);
+        }
+        th, td {
+            padding: 10px;
+            border-bottom: 1px solid #ccc;
+            text-align: center;
+        }
+        th {
+            background-color: #f0f0f0;
+        }
+        .btn-update {
+            padding: 5px 10px;
+            background-color: #5cb85c;
+            color: white;
+            border: none;
+            cursor: pointer;
+            border-radius: 4px;
+        }
+        .btn-delete {
+            padding: 5px 10px;
+            background-color: #d9534f;
+            color: white;
+            border: none;
+            cursor: pointer;
+            border-radius: 4px;
+        }
+        .btn-update:hover, .btn-delete:hover {
+            opacity: 0.8;
+        }
+
+        .btn-search {
+            padding: 8px 15px;
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-left: 10px;
+        }
+        .btn-search:hover {
+            background-color: #0056b3;
+        }
+
+        /* Form Section */
+        .form-container {
+            background-color: #84CBCB;
+            padding: 20px;
+            width: 300px;
+        }
+        .form-container h3 {
+            color: #fff;
+            margin-bottom: 10px;
+        }
+        .form-container input {
+            width: 100%;
+            margin: 10px 0;
+            padding: 8px;
+            border: none;
+            border-radius: 4px;
+        }
+        .form-container .create-btn {
+            width: 100%;
+            padding: 10px;
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            cursor: pointer;
+            border-radius: 4px;
+            text-align: center;
+        }
+        .form-container .create-btn:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <!-- Sidebar -->
+    <!-- <div class="sidebar">
+        <h1>CosmiX</h1>
+        <ul>
+            <li>Dashboard</li>
+            <li>User Management</li>
+            <li>Products Management</li>
+            <li>Order Management</li>
+            <li>Category Management</li>
+            <li>Coupon Management</li>
+            <li>Offers Management</li>
+        </ul>
+    </div> -->
+
+    <!-- Main Section -->
+    <div class="main">
+        <!-- Header -->
+        <%- include("../../views/partials/admin/header.ejs")%>
+<!-- 
+        <div class="header">Products Management</div> -->
+
+        <!-- Table and Form Content -->
+        <div class="content">
+            <!-- Table -->
+            <div class="table-container">
+                <div style="display: flex; align-items: center; margin-bottom: 10px;">
+                    <input type="text" placeholder="Search products" style="flex: 1; padding: 8px; border-radius: 4px; border: 1px solid #ccc;">
+                    <button class="btn-search">Search</button>
+                </div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Coupon Code</th>
+                            <th>Discount Value</th>
+                            <th>Valid From</th>
+                            <th>Valid Until</th>
+                            <th>Usage Limit</th>
+                            <th>Update</th>
+                            <th>Delete</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>MF736H98GDD</td>
+                            <td>10%</td>
+                            <td>04 Jan 2024</td>
+                            <td>05 Jan 2024</td>
+                            <td>2</td>
+                            <td><button class="btn-update">Update</button></td>
+                            <td><button class="btn-delete">Delete</button></td>
+                        </tr>
+                        <tr>
+                            <td>MF736H98GDD</td>
+                            <td>10%</td>
+                            <td>04 Jan 2024</td>
+                            <td>05 Jan 2024</td>
+                            <td>2</td>
+                            <td><button class="btn-update">Update</button></td>
+                            <td><button class="btn-delete">Delete</button></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Form -->
+            <div class="form-container">
+                <h3>Add New Product</h3>
+                <label for="couponcode">Coupon Code</label>
+                <input type="text" placeholder="coupon code">
+                <label for="discount">Discount value</label>
+                <input type="text" placeholder="discount value">
+                 <label for="starttime">Valid From</label>
+                <input type="date" class="form-control" id="startTime">
+                <label for="endtime">Valid till</label>
+                        <input type="date" class="form-control" id="startTime">
+                        <label for="usage">Usage Limit</label>
+                <input type="text" placeholder="usage limit">
+                <button class="create-btn">Create</button>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

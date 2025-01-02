@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Page</title>
+    <style>
+        /* General Reset */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            background-color: #f4f4f4;
+        }
+
+        /* Sidebar */
+        .container {
+            display: flex;
+            flex: 1;
+        }
+
+        .sidebar {
+            width: 220px;
+            background-color: #ffffff;
+            border-right: 1px solid #ddd;
+            padding: 20px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .sidebar ul {
+            list-style: none;
+        }
+
+        .sidebar li {
+            margin-bottom: 15px;
+        }
+
+        .sidebar a {
+            text-decoration: none;
+            display: block;
+            padding: 10px;
+            color: #333;
+            border-radius: 5px;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        .sidebar a.active, .sidebar a:hover {
+            background-color: #84CBCB;
+            color: white;
+        }
+
+        /* Main Content */
+        .content {
+            flex: 1;
+            padding: 20px;
+            background-color: #ffffff;
+        }
+
+        .content h2 {
+            margin-bottom: 15px;
+        }
+
+        .content p {
+            color: #555;
+            line-height: 1.6;
+        }
+
+        .dashboard-header {
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        
+/* Main Container */
+.wallet-container {
+  background-color: #ffffff;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  width: 100%; /* Full width */
+  margin: 30px auto;
+  padding: 20px;
+  box-sizing: border-box;
+}
+
+/* Wallet Title */
+.wallet-title {
+  font-size: 24px;
+  font-weight: bold;
+  margin-bottom: 20px;
+  color: #333;
+}
+
+/* Wallet Balance */
+.wallet-balance {
+  background-color: #002b62;
+  color: #ffffff;
+  padding: 10px;
+  border-radius: 5px;
+  margin-bottom: 20px;
+  font-size: 16px;
+  font-weight: bold;
+  width: 100%; /* Full width */
+  box-sizing: border-box;
+}
+
+/* Flexbox Layout for Left and Right Sides */
+.wallet-content {
+  display: flex;
+  justify-content: space-between;
+  gap: 30px;
+  width: 100%;
+}
+
+/* Left Side Styling */
+.wallet-left {
+  flex: 1; /* Takes available space */
+}
+
+.wallet-left label {
+  display: block;
+  margin-bottom: 5px;
+  font-weight: bold;
+  color: #333;
+}
+
+.wallet-left input {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 15px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  font-size: 14px;
+  box-sizing: border-box;
+}
+
+.apply-btn {
+  background-color: #4aabdf;
+  color: #ffffff;
+  border: none;
+  padding: 10px 15px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: bold;
+}
+
+.apply-btn:hover {
+  opacity: 0.9;
+}
+
+/* Right Side Styling */
+.wallet-right {
+  flex: 1; /* Takes remaining space */
+}
+
+.payment-title {
+  font-size: 16px;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 10px;
+  display: block;
+}
+
+.payment-options label {
+  display: block;
+  margin-bottom: 10px;
+  color: #333;
+  font-size: 14px;
+}
+
+.payment-options input {
+  margin-right: 10px;
+}
+
+/* Buttons Section */
+.wallet-buttons {
+  display: flex;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.add-money-btn,
+.cancel-btn {
+  border: none;
+  padding: 10px 15px;
+  font-size: 14px;
+  cursor: pointer;
+  color: #ffffff;
+  border-radius: 5px;
+  font-weight: bold;
+}
+
+.add-money-btn {
+  background-color: #84CBCB;
+}
+
+.cancel-btn {
+  background-color: #4aabdf;
+}
+
+.add-money-btn:hover,
+.cancel-btn:hover {
+  opacity: 0.9;
+}
+
+        /* Footer */
+        .footer {
+            background-color: #84CBCB;
+            padding: 20px;
+            color: #333;
+        }
+
+        .footer-container {
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            color: white;
+        }
+
+        .footer-column {
+            margin-bottom: 10px;
+        }
+
+        .footer h4 {
+            margin-bottom: 10px;
+            font-size: 16px;
+            color: #fff;
+        }
+
+        .footer ul {
+            list-style: none;
+        }
+
+        .footer ul li {
+            margin-bottom: 5px;
+        }
+
+        .footer ul li a {
+            text-decoration: none;
+            color: #ffffff;
+            transition: color 0.3s;
+        }
+
+        .footer ul li a:hover {
+            color: #0056b3;
+        }
+
+        .newsletter {
+            display: flex;
+            margin-top: 10px;
+        }
+
+        .newsletter input {
+            padding: 10px;
+            flex: 1;
+            border: none;
+            border-radius: 4px 0 0 4px;
+        }
+
+        .newsletter button {
+            padding: 10px 15px;
+            background-color: black;
+            color: white;
+            border: none;
+            border-radius: 0 4px 4px 0;
+            cursor: pointer;
+        }
+
+        .newsletter button:hover {
+            opacity: 0.8;
+        }
+    </style>
+</head>
+<body>
+    <!-- Container with Sidebar and Main Content -->
+    <div class="container">
+        <!-- Sidebar -->
+        <%- include("../../views/partials/user/usersidebar.ejs")%>
+
+
+        <!-- Main Content -->
+        <div class="wallet-container">
+            <h2 class="wallet-title">Add Money To Wallet</h2>
+          
+            <!-- Wallet Balance Section -->
+            <div class="wallet-balance">
+              Wallet Balance Rs 900.00
+            </div>
+          
+            <div class="wallet-content">
+              <!-- Left Side: Input Fields -->
+              <div class="wallet-left">
+                <label for="amount">Add Amount</label>
+                <input type="text" id="amount" placeholder="Enter amount">
+          
+                <label for="promo">Promo Code</label>
+                <input type="text" id="promo" placeholder="Enter code">
+          
+                <button class="apply-btn">Apply</button>
+              </div>
+          
+              <!-- Right Side: Payment Methods -->
+              <div class="wallet-right">
+                <label class="payment-title">Payment Method</label>
+                <div class="payment-options">
+                  <label><input type="radio" name="payment" /> Cards (Debit/Credit)</label>
+                  <label><input type="radio" name="payment" /> UPI</label>
+                  <label><input type="radio" name="payment" /> Net Banking</label>
+                  <label><input type="radio" name="payment" /> Wallet-to-Wallet Transfers</label>
+                </div>
+          
+                <div class="wallet-buttons">
+                  <button class="add-money-btn">Add Money</button>
+                  <button class="cancel-btn">Cancel</button>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+    </div>
+
+    <!-- Footer -->
+    <%- include("../../views/partials/user/userfooter.ejs")%>
+
+  
+</body>
+</html>

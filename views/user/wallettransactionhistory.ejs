@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Page</title>
+    <style>
+        /* General Reset */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            background-color: #f4f4f4;
+        }
+
+        /* Sidebar */
+        .container {
+            display: flex;
+            flex: 1;
+        }
+
+        .sidebar {
+            width: 220px;
+            background-color: #ffffff;
+            border-right: 1px solid #ddd;
+            padding: 20px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .sidebar ul {
+            list-style: none;
+        }
+
+        .sidebar li {
+            margin-bottom: 15px;
+        }
+
+        .sidebar a {
+            text-decoration: none;
+            display: block;
+            padding: 10px;
+            color: #333;
+            border-radius: 5px;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        .sidebar a.active, .sidebar a:hover {
+            background-color: #84CBCB;
+            color: white;
+        }
+
+        /* Main Content */
+        .content {
+            flex: 1;
+            padding: 20px;
+            background-color: #ffffff;
+        }
+
+        .content h2 {
+            margin-bottom: 15px;
+        }
+
+        .content p {
+            color: #555;
+            line-height: 1.6;
+        }
+
+        .dashboard-header {
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        /* Container Styling */
+.transaction-history-container {
+  width: 90%;
+  margin: 20px auto;
+  padding: 20px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  border-radius: 5px;
+  font-family: Arial, sans-serif;
+}
+
+/* Heading */
+.heading {
+  text-align: left;
+  font-size: 1.5rem;
+  font-weight: bold;
+  margin-bottom: 15px;
+  color: #333;
+}
+
+/* Search Bar Container */
+.search-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.search-input {
+  width: 300px;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  outline: none;
+  font-size: 1rem;
+}
+
+.search-button {
+  margin-left: 10px;
+  padding: 10px 20px;
+  background-color: #007bff;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 1rem;
+}
+
+.search-button:hover {
+  background-color: #0056b3;
+}
+
+/* Table Styling */
+.transaction-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 10px;
+  font-size: 0.95rem;
+  text-align: left;
+}
+
+.transaction-table th,
+.transaction-table td {
+  padding: 12px 15px;
+  border-bottom: 1px solid #ccc;
+}
+
+.transaction-table th {
+  background-color: #f8f9fa;
+  font-weight: bold;
+}
+
+.transaction-table tr:hover {
+  background-color: #f1f1f1;
+}
+
+/* Action Button */
+.action-button {
+  background-color: #007bff;
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  text-decoration: none;
+  font-size: 0.9rem;
+}
+
+.action-button:hover {
+  background-color: #0056b3;
+}
+
+
+        /* Footer */
+        .footer {
+            background-color: #84CBCB;
+            padding: 20px;
+            color: #333;
+        }
+
+        .footer-container {
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            color: white;
+        }
+
+        .footer-column {
+            margin-bottom: 10px;
+        }
+
+        .footer h4 {
+            margin-bottom: 10px;
+            font-size: 16px;
+            color: #fff;
+        }
+
+        .footer ul {
+            list-style: none;
+        }
+
+        .footer ul li {
+            margin-bottom: 5px;
+        }
+
+        .footer ul li a {
+            text-decoration: none;
+            color: #ffffff;
+            transition: color 0.3s;
+        }
+
+        .footer ul li a:hover {
+            color: #0056b3;
+        }
+
+        .newsletter {
+            display: flex;
+            margin-top: 10px;
+        }
+
+        .newsletter input {
+            padding: 10px;
+            flex: 1;
+            border: none;
+            border-radius: 4px 0 0 4px;
+        }
+
+        .newsletter button {
+            padding: 10px 15px;
+            background-color: black;
+            color: white;
+            border: none;
+            border-radius: 0 4px 4px 0;
+            cursor: pointer;
+        }
+
+        .newsletter button:hover {
+            opacity: 0.8;
+        }
+    </style>
+</head>
+<body>
+    <!-- Container with Sidebar and Main Content -->
+    <div class="container">
+        <!-- Sidebar -->
+        <%- include("../../views/partials/user/usersidebar.ejs")%>
+
+
+        <div class="transaction-history-container">
+            <h2 class="heading">Wallet Transaction History</h2>
+            <div class="search-container">
+              <input
+                type="text"
+                placeholder="Search by Transaction ID"
+                class="search-input"
+              />
+              <button class="search-button">Search</button>
+            </div>
+            <table class="transaction-table">
+              <thead>
+                <tr>
+                  <th>Transaction ID</th>
+                  <th>Date & Time</th>
+                  <th>Type</th>
+                  <th>Amount</th>
+                  <th>Description</th>
+                  <th>Status</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>TNX23456</td>
+                  <td>Jan 4, 2:30</td>
+                  <td>Credit</td>
+                  <td>+ ₹900.00</td>
+                  <td>Adddevia UPI</td>
+                  <td>Successful</td>
+                  <td><button class="action-button">Details</button></td>
+                </tr>
+                <tr>
+                  <td>TNX89021</td>
+                  <td>May 24, 9:00</td>
+                  <td>Debit</td>
+                  <td>- ₹450.00</td>
+                  <td>Order #4567</td>
+                  <td>Failed</td>
+                  <td><button class="action-button">Details</button></td>
+                </tr>
+                <tr>
+                  <td>RTE4567</td>
+                  <td>June 6, 15:45</td>
+                  <td>Debit</td>
+                  <td>- ₹200.00</td>
+                  <td>Order #6788</td>
+                  <td>Pending</td>
+                  <td><button class="action-button">Details</button></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+    </div>
+
+    <!-- Footer -->
+    <%- include("../../views/partials/user/userfooter.ejs")%>
+
+  
+</body>
+</html>

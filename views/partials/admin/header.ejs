@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CosmiX Management</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f4f4;
+    }
+    a {
+      text-decoration: none;
+    }
+
+    /* Navbar */
+    .navbar {
+      background-color: #84CBCB;
+      padding: 10px 20px;
+    }
+    .navbar-brand {
+      color: #fff;
+      font-weight: bold;
+      font-size: 20px;
+    }
+
+    /* Sidebar */
+    .sidebar {
+      width: 20%;
+      height: 100vh;
+      background-color: #fff;
+      box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+      padding: 20px;
+    }
+    .sidebar ul {
+      list-style-type: none;
+      padding: 0;
+    }
+    .sidebar ul li {
+      margin-bottom: 15px;
+    }
+    .sidebar ul li a {
+      color: #333;
+      font-size: 16px;
+      display: block;
+      padding: 5px 10px;
+      border-radius: 4px;
+    }
+    .sidebar ul li a:hover {
+      color: #fff;
+      background-color: #84CBCB;
+      font-weight: bold;
+    }
+
+    /* Layout */
+    .d-flex {
+      display: flex;
+    }
+
+    .content {
+      flex: 1;
+      padding: 20px;
+      background-color: #f9f9f9;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Navbar -->
+  <nav class="navbar navbar-expand-lg">
+    <div class="container-fluid">
+      <a class="navbar-brand" href="#">CosmiX</a>
+    </div>
+  </nav>
+
+  <!-- Sidebar & Content -->
+  <div class="d-flex">
+    <!-- Sidebar -->
+    <div class="sidebar">
+      <ul>
+        <li><a href="http://localhost:4000/admin/dashboard">Dashboard</a></li>
+        <li><a href="http://localhost:4000/admin/usermanagement">User Management</a></li>
+        <li><a href="http://localhost:4000/admin/productmanagement">Products Management</a></li>
+        <li><a href="http://localhost:4000/admin/ordermanagement">Order Management</a></li>
+        <li><a href="http://localhost:4000/admin/categorymanagement">Category Management</a></li>
+        <li><a href="http://localhost:4000/admin/couponmanagement">Coupon Management</a></li>
+        <li><a href="http://localhost:4000/admin/offermanagement">Offers Management</a></li>
+        <li><a href="http://localhost:4000/admin/logout" style="background-color: blue; color: white; border: none; padding: 8px 12px; border-radius: 4px; cursor: pointer;">
+          Log Out
+        </a></li>
+      </ul>
+    </div>
+
+   
+
+</body>
+</html>

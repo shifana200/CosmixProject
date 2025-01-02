@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Page</title>
+    <style>
+        /* General Reset */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            background-color: #f4f4f4;
+        }
+
+        /* Sidebar */
+        .container {
+            display: flex;
+            flex: 1;
+        }
+
+        .sidebar {
+            width: 220px;
+            background-color: #ffffff;
+            border-right: 1px solid #ddd;
+            padding: 20px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .sidebar ul {
+            list-style: none;
+        }
+
+        .sidebar li {
+            margin-bottom: 15px;
+        }
+
+        .sidebar a {
+            text-decoration: none;
+            display: block;
+            padding: 10px;
+            color: #333;
+            border-radius: 5px;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        .sidebar a.active, .sidebar a:hover {
+            background-color: #84CBCB;
+            color: white;
+        }
+
+        /* Main Content */
+        .content {
+            flex: 1;
+            padding: 20px;
+            background-color: #ffffff;
+        }
+
+        .content h2 {
+            margin-bottom: 15px;
+        }
+
+        .content p {
+            color: #555;
+            line-height: 1.6;
+        }
+
+        .dashboard-header {
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .wallet-container {
+  background-color: #ffffff;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  width: 90%; /* Adjusted to cover most of the page */
+  max-width: 900px; /* Prevent it from becoming too large */
+  padding: 20px;
+  margin: 10px; /* Margin for spacing on small screens */
+}
+
+/* Wallet card section */
+.wallet-card {
+  background-color: #002b62;
+  color: #ffffff;
+  border-radius: 10px;
+  padding: 20px;
+  margin-bottom: 20px;
+  text-align: left;
+}
+
+.wallet-header h3 {
+  margin: 0;
+  font-size: 18px;
+}
+
+.wallet-header p {
+  margin: 5px 0;
+  font-size: 14px;
+}
+
+.wallet-header h2 {
+  margin: 10px 0;
+  font-size: 24px;
+  font-weight: bold;
+}
+
+.wallet-header .validity {
+  font-size: 12px;
+  margin-top: 5px;
+}
+
+/* Wallet form */
+.wallet-form label {
+  display: block;
+  font-size: 14px;
+  margin-bottom: 5px;
+  font-weight: bold;
+  color: #333333;
+}
+
+.wallet-form input {
+  width: 100%;
+  padding: 10px;
+  font-size: 14px;
+  margin-bottom: 15px;
+  border: 1px solid #cccccc;
+  border-radius: 5px;
+  box-sizing: border-box;
+}
+
+/* Buttons */
+.wallet-buttons {
+  display: flex;
+  gap: 10px;
+}
+
+.add-money-btn,
+.transactions-btn {
+  border: none;
+  padding: 10px 15px;
+  font-size: 14px;
+  cursor: pointer;
+  color: #ffffff;
+  border-radius: 5px;
+  font-weight: bold;
+}
+
+.add-money-btn {
+  background-color: #84CBCB;
+}
+
+.transactions-btn {
+  background-color: #4CAF50; /* Green as per the image */
+}
+
+.add-money-btn:hover,
+.transactions-btn:hover {
+  opacity: 0.9;
+}
+
+        /* Footer */
+        .footer {
+            background-color: #84CBCB;
+            padding: 20px;
+            color: #333;
+        }
+
+        .footer-container {
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            color: white;
+        }
+
+        .footer-column {
+            margin-bottom: 10px;
+        }
+
+        .footer h4 {
+            margin-bottom: 10px;
+            font-size: 16px;
+            color: #fff;
+        }
+
+        .footer ul {
+            list-style: none;
+        }
+
+        .footer ul li {
+            margin-bottom: 5px;
+        }
+
+        .footer ul li a {
+            text-decoration: none;
+            color: #ffffff;
+            transition: color 0.3s;
+        }
+
+        .footer ul li a:hover {
+            color: #0056b3;
+        }
+
+        .newsletter {
+            display: flex;
+            margin-top: 10px;
+        }
+
+        .newsletter input {
+            padding: 10px;
+            flex: 1;
+            border: none;
+            border-radius: 4px 0 0 4px;
+        }
+
+        .newsletter button {
+            padding: 10px 15px;
+            background-color: black;
+            color: white;
+            border: none;
+            border-radius: 0 4px 4px 0;
+            cursor: pointer;
+        }
+
+        .newsletter button:hover {
+            opacity: 0.8;
+        }
+    </style>
+</head>
+<body>
+    <!-- Container with Sidebar and Main Content -->
+    <div class="container">
+        <!-- Sidebar -->
+        <%- include("../../views/partials/user/usersidebar.ejs")%>
+
+
+        <div class="wallet-container">
+    <div class="wallet-card">
+      <div class="wallet-header">
+        <h3>CosmiX</h3>
+        <p>**** **** **** 2004</p>
+        <h2>₹900.00</h2>
+        <p class="validity">Valid Thru: 12/26</p>
+      </div>
+    </div>
+    <div class="wallet-form">
+      <label for="amount">Add Amount</label>
+      <input type="text" id="amount" placeholder="Enter amount">
+      <div class="wallet-buttons">
+        <a href="http://localhost:4000/mywalletmoney"  class="add-money-btn">Add Money</a>
+        <a href="http://localhost:4000/mywallettransactions"  class="transactions-btn">Transactions</a>
+      </div>
+    </div>
+  </div>
+    </div>
+
+    <!-- Footer -->
+    <%- include("../../views/partials/user/userfooter.ejs")%>
+
+  
+</body>
+</html>
