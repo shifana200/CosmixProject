@@ -7,6 +7,9 @@
 
 	<link href="https://fonts.googleapis.com/css?family=Montserrat:300,400,500,600,700" rel="stylesheet">
 	<link href="https://fonts.googleapis.com/css?family=Rokkitt:100,300,400,700" rel="stylesheet">
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
+
 	
 	<!-- Animate.css -->
 	<link rel="stylesheet" href="/css/animate.css">
@@ -35,6 +38,67 @@
 	<!-- Theme style  -->
 	<link rel="stylesheet" href="/css/style.css">
 
+
+
+	<style>
+/* Carousel Container */
+.owl-carousel {
+    position: relative;
+    width: 100%;
+    margin: 0 auto;
+    background-color: #ffffff; /* Optional: Add a background color */
+    border-radius: 10px; /* Optional: Rounded edges */
+    padding: 20px; /* Optional: Padding inside the carousel */
+}
+
+/* Hide Navigation Buttons */
+.owl-prev, .owl-next {
+    display: none; /* Completely remove the arrows */
+}
+
+/* Dots Container */
+.owl-dots {
+    text-align: center;
+    margin-top: 15px;
+}
+
+/* Individual Dots */
+.owl-dot {
+    display: inline-block;
+    width: 15px;
+    height: 15px;
+    margin: 5px;
+    background-color: #ddd; /* Default dot color */
+    border-radius: 50%; /* Circular dots */
+    cursor: pointer;
+    border: 1px solid #bbb; /* Optional: Add a border for better visibility */
+    transition: background-color 0.3s, transform 0.2s; /* Smooth transition */
+}
+
+.owl-dot:hover {
+    background-color: #ccc; /* Slightly darker on hover */
+    transform: scale(1.2); /* Slightly enlarge on hover */
+}
+
+/* Active Dot */
+.owl-dot.active {
+    background-color: grey; /* Highlight active dot */
+    border: 1px solid grey; /* Match the active border */
+}
+
+#heart-button{
+	
+	color: black;
+	font-size: 35px;
+	padding-left: 10px;
+	margin-top: -5px;
+}
+
+
+
+	</style>
+
+
 	</head>
 	<body>
 		
@@ -60,6 +124,7 @@
 				<div class="row row-pb-lg product-detail-wrap">
 					<div class="col-sm-8">
 						<div class="owl-carousel">
+					
 							<div class="item">
 								<div class="product-entry border">
 									<a href="#" class="prod-img">
@@ -73,7 +138,7 @@
 								<div class="product-entry border">
 									<a href="#" class="prod-img">
 										<% if (product.productImage && product.productImage.length > 0) { %>
-											<img src="/uploads/<%= product.productImage[1]%>" class="img-fluid" alt="Free html5 bootstrap 4 template">
+											<img src="/uploads/<%= product.productImage[1]%>" class="img-fluid " alt="Free html5 bootstrap 4 template">
 											<% } %>
 										
 										
@@ -93,12 +158,16 @@
 								<div class="product-entry border">
 									<a href="#" class="prod-img">
 										<% if (product.productImage && product.productImage.length > 0) { %>
-											<img src="/uploads/<%= product.productImage[3]%>" class="img-fluid" alt="Free html5 bootstrap 4 template">
+											<img src="/uploads/<%= product.productImage[3]%>" class="img-fluid"  alt="Free html5 bootstrap 4 template">
 											<% } %>
 									</a>
 								</div>
 							</div>
 						</div>
+
+						<div class="zoom-result"></div>
+						
+					
 					</div>
 					<div class="col-sm-4">
 						<div class="product-desc">
@@ -113,28 +182,30 @@
 									<i class="icon-star-half"></i>
 									(74 Rating)
 								</span>
+							
 							</p>
 							<p><%=product.description%></p>
 							
 							</div>
-                     <div class="input-group mb-4">
-                     	<span class="input-group-btn">
-                        	<button type="button" class="quantity-left-minus btn"  data-type="minus" data-field="">
-                           <i class="icon-minus2"></i>
-                        	</button>
-                    		</span>
-                     	<input type="text" id="quantity" name="quantity" class="form-control input-number" value="1" min="1" max="100">
-                     	<span class="input-group-btn ml-1">
-                        	<button type="button" class="quantity-right-plus btn" data-type="plus" data-field="">
-                             <i class="icon-plus2"></i>
-                         </button>
-                     	</span>
-                  	</div>
+                    
                   	<div class="row">
-	                  	<div class="col-sm-12 text-center">
-									<p class="addtocart"><a href="http://localhost:4000/cart" class="btn btn-primary btn-addtocart"><i class="icon-shopping-cart"></i>   Add to Cart</a></p>
-								</div>
-							</div>
+	                  	<div class="col-sm-12 text-center" style="display: flex;">
+							
+							<form action="/addCart" method="post">
+								<input type="hidden" name="productId" value="<%= product._id %>">
+								<input type="hidden" name="quantity" id="hiddenQuantity" value="1">
+
+
+								<button>Add to Cart</button>
+							</form>
+								
+										<button style="border: none; background-color: #ffffff;">
+										<i class="fa-solid fa-heart" id="heart-button"></i>	</button>								 
+
+									  
+
+								
+							
 						</div>
 					</div>
 				</div>
@@ -331,41 +402,7 @@ $(document).ready(function(){
 
 
 
-		$(document).ready(function(){
-
-		var quantitiy=0;
-		   $('.quantity-right-plus').click(function(e){
-		        
-		        // Stop acting like a button
-		        e.preventDefault();
-		        // Get the field name
-		        var quantity = parseInt($('#quantity').val());
-		        
-		        // If is not undefined
-		            
-		            $('#quantity').val(quantity + 1);
-
-		          
-		            // Increment
-		        
-		    });
-
-		     $('.quantity-left-minus').click(function(e){
-		        // Stop acting like a button
-		        e.preventDefault();
-		        // Get the field name
-		        var quantity = parseInt($('#quantity').val());
-		        
-		        // If is not undefined
-		      
-		            // Increment
-		            if(quantity>0){
-		            $('#quantity').val(quantity - 1);
-		            }
-		    });
-		    
-		});
-	</script>
+			</script>
 
 
 	</body>

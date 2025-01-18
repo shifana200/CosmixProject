@@ -1,5 +1,5 @@
 const mongoose = require('mongoose')
-const {schema} = mongoose
+const Schema = mongoose.Schema
 
 const cartSchema = new Schema ({
     userId :{
@@ -24,14 +24,6 @@ const cartSchema = new Schema ({
         totalPrice:{
             type:Number,
             required : true
-        },
-        status:{
-            type:String,
-            default:"placed"
-        },
-        cancellationReason:{
-            type:String,
-            default:"none"
         }
     }]
 })

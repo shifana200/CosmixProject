@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Panel</title>
+    <link rel="stylesheet" href="/css/style.css"> 
     <style>
         * {
             margin: 0;
@@ -143,19 +144,7 @@
     </style>
 </head>
 <body>
-    <!-- Sidebar -->
-    <!-- <div class="sidebar">
-        <h1>CosmiX</h1>
-        <ul>
-            <li>Dashboard</li>
-            <li>User Management</li>
-            <li>Products Management</li>
-            <li>Order Management</li>
-            <li>Category Management</li>
-            <li>Coupon Management</li>
-            <li>Offers Management</li>
-        </ul>
-    </div> -->
+   
 
     <!-- Main Section -->
     <div class="main">
@@ -179,57 +168,36 @@
                 <table>
                     <thead>
                         <tr>
-                            <th>userame</th>
-                            <th>Product Id</th>
-                            <th>Price</th>
-                            <th>Quantity</th>
-                            <th>Date</th>
+                            <th>OrderId</th>
+                            <th>Username</th>
+                    
+                        
+            
 
                             <th>Status</th>
                             <th>Payment Method</th>
                             <th>Total Amount</th>
-                            <th>Address</th>
+                            
                             <th>Action</th>
                         </tr>
                     </thead>
                     <tbody>
+                        <% orders.forEach((order)=>{ %>
                         <tr>
-                            <td>Henry Kliein</td>
-                            <td>TNC5678</td>
-                            <td>2999</td>
-                            <td>13</td>
-                            <td>04 Dec 2024</td>
-                            <td>Pending</td>
-                            <td>UPI</td>
-                            <td>35988</td>
-                            <td>london</td>
-                            
-                            <td><button class="btn-view">view</button></td>
+                            <td><%= order.orderId%></td>
+                            <td><%= order.userId.name%></td>
+                            <td><%= order.status%></td>
+                            <td>COD</td>
+                            <td> ₹<%= order.PayableAmount%></td>
+                            <td><button class="btn-view"> <a href="/ordermanagement/<%= order._id %>">View</a></button></td>
 
                         </tr>
-                        <!-- <tr>
-                            <td>Roney</td>
+                        <% }) %>
                         
-                            <td>45</td>
-                            <td>04 Dec 2024</td>
-                            <td>04 Dec 2024</td>
-                            <td><button class="btn-update">Update</button></td>
-                            <td><button class="btn-delete">Delete</button></td>
-                        </tr> -->
+                            
                     </tbody>
                 </table>
             </div>
-
-            <!-- Form -->
-            <!-- <div class="form-container">
-                <h3>Add new category</h3>
-                <input type="text" placeholder="product id">
-                <input type="text" placeholder="name">
-                <input type="text" placeholder="image">
-                
-
-                <button class="create-btn">Create</button>
-            </div> -->
         </div>
     </div>
 </body>

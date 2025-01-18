@@ -5,19 +5,24 @@ const path = require('path');
 const connectDB =require('./config/db')
 const bodyParser = require('body-parser');
 const User = require('./models/userSchema');
+const Address = require('./models/addressSchema')
 const session = require('express-session');
 const passport = require('./config/passport')
 const userRouter =require('./routes/userRouter')
 const adminRouter = require('./routes/adminRouter')
 const otpRoutes = require('./routes/otpRoutes');
 const filterBlockedProducts = require('./middleware/filterblockedproducts'); // Adjust the path to your middleware
-const checkBan= require("./middleware/checkban")
+const checkBan= require("./middleware/checkban");
+
+
 connectDB();
 
 
 app.set('view engine', 'ejs');
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+
 app.use(session({
     secret : process.env.SESSION_SECRET,
     resave:false,
@@ -46,22 +51,10 @@ app.use(checkBan)
 app.use('/',userRouter)
 app.use("/admin",adminRouter)
 
-const preventCache = (req, res, next) => {
-  res.setHeader('Cache-Control', 'no-store');  // Don't store the cache
-  res.setHeader('Pragma', 'no-cache');         // Disable caching for older HTTP versions
-  res.setHeader('Expires', '0');               // Make the page expire immediately
-  next(); // Continue to the next middleware or route handler
-};
 
-app.use('/admin', preventCache);
-
-
-
-
-// Apply the middleware to all category routes
 app.use(['/makeup', '/facecare', '/bodycare', '/shampoo', '/conditioner', '/serum'], filterBlockedProducts);
 
-// Define your category routes
+
 app.get('/makeup', (req, res) => {
     res.render('makeup', { products: req.products });
 });
@@ -90,8 +83,8 @@ app.get('/serum', (req, res) => {
 
 app.get('/api/products', async (req, res) => {
   try {
-      const products = await Product.find();  // Fetch all products from DB
-      res.json(products);  // Send the list of products as a response
+      const products = await Product.find();  
+      res.json(products);  
   } catch (error) {
       console.error('Error fetching products:', error);
       res.status(500).json({ error: 'Database error' });
@@ -101,28 +94,43 @@ app.get('/api/products', async (req, res) => {
 
 
 app.get('/auth/status', (req, res) => {
-  // Check if the user is logged in by checking the session
+  
   if (req.session.user) {
     return res.json({ loggedIn: true });
   }
   return res.json({ loggedIn: false });
 });
 
-// Example login route (simplified)
+
 app.post('/login', (req, res) => {
-  // Authenticate the user (you can use real credentials check here)
-  req.session.user = { username: 'user' };  // Set user in session upon login
+  
+  req.session.user = { username: 'user' }; 
   res.redirect('/');
 });
 
-// Logout route
+
 app.get('/logout', (req, res) => {
   req.session.destroy((err) => {
     if (err) {
       return res.status(500).send('Failed to log out');
     }
-    res.redirect('/');  // Redirect after logout
+    res.redirect('/');
   });
+});
+
+// Endpoint to fetch user details
+app.get('/user/details', (req, res) => {
+  if (req.isAuthenticated()) {
+      // If the user is authenticated, send user details
+      res.json({
+
+          name: req.user.name,
+          email: req.user.email,
+          phone:req.user.phone,
+      });
+  } else {
+      res.status(401).json({ error: 'User not authenticated' });
+  }
 });
 
 

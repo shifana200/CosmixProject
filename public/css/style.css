@@ -226,7 +226,8 @@ button,
 html [type="button"],
 [type="reset"],
 [type="submit"] {
-  -webkit-appearance: button; }
+  -webkit-appearance: button;
+}
 
 button::-moz-focus-inner,
 [type="button"]::-moz-focus-inner,
@@ -245,7 +246,8 @@ input[type="date"],
 input[type="time"],
 input[type="datetime-local"],
 input[type="month"] {
-  -webkit-appearance: listbox; }
+  -webkit-appearance: listbox; 
+ }
 
 textarea {
   overflow: auto;
@@ -277,11 +279,13 @@ progress {
 
 [type="search"] {
   outline-offset: -2px;
-  -webkit-appearance: none; }
+  /* -webkit-appearance: none; */
+ }
 
 [type="search"]::-webkit-search-cancel-button,
 [type="search"]::-webkit-search-decoration {
-  -webkit-appearance: none; }
+  -webkit-appearance: none;
+ }
 
 ::-webkit-file-upload-button {
   font: inherit;
@@ -4345,7 +4349,8 @@ button.close {
   padding: 0;
   background-color: transparent;
   border: 0;
-  -webkit-appearance: none; }
+  /* -webkit-appearance : none; */
+ }
 
 .modal-open {
   overflow: hidden; }
@@ -7505,7 +7510,7 @@ h1, h2, h3, h4, h5,
         display: -moz-inline-stack;
         display: inline-block;
         zoom: 1;
-        *display: inline;
+        display: inline;
         -moz-transition: all 0.3s ease;
         -o-transition: all 0.3s ease;
         -webkit-transition: all 0.3s ease;
@@ -8389,12 +8394,12 @@ input[type="text"] {
     display: -moz-inline-stack;
     display: inline-block;
     zoom: 1;
-    *display: inline; }
+    display: inline; }
     .colorlib-social-icons li a {
       display: -moz-inline-stack;
       display: inline-block;
       zoom: 1;
-      *display: inline;
+      display: inline;
       color: #616161;
       padding-left: 10px;
       padding-right: 10px; }
@@ -8517,7 +8522,7 @@ input[type="text"] {
           position: absolute;
           right: 0px;
           font-family: 'icomoon';
-          speak: none;
+          speak-as: none;
           font-style: normal;
           font-weight: normal;
           font-variant: normal;

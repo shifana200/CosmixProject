@@ -1,4 +1,4 @@
-const User = require('../models/userSchema'); // Import the user schema
+const User = require('../models/userSchema'); 
 
 let checkBan = async (req, res, next) => {
   try {
@@ -7,16 +7,16 @@ let checkBan = async (req, res, next) => {
         console.log(req.session.userData)
       const email = req.session?.currentEmail || req.session?.userData?.email;
 
-      // Ensure email exists in the session
+      
       if (!email) {
         console.log("No email found in session.");
-        return res.redirect('/signin'); // Redirect to login if email is missing
+        return res.redirect('/signin'); 
       }
 
-      // Find the user in the database
+      
       const user = await User.findOne({ email: email });
 
-      // Check if the user exists and is blocked
+      
       if (user && user.isBlocked) {
         console.log(`User ${email} is blocked`);
         return res.render('banPage', {
@@ -24,7 +24,7 @@ let checkBan = async (req, res, next) => {
         });
       }
     }
-    // Proceed if the user is not blocked or not logged in
+    
     next();
   } catch (error) {
     console.error("Error in checkBan middleware:", error);

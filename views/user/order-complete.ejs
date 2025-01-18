@@ -35,6 +35,59 @@
 	<!-- Theme style  -->
 	<link rel="stylesheet" href="css/style.css">
 
+	<style>
+/* Modal Background (Transparent Black) */
+#orderDetailsModal {
+  position: fixed; /* Ensure it's fixed on the screen */
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.7); /* Transparent black */
+  z-index: 1000; /* Higher z-index to appear above other content */
+  display: flex; /* Initially hidden */
+  justify-content: center;
+  align-items: center;
+}
+
+/* Modal Content */
+.modal-content {
+  background-color: white;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.3);
+  width: 50%; /* Adjust width as needed */
+  max-width: 600px;
+  text-align: left;
+  position: relative; /* So the close button is relative to the modal */
+}
+
+/* Close Button Styling */
+#closeModal {
+  position: absolute;
+  top: 10px;
+  right: 15px;
+  font-size: 20px;
+  color: #333;
+  cursor: pointer;
+}
+
+/* Add fade-in animation (optional) */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+#orderDetailsModal.show {
+  display: flex;
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+
+	</style>
 	</head>
 	<body>
 		
@@ -76,16 +129,70 @@
 						</div>
 					</div>
 				</div>
+
+
+				<div id="orderDetailsModal" style="display:none;">
+					<div class="modal-content">
+					  <!-- Close Button -->
+					  <span id="closeModal" style="cursor: pointer;">&times;</span>
+					  
+					  <!-- Modal Title -->
+					  <h3>Order Details</h3>
+					  
+					  <!-- Order Details Section -->
+					  <div id="orderDetails">
+						<p><strong>Order ID: </strong> <%=orderDetails.orderId%></p>
+						<p><strong>Customer Name: </strong> <%= userDetails.name%></p>
+						<p><strong>Contact Number: </strong> <%= userDetails.phone%></p>
+
+						
+
+						<p><strong>Items Ordered:</strong></p>
+					<table border="1" cellpadding="10" cellspacing="0" style="width:100%; border-collapse: collapse;">
+  							<thead>
+   							 <tr>
+							<th>Product Name</th>
+							<th>Quantity</th>
+							<th>Price</th>
+							</tr>
+						</thead>
+						<tbody>
+							<% orderDetails.orderedItems.forEach((item) => { %>
+							<tr>
+								<td><%= item.product.productName %></td>
+								<td><%= item.quantity %></td>
+								<td><%= item.price %></td>
+							</tr> 
+							<% }) %>
+						</tbody>
+					</table>
+
+						
+						<p><strong>Payable Amount:</strong><%= orderDetails.PayableAmount%></p>
+						
+						<p><strong>Shipping Address:</strong><%=addressDetails.address[0].city%> , <%= addressDetails.address[0].district%> , <%=addressDetails.address[0].landMark%></br>
+						<%= addressDetails.address[0].state%> , <%= addressDetails.address[0].pincode%></p>
+					  </div>
+					  
+					</div>
+				  </div>
+				  
+				
+				
 				<div class="row">
 					<div class="col-sm-10 offset-sm-1 text-center">
 						<p class="icon-addcart"><span><i class="icon-check"></i></span></p>
 						<h2 class="mb-4">Thank you for purchasing, Your order is complete</h2>
 						<p>
-							<a href="http://localhost:4000"class="btn btn-primary btn-outline-primary">Home</a>
-							<a href="http://localhost:4000/cart"class="btn btn-primary btn-outline-primary"><i class="icon-shopping-cart"></i> Continue Shopping</a>
+							<!-- <button id="viewDetailsBtn">View Order Details</button> -->
+
+							<button class="btn btn-primary btn-outline-primary" id="viewOrder">View Details</button>
+							<a href="http://localhost:4000"class="btn btn-primary btn-outline-primary"><i class="icon-shopping-cart"></i> Continue Shopping</a>
 						</p>
 					</div>
 				</div>
+
+
 			</div>
 		</div>
         <%- include("../../views/partials/user/footer.ejs")%>
@@ -120,6 +227,24 @@
 	<!-- Main -->
 	<script src="js/main.js"></script>
 
+	<script>
+		const viewOrder = document.getElementById('viewOrder')
+		const orderModal = document.getElementById('orderDetailsModal')
+		const closeModal = document.getElementById('closeModal')
+
+
+		viewOrder.addEventListener('click',()=>{
+			if(orderModal.style.display='none'){
+				orderModal.style.display='flex';
+			}
+		})
+
+		closeModal.addEventListener('click',()=>{
+			if(orderModal.style.display='flex'){
+				orderModal.style.display='none'
+			}
+		})
+	</script>
 	</body>
 </html>
 

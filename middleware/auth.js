@@ -12,7 +12,7 @@ const userAuth = (req,res,next)=>{
             if(data && !data.isBlocked){
                 next();
             }else{
-                res.redirect('/login')
+                res.redirect('/signin')
             }
         })
         .catch(error=>{
@@ -20,7 +20,7 @@ const userAuth = (req,res,next)=>{
             res.status(500).send("Internal server error")
         })
     }else{
-        res.redirect('/login')
+        res.redirect('/signin')
     }
 }
 
@@ -40,13 +40,6 @@ const adminAuth = (req,res,next)=>{
 }
 
 
-// const checkBlockedStatus = (req, res, next) => {
-//     // Your logic to check if user is blocked
-//     if (req.user && req.user.isBlocked) {
-//       return res.redirect('/banPage');  // Redirect to ban page if user is blocked
-//     }
-//     next();  // Continue to the next middleware if the user is not blocked
-//   };
   
 
 

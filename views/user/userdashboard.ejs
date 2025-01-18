@@ -3,6 +3,38 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    
+	<link href="https://fonts.googleapis.com/css?family=Montserrat:300,400,500,600,700" rel="stylesheet">
+	<link href="https://fonts.googleapis.com/css?family=Rokkitt:100,300,400,700" rel="stylesheet">
+	
+	<!-- Animate.css -->
+	<link rel="stylesheet" href="css/animate.css">
+	<!-- Icomoon Icon Fonts-->
+	<link rel="stylesheet" href="css/icomoon.css">
+	<!-- Ion Icon Fonts-->
+	<link rel="stylesheet" href="css/ionicons.min.css">
+	<!-- Bootstrap  -->
+	<link rel="stylesheet" href="css/bootstrap.min.css">
+
+	<!-- Magnific Popup -->
+	<link rel="stylesheet" href="css/magnific-popup.css">
+
+	<!-- Flexslider  -->
+	<link rel="stylesheet" href="css/flexslider.css">
+
+	<!-- Owl Carousel -->
+	<link rel="stylesheet" href="css/owl.carousel.min.css">
+	<link rel="stylesheet" href="css/owl.theme.default.min.css">
+	
+	<!-- Date Picker -->
+	<link rel="stylesheet" href="css/bootstrap-datepicker.css">
+	<!-- Flaticons  -->
+	<link rel="stylesheet" href="fonts/flaticon/font/flaticon.css">
+
+	<!-- Theme style  -->
+	<link rel="stylesheet" href="css/style.css">
+
     <title>Dashboard Page</title>
     <style>
         /* General Reset */
@@ -17,13 +49,14 @@
             display: flex;
             flex-direction: column;
             min-height: 100vh;
-            background-color: #f4f4f4;
+            background-color: #ffffff;
         }
 
         /* Sidebar */
         .container {
             display: flex;
             flex: 1;
+            margin-left: 0px;
         }
 
         .sidebar {
@@ -76,6 +109,77 @@
             font-weight: bold;
             margin-bottom: 10px;
         }
+        .user-details-form {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+label {
+  font-weight: bold;
+  margin: 10px 0 5px;
+}
+
+input, textarea, select {
+  width: 100%;
+  padding: 8px;
+  margin-bottom: 15px;
+  border: 1px solid #cccccc;
+  border-radius: 4px;
+  box-sizing: border-box;
+}
+
+textarea {
+  resize: vertical;
+  height: 80px;
+}
+
+.gender-container {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 15px;
+}
+
+.gender-label {
+  font-size: 16px;
+  font-weight: 400;
+  margin-bottom: 10px;
+}
+
+
+.gender-options {
+    display: flex;
+    align-items: center; /* Aligns the radio buttons and labels vertically */
+    gap: 20px; /* Adds spacing between Male and Female options */
+}
+
+.gender-option {
+    display: flex;
+    align-items: center; /* Ensures the radio button and label are vertically aligned */
+}
+
+.gender-options input {
+    margin-right: 5px; /* Adds space between radio button and label */
+    cursor: pointer;
+}
+
+.gender-options label{
+    margin-top: -9px;
+}
+
+
+
+
+
+
+.submit-btn {
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  padding: 10px 15px;
+  border-radius: 4px;
+  cursor: pointer;
+}
 
         /* Footer */
         .footer {
@@ -143,9 +247,43 @@
         .newsletter button:hover {
             opacity: 0.8;
         }
+
+
+        .dashboard-header h1{
+            color: #52cbcb;
+        }
+
+        .dashboard-header li{
+            list-style: none;
+            padding: 20px 0px;
+            color: black;
+        }
+
+        .dashboard-header button{
+            padding: 8px 20px;
+
+            color: rgb(255, 255, 255);
+            background-color: #84CBCB;
+            border: none;
+        }
+        .edit-btn {
+            background-color: #4CAF50;
+  color: white;
+  border: none;
+  padding: 10px 15px;
+  border-radius: 4px;
+  cursor: pointer;
+
+}
+
+
+
     </style>
 </head>
 <body>
+    <%- include("../../views/partials/user/userheader.ejs")%>
+
+
     <!-- Container with Sidebar and Main Content -->
     <div class="container">
         <!-- Sidebar -->
@@ -154,14 +292,51 @@
 
         <!-- Main Content -->
         <div class="content">
-            <div class="dashboard-header">Hello welcome </div>
-            <p>From your account dashboard, you can easily check & view your recent orders, manage your shipping and billing addresses, and edit your password and account details.</p>
+            <div class="user-details-card">
+                <h3>Welcome to <%=user.name%>'s Dashboard</h3>
+                <div class="user-details">
+                    <div class="user-detail">
+                        <label for="username">Name:</label>
+                        <p><%= user.name %></p>
+                    </div>
+        
+                    <div class="user-detail">
+                        <label for="email">Email:</label>
+                        <p><%= user.email %></p>
+                    </div>
+        
+                    <div class="user-detail">
+                        <label for="phone">Phone Number:</label>
+                        <p><%= user.phone %></p>
+                    </div>
+                    <div>
+                        <a href="http://localhost:4000/myprofile" class="edit-btn">Edit</a>
+
+                    </div>
+        
+                   
+        
+                    
+                </div>
+            </div>
+        </div>
+        
+          
+           
+
+            
         </div>
     </div>
 
-    <!-- Footer -->
-    <%- include("../../views/partials/user/userfooter.ejs")%>
 
-  
+    <!-- Footer -->
+    <!-- <%- include("../../views/partials/user/userfooter.ejs")%> -->
+
+    <!-- <script>
+        const redirectButton = document.getElementById('editButton')
+        redirectButton.addEventListener('click',()=>{
+            window.location.href= 'http://localhost:4000/myprofile'
+        })
+    </script> -->
 </body>
 </html>

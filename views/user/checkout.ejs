@@ -34,8 +34,90 @@
 
 	<!-- Theme style  -->
 	<link rel="stylesheet" href="css/style.css">
+	<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+
 
 	</head>
+	<style>
+		#showaddAddress{
+			background-color: #007bff; /* Blue background color */
+  color: white; /* White text color */
+  font-size: 16px; /* Font size */
+  padding: 10px 20px; /* Padding: 10px top and bottom, 20px left and right */
+  border: none; /* No border */
+  border-radius: 5px; /* Rounded corners */
+  cursor: pointer; /* Pointer cursor on hover */
+  transition: background-color 0.3s ease, transform 0.2s ease;
+		}
+
+		/* General styling for the form container */
+#addAddress {
+  background-color: #F5F5F5;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  display: block; /* Ensure it’s visible */
+  width: 100%;
+  max-width: 600px; /* Limit the width of the form */
+  margin: 0 auto;
+}
+
+/* Form group styling */
+.form-group {
+  margin-bottom: 20px;
+}
+
+/* Label styling */
+.form-group label {
+  font-size: 16px;
+  color: #333;
+  margin-bottom: 8px;
+  display: block;
+}
+
+/* Input fields styling */
+.form-group input,
+.form-group select {
+  width: 100%;
+  padding: 10px;
+  font-size: 14px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  box-sizing: border-box;
+}
+
+/* Error message styling */
+.error-message {
+  color: #e74c3c;
+  font-size: 12px;
+  margin-top: 5px;
+}
+
+/* Button styling */
+.add-address-btn {
+  width: 30%;
+  padding: 8px;
+  background-color: #007bff; /* Blue background */
+  color: white;
+  font-size: 16px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  margin-top: 10px;
+
+}
+
+/* Hover effect for the button */
+.add-address-btn:hover {
+  background-color: #0056b3; /* Darker blue on hover */
+}
+
+/* #editAddress{
+	display: none;
+} */
+
+	</style>
 	<body>
 		
 	<div class="colorlib-loader"></div>
@@ -60,8 +142,11 @@
 					<div class="col-sm-10 offset-md-1">
 						<div class="process-wrap">
 							<div class="process text-center active">
-								<p><span>01</span></p>
+								<a href="http://localhost:4000/cart">
+									<p><span>01</span></p>
 								<h3>Shopping Cart</h3>
+								</a>
+								
 							</div>
 							<div class="process text-center active">
 								<p><span>02</span></p>
@@ -75,100 +160,146 @@
 					</div>
 				</div>
 				<div class="row">
-					<div class="col-lg-8">
-						<form method="post" class="colorlib-form">
-							<h2>Billing Details</h2>
-		              	<div class="row">
-			               <div class="col-md-12">
-			                  <div class="form-group">
-			                  	<label for="country">Select Country</label>
-			                     <div class="form-field">
-			                     	<i class="icon icon-arrow-down3"></i>
-			                        <select name="people" id="people" class="form-control">
-				                      	<option value="#">Select country</option>
-				                        <option value="#">India</option>
-				                        <option value="#">China</option>
-				                        <option value="#">Japan</option>
-				                        <option value="#">Korea</option>
-				                        <option value="#">Iraq</option>
-			                        </select>
-			                     </div>
-			                  </div>
-			               </div>
+					<div class="col-lg-8" style="background-color: #FFFFFF;" id="addressdiv">
+						
+						<div id="address-list" style="background-color: #F5F5F4; ">
 
-								<div class="col-md-6">
-									<div class="form-group">
-										<label for="fname">First Name</label>
-										<input type="text" id="fname" class="form-control" placeholder="Your firstname">
-									</div>
-								</div>
-								<div class="col-md-6">
-									<div class="form-group">
-										<label for="lname">Last Name</label>
-										<input type="text" id="lname" class="form-control" placeholder="Your lastname">
-									</div>
-								</div>
+							<div class="address-card">
+								<% if (userAddress.address.length>0) {%>
 
-								<div class="col-md-12">
-									<div class="form-group">
-										<label for="companyname">Company Name</label>
-			                    	<input type="text" id="companyname" class="form-control" placeholder="Company Name">
-			                  </div>
-			               </div>
+								<div class="address-content"  style="padding: 20px;">
 
-			               <div class="col-md-12">
-									<div class="form-group">
-										<label for="fname">Address</label>
-			                    	<input type="text" id="address" class="form-control" placeholder="Enter Your Address">
-			                  </div>
-			                  <div class="form-group">
-			                    	<input type="text" id="address2" class="form-control" placeholder="Second Address">
-			                  </div>
-			               </div>
-			            
-			               <div class="col-md-12">
-									<div class="form-group">
-										<label for="companyname">Town/City</label>
-			                    	<input type="text" id="towncity" class="form-control" placeholder="Town or City">
-			                  </div>
-			               </div>
-			            
-								<div class="col-md-6">
-									<div class="form-group">
-										<label for="stateprovince">State</label>
-										<input type="text" id="fname" class="form-control" placeholder="State Province">
-									</div>
-								</div>
-								<div class="col-md-6">
-									<div class="form-group">
-										<label for="lname">Zip/Postal Code</label>
-										<input type="text" id="zippostalcode" class="form-control" placeholder="Zip / Postal">
-									</div>
-								</div>
-							
-								<div class="col-md-6">
-									<div class="form-group">
-										<label for="email">E-mail Address</label>
-										<input type="text" id="email" class="form-control" placeholder="State Province">
-									</div>
-								</div>
-								<div class="col-md-6">
-									<div class="form-group">
-										<label for="Phone">Phone Number</label>
-										<input type="text" id="zippostalcode" class="form-control" placeholder="">
-									</div>
-								</div>
 
-								<div class="col-md-12">
-									<div class="form-group">
-										<div class="radio">
-										  <label><input type="radio" name="optradio"> Already have  an Account? </label>
-										 
+									
+									<div class="radio-section" style="display: flex; align-items: center; justify-content: space-between; padding: 10px;">
+										<!-- Left side: Radio button and h6 -->
+										<div style="display: flex; align-items: center; gap: 5px;">
+											<input type="radio" name="address" id="address1">
+											<h6 style="background-color: #47abb8; color: #fff; margin: 0; padding: 5px 10px; border-radius: 4px;"><%=userAddress.address[0].addressType%></h6>
 										</div>
+										
+										<!-- Right side: Icon -->
+										 <!-- <button>
+										<i class="fa-solid fa-pen-to-square" style="color: #47abb8; font-size: 18px; cursor: pointer;" id="edit-Address"></i>
+									</button> -->
 									</div>
+									
+							
+									<strong><%=userAddress.address[0].name%></strong>
+									<p>Phone:<%=userAddress.address[0].phone%> <br/>
+									Alt Phone : <%=userAddress.address[0].altPhone%></p>
+									<p><%=userAddress.address[0].city%>,<%=userAddress.address[0].landMark%>,<br/>
+										 <%=userAddress.address[0].district%>, <%=userAddress.address[0].state%> - <strong><%=userAddress.address[0].pincode%></strong></p>
 								</div>
-		               </div>
-		            </form>
+								<%} else {%>
+									<h6>No Address Available</h6>
+									<%}%>
+							</div>
+							
+						</div>
+						
+							<button type="submit" class="add-address-btn" id="showaddAddress">Add  New Address</button>
+							<button type="submit" class="add-address-btn" id="edit-Address">Edit Address</button>
+
+							
+
+					</div>
+					<div class="col-lg-8" style="background-color: #F5F5F5; display: none;" id="addAddress">
+
+						<form action="/addaddress" method="POST" id="addressForm">
+							<h6>Add New Address</h6>
+
+							<div class="form-group">
+								<label for="name">Name</label>
+								<input type="text" id="name" placeholder="Enter your name"  name="name" />
+								<div class="error-message" id="nameError"></div>
+							</div>
+							<div class="form-group">
+								<label for="phone">Phone Number</label>
+								<input type="tel" id="phone" placeholder="Enter your phone number" name="phone" />
+								<div class="error-message" id="phoneError"></div>
+							</div>
+							<div class="form-group">
+							   <label for="altPhone">Alternative Phone Number</label>
+							   <input type="tel" id="altPhone" placeholder="Enter your phone number" name="altPhone"/>
+							   <div class="error-message" id="altPhoneError"></div>
+						   </div>
+						   <div class="form-group">
+							<label for="addressType">Address Type</label>
+							<select id="addressType" name="addressType">
+								<option value="HOME">HOME</option>
+								<option value="OFFICE">OFFICE</option>
+							</select>
+							<div class="error-message" id="addressError"></div>
+						</div>
+						 <div class="form-group">
+							 <label for="landMark">Land mark</label>
+							 <input type="text" id="landmark" placeholder="Enter your landmark" name="landMark"/>
+							 <div class="error-message" id="landmarkError"></div>
+						 </div>
+						 <div class="form-group">
+							<label for="city">City</label>
+							<input type="text" id="city" placeholder="Enter your city" name="city" />
+							<div class="error-message" id="cityError"></div>
+						</div>
+						<div class="form-group">
+							<label for="district">District</label>
+							<input type="text" id="district" placeholder="Enter your district" name="district" />
+							<div class="error-message" id="districtError"></div>
+						</div>
+						<div class="form-group">
+							<label for="state">State</label>
+							<input type="text" id="state" placeholder="Enter your state" name="state"/>
+							<div class="error-message" id="stateError"></div>
+						</div>
+						<div class="form-group">
+							<label for="pincode">Pincode</label>
+							<input type="text" id="pincode" placeholder="Enter your pincode" name="pincode" />
+							<div class="error-message" id="pincodeError"></div>
+						</div>
+						<div style="display: flex; gap: 73px;">
+						<button type="submit" class="add-address-btn">Add Address</button>
+						<button type="button" class="add-address-btn" id="cancel">Cancel</button>
+					</div>
+						</form>
+						
+					</div>
+					
+					<div class="col-lg-8" style="background-color: #F5F5F5; display: none;" id="editAddress">
+
+						<% if (userAddress.address.length>0) {%>
+							<% userAddress.address.forEach(address=>{ %>
+
+							<div class="address-content"  style="padding: 20px;">
+
+
+								
+								<div class="radio-section" style="display: flex; align-items: center; justify-content: space-between; padding: 10px;">
+									<!-- Left side: Radio button and h6 -->
+									<div style="display: flex; align-items: center; gap: 5px;">
+										<input type="radio" name="address" class="address-radio" data-id="<%= address._id %>" id="address<%= address._id %>">
+
+													<h6 style="background-color: #47abb8; color: #fff; margin: 0; padding: 5px 10px; border-radius: 4px;"><%=address.addressType%></h6>
+									</div>
+									
+									<!-- Right side: Icon -->
+									 <!-- <button>
+									<i class="fa-solid fa-pen-to-square" style="color: #47abb8; font-size: 18px; cursor: pointer;" id="edit-Address"></i>
+								</button> -->
+								</div>
+								
+						
+								<strong><%=address.name%></strong>
+								<p>Phone:<%=address.phone%> <br/>
+								Alt Phone : <%=address.altPhone%></p>
+								<p><%=address.city%>,<%=userAddress.address[0].landMark%>,<br/>
+									 <%=address.district%>, <%=address.state%> - <strong><%=address.pincode%></strong></p>
+							</div>
+							<%})%>
+							<%}%>
+							<button type="button"  id="updateAddressBtn">Update Address</button>
+						<button type="button" class="add-address-btn" id="cancelEdit">Cancel</button>
+
 					</div>
 
 					<div class="col-lg-4">
@@ -177,60 +308,54 @@
 								<div class="cart-detail">
 									<h2>Cart Total</h2>
 									<ul>
+										
 										<li>
-											<span>Subtotal</span> <span>₹1549.00</span>
 											<ul>
-												<li><span>1 x Cetaphil Moisturiser</span> <span>₹483.00</span></li>
-												<li><span>1 x  Aqualogica sunscreen</span> <span>₹449.00</span></li>
+												<% if (cart && cart.items.length > 0) { %>
+													<% cart.items.forEach(item => { %>
+												<li><span><%= item.quantity%> x <%= item.productId.productName%></span> <span> ₹ <%=item.totalPrice%></span></li>
+												<%})%>
+												<%}%>
+
+												
 											</ul>
 										</li>
-										<li><span>Shipping</span> <span>₹0.00</span></li>
-										<li><span>Order Total</span> <span>₹1549.00</span></li>
+										<li><span>Subtotal</span> <span>₹<%=subtotal%></span></li>
+										<li><span>Shipping</span> <span>₹<%=delivery%></span></li>
+										<li><span>Order Total</span> <span>₹<%=total%><span></li>
 									</ul>
 								</div>
 						   </div>
 
 						   <div class="w-100"></div>
 
+						   <form action="/placeOrder" method="POST">
+							<input type="hidden" name="cartId" value="<%= cart._id %>" />
+
+  
+  
 						   <div class="col-md-12">
 								<div class="cart-detail">
 									<h2>Payment Method</h2>
-									<div class="form-group">
-										<div class="col-md-12">
-											<div class="radio">
-											   <label><input type="radio" name="optradio"> Direct Bank Tranfer</label>
-											</div>
-										</div>
-									</div>
-									<div class="form-group">
-										<div class="col-md-12">
-											<div class="radio">
-											   <label><input type="radio" name="optradio"> Check Payment</label>
-											</div>
-										</div>
-									</div>
-									<div class="form-group">
-										<div class="col-md-12">
-											<div class="radio">
-											   <label><input type="radio" name="optradio"> Paypal</label>
-											</div>
-										</div>
-									</div>
-									<div class="form-group">
-										<div class="col-md-12">
-											<div class="checkbox">
-											   <label><input type="checkbox" value=""> I have read and accept the terms and conditions</label>
-											</div>
-										</div>
-									</div>
+									
+									<ul>
+										<li><label><input type="radio" name="payementMethod" value="Cash" required/>  Cashon Delivey</label></li>
+										<li><label ><input type="radio" name="payementMethod" value="Online" required/>  Online Payement</label></li>
+
+										
+									</ul>
+									
+									
 								</div>
 							</div>
-						</div>
-						<div class="row">
-							<div class="col-md-12 text-center">
-								<p><a href="#" class="btn btn-primary">Place an order</a></p>
+							<div class="row">
+								<div class="col-md-12 text-center">
+									<button type="submit" class="btn btn-primary" style="border: none;">Place an order</button>
+								</div>
 							</div>
+						</form>
 						</div>
+						
 					</div>
 				</div>
 			</div>
@@ -242,7 +367,125 @@
 	<div class="gototop js-top">
 		<a href="#" class="js-gotop"><i class="ion-ios-arrow-up"></i></a>
 	</div>
-	
+	<script>
+		// Get references to elements
+const addressDiv = document.getElementById('addressdiv');
+const addAddressDiv = document.getElementById('addAddress');
+const editAddressDiv = document.getElementById('editAddress');
+const showAddAddressBtn = document.getElementById('showaddAddress');
+const editAddressBtn = document.getElementById('edit-Address');
+const cancelBtn = document.getElementById('cancel');
+const cancelEditBtn = document.getElementById('cancelEdit');
+
+// Show the "Add Address" form
+showAddAddressBtn.addEventListener('click', function() {
+    addressDiv.style.display = 'none';  // Hide address list
+    addAddressDiv.style.display = 'block';  // Show Add Address form
+});
+
+// Show the "Edit Address" form
+editAddressBtn.addEventListener('click', function() {
+    addressDiv.style.display = 'none';  // Hide address list
+    editAddressDiv.style.display = 'block';  // Show Edit Address form
+});
+
+// Cancel button in "Add Address" form
+cancelBtn.addEventListener('click', function() {
+    addAddressDiv.style.display = 'none';  // Hide Add Address form
+    addressDiv.style.display = 'block';  // Show address list
+});
+
+// Cancel button in "Edit Address" form
+cancelEditBtn.addEventListener('click', function() {
+    editAddressDiv.style.display = 'none';  // Hide Edit Address form
+    addressDiv.style.display = 'block';  // Show address list
+});
+
+
+// document.getElementById('updateAddressBtn').addEventListener('click', function() {
+//     // Find the selected radio button
+//     const selectedRadio = document.querySelector('input[name="address"]:checked');
+    
+//     if (selectedRadio) {
+//       // Get the ID of the selected address
+//       const selectedAddressId = selectedRadio.getAttribute('data-id');
+      
+//       // Send the selected address ID to the backend (using fetch or AJAX)
+//       fetch('/updateAddress', {
+//         method: 'POST',
+//         headers: {
+//           'Content-Type': 'application/json'
+//         },
+//         body: JSON.stringify({ addressId: selectedAddressId })
+//       })
+//       .then(response => response.json())
+//       .then(data => {
+//         if (data.success) {
+//           // Handle success (e.g., show a success message or update the page)
+//           alert('Address updated successfully');
+//         } else {
+//           // Handle failure (e.g., show an error message)
+//           alert('Failed to update address');
+//         }
+//       })
+//       .catch(error => {
+//         console.error('Error:', error);
+//       });
+//     } else {
+//       alert('Please select an address to update');
+//     }
+//   });
+
+document.getElementById('updateAddressButton').addEventListener('click', async () => {
+  // Get the selected address ID from the radio button
+  const selectedAddressId = document.querySelector('input[name="address"]:checked')?.value;
+
+  if (!selectedAddressId) {
+    alert('Please select an address.');
+    return;
+  }
+
+  try {
+    // Send the selected address ID to the backend
+    const response = await fetch('/update-address', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ addressId: selectedAddressId }),
+    });
+
+    const result = await response.json();
+
+    if (response.ok && result.success) {
+      const address = result.address; // The updated address object from the backend
+
+      // Update the UI to show the selected address
+      const addressDiv = document.getElementById('addressDiv');
+
+      addressDiv.innerHTML = `
+        <div style="padding: 20px;">
+          <h6>${address.addressType}</h6>
+          <strong>${address.name}</strong>
+          <p>Phone: ${address.phone}</p>
+          <p>${address.city}, ${address.landMark}, <br/>
+             ${address.district}, ${address.state} - ${address.pincode}</p>
+        </div>
+      `;
+
+      alert(result.message);
+    } else {
+      alert(result.message || 'Failed to update the address.');
+    }
+  } catch (error) {
+    console.error('Error updating address:', error);
+    alert('Something went wrong. Please try again later.');
+  }
+});
+
+
+
+	</script>
 	<!-- jQuery -->
 	<script src="js/jquery.min.js"></script>
    <!-- popper -->

@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
-const { type } = require('os');
-const {Schema} = mongoose()
+const Schema = mongoose.Schema; // Define Schema from mongoose
+
+
 
 const addressSchema = new Schema({
 
@@ -10,24 +11,29 @@ const addressSchema = new Schema({
         required: true
     },
     address: [{
-        addressType:{
-            type:String,
-            required: true
-        },
+       
         name:{
             type: String,
+            required: true
+        },
+        addressType:{
+            type:String,
             required: true
         },
         city:{
             type:String,
             required: true
         },
+        district:{
+            type:String,
+            required: true
+        },
         landMark:{
-            type: string,
+            type: String,
             required:true
         },
         state:{
-            type: string,
+            type: String,
             required:true
         },
         pincode:{
@@ -35,17 +41,22 @@ const addressSchema = new Schema({
             required:true
         },
         phone:{
-            type: string,
+            type: String,
             required:true
         },
         altPhone:{
-            type: string,
+            type: String,
             required:true
-        }
+        },
+        isDefault: { 
+            type: Boolean, 
+            default: false
+         }
+
     }]
      
 
 })
 
-const Address = mongoose.model("Address",addressSchema)
+const Address = mongoose.model("Address",addressSchema);
 module.exports = Address;

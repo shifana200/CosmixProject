@@ -116,29 +116,32 @@
              }
 
           }
+          function phoneValidateChecking(e) {
+    const phonevalue = phoneid.value.trim();
+    const phoneError = document.getElementById("phoneError"); // Ensure phoneError is correctly referenced
 
-          function phoneValidateChecking(e){
+    // Regular expression to match valid Indian phone numbers (starts with 6-9, exactly 10 digits)
+    const validIndianPattern = /^[6-9]\d{9}$/;
+    const invalidPattern = /^(.)\1{9}$/;
 
-            const phonevalue= phoneid.value;
-            const invalidPattern = /^(.)\1{9}$/;
-            
-            if(phonevalue.trim()===""){
-                phoneError.style.display = "block";
-                phoneError.innerHTML = "enter valid phone number "
-            }else if(phonevalue.length !==10 ){
-                phoneError.style.display ="block";
-                phoneError.innerHTML = "enter 10 digits"
-            }
-            else if (invalidPattern.test(phonevalue)) {
+    if (phonevalue === "") {
+        phoneError.style.display = "block";
+        phoneError.innerHTML = "Enter a valid phone number";
+    } else if (phonevalue.length !== 10) {
+        phoneError.style.display = "block";
+        phoneError.innerHTML = "Phone number must be exactly 10 digits";
+    } else if (invalidPattern.test(phonevalue)) {
         phoneError.style.display = "block";
         phoneError.innerHTML = "Phone number cannot be all the same digit";
+    } else if (!validIndianPattern.test(phonevalue)) {
+        phoneError.style.display = "block";
+        phoneError.innerHTML = "Enter a valid Indian phone number";
+    } else {
+        phoneError.style.display = "none";
+        phoneError.innerHTML = "";
     }
-            
-            else {
-                phoneError.style.display="none";
-                phoneError.innerHTML="";
-            }
-          }
+}
+
 
 
           function passwordValidateChecking(e){

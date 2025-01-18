@@ -17,7 +17,9 @@
             <div class="row">
                 <div class="col-sm-12 text-left menu-1">
                     <ul>
-                        <li class="active"><a href="http://localhost:4000">Home</a></li>
+                        <li><a href="http://localhost:4000">Home</a></li>
+                        <li><a href="http://localhost:4000/shop">SHOP</a></li>
+
                         <li><a href="http://localhost:4000/skincare">SKIN</a></li>
                         <li><a href="http://localhost:4000/haircare">HAIR</a></li>
                         <li><a href="http://localhost:4000/about">ABOUT</a></li>
@@ -36,7 +38,7 @@
                         
 
                         <li><a href="#" id="authButton" class="button" style="background-color: cornflowerblue; color: white;">Sign In</a></li>
-                        <li class="cart"><a href="http://localhost:4000/cart"><i class="icon-shopping-cart"></i></a></li>
+                        <li class="cart" ><a href="http://localhost:4000/cart"><i class="icon-shopping-cart"></i></a></li>
                         <li class="cart"><a href="http://localhost:4000/wishlist"><i class="icon-heart"></i></a></li>
                         <li class="cart"><a href="http://localhost:4000/dashboard"><i class="icon-user"></i></a></li>
                     </ul>
@@ -69,20 +71,20 @@
 </nav>
 <script>
     document.addEventListener("DOMContentLoaded", function() {
-    // Function to check if the user is logged in
+    
     function updateAuthButton() {
         const authButton = document.getElementById('authButton');
         
-        // Make an API call or check the session to determine if the user is logged in
-        fetch('/auth/status')  // This route will check if the user is authenticated
+        
+        fetch('/auth/status') 
             .then(response => response.json())
             .then(data => {
                 if (data.loggedIn) {
-                    authButton.textContent = 'Logout';  // Change button text to Logout
-                    authButton.href = '/logout';  // Set href to logout route
+                    authButton.textContent = 'none'; 
+                    authButton.style.display= "none"
                 } else {
-                    authButton.textContent = 'Sign In';  // Change button text back to Sign In
-                    authButton.href = '/signin';  // Set href to sign-in page
+                    authButton.textContent = 'Sign In';
+                    authButton.href = '/signin';
                 }
             })
             .catch(error => {
@@ -90,7 +92,7 @@
             });
     }
 
-    // Call this function when the page loads
+    
     updateAuthButton();
 });
 

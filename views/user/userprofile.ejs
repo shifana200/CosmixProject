@@ -3,6 +3,38 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    
+	<link href="https://fonts.googleapis.com/css?family=Montserrat:300,400,500,600,700" rel="stylesheet">
+	<link href="https://fonts.googleapis.com/css?family=Rokkitt:100,300,400,700" rel="stylesheet">
+	
+	<!-- Animate.css -->
+	<link rel="stylesheet" href="css/animate.css">
+	<!-- Icomoon Icon Fonts-->
+	<link rel="stylesheet" href="css/icomoon.css">
+	<!-- Ion Icon Fonts-->
+	<link rel="stylesheet" href="css/ionicons.min.css">
+	<!-- Bootstrap  -->
+	<link rel="stylesheet" href="css/bootstrap.min.css">
+
+	<!-- Magnific Popup -->
+	<link rel="stylesheet" href="css/magnific-popup.css">
+
+	<!-- Flexslider  -->
+	<link rel="stylesheet" href="css/flexslider.css">
+
+	<!-- Owl Carousel -->
+	<link rel="stylesheet" href="css/owl.carousel.min.css">
+	<link rel="stylesheet" href="css/owl.theme.default.min.css">
+	
+	<!-- Date Picker -->
+	<link rel="stylesheet" href="css/bootstrap-datepicker.css">
+	<!-- Flaticons  -->
+	<link rel="stylesheet" href="fonts/flaticon/font/flaticon.css">
+
+	<!-- Theme style  -->
+	<link rel="stylesheet" href="css/style.css">
+
     <title>Dashboard Page</title>
     <style>
         /* General Reset */
@@ -17,13 +49,14 @@
             display: flex;
             flex-direction: column;
             min-height: 100vh;
-            background-color: #f4f4f4;
+            background-color: #ffffff;
         }
 
         /* Sidebar */
         .container {
             display: flex;
             flex: 1;
+            margin-left: 0px;
         }
 
         .sidebar {
@@ -76,61 +109,77 @@
             font-weight: bold;
             margin-bottom: 10px;
         }
-
-        /* Container styling */
-.profile-update-container {
-  font-family: Arial, sans-serif;
-  margin: 20px auto;
-  width: 60%;
-  background-color: #f9f9f9;
-  padding: 20px;
-  border: 1px solid #ddd;
-  border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        .user-details-form {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
 }
 
-/* Heading styling */
-.profile-update-container h2 {
-  font-size: 1.5em;
-  margin-bottom: 20px;
-  border-bottom: 2px solid #84CBCB;
-  display: inline-block;
-  padding-bottom: 5px;
-}
-
-/* Label styling */
-.profile-update-container label {
-  display: block;
+label {
   font-weight: bold;
   margin: 10px 0 5px;
 }
 
-/* Input fields */
-.profile-update-container input {
+input, textarea, select {
   width: 100%;
-  padding: 10px;
-  border: 1px solid #ccc;
+  padding: 8px;
+  margin-bottom: 15px;
+  border: 1px solid #cccccc;
   border-radius: 4px;
   box-sizing: border-box;
-  margin-bottom: 20px;
-  font-size: 1em;
 }
 
-/* Button styling */
-.profile-update-container button {
-  background-color: #84CBCB;
-  color: #fff;
+textarea {
+  resize: vertical;
+  height: 80px;
+}
+
+.gender-container {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 15px;
+}
+
+.gender-label {
+  font-size: 16px;
+  font-weight: 400;
+  margin-bottom: 10px;
+}
+
+
+.gender-options {
+    display: flex;
+    align-items: center; /* Aligns the radio buttons and labels vertically */
+    gap: 20px; /* Adds spacing between Male and Female options */
+}
+
+.gender-option {
+    display: flex;
+    align-items: center; /* Ensures the radio button and label are vertically aligned */
+}
+
+.gender-options input {
+    margin-right: 5px; /* Adds space between radio button and label */
+    cursor: pointer;
+}
+
+.gender-options label{
+    margin-top: -9px;
+}
+
+
+
+
+
+
+.submit-btn {
+  background-color: #4CAF50;
+  color: white;
   border: none;
-  padding: 10px 20px;
-  font-size: 1em;
+  padding: 10px 15px;
   border-radius: 4px;
   cursor: pointer;
 }
-
-.profile-update-container button:hover {
-  background-color: #72b3b3;
-}
-
 
         /* Footer */
         .footer {
@@ -198,33 +247,137 @@
         .newsletter button:hover {
             opacity: 0.8;
         }
+
+
+        .dashboard-header h1{
+            color: #52cbcb;
+        }
+
+        .dashboard-header li{
+            list-style: none;
+            padding: 20px 0px;
+            color: black;
+        }
+
+        .dashboard-header button{
+            padding: 8px 20px;
+
+            color: rgb(255, 255, 255);
+            background-color: #84CBCB;
+            border: none;
+        }
     </style>
 </head>
 <body>
+    <%- include("../../views/partials/user/userheader.ejs")%>
+
+
     <!-- Container with Sidebar and Main Content -->
     <div class="container">
         <!-- Sidebar -->
         <%- include("../../views/partials/user/usersidebar.ejs")%>
 
 
-        <div class="profile-update-container">
-            <h2>Update Profile</h2>
-            <form>
-              <label for="username">Username</label>
-              <input type="text" id="username" placeholder="Username" />
+        <!-- Main Content -->
+        <div class="content">
+            <div class="user-details-card">
+                <h3>Welcome to <%=user.name%>'s Dashboard</h3>
+               
+        
+                <div class="content">
+                    <!-- <form class="user-details-form"  method="post"  action="/update-profile">
+                         -->
+                         <form class="user-details-form" id="user-details-form" method="post" action="/update-profile">
+
+                        <label for="name">Name:</label>
+                        <input type="text" id="name" name="name" placeholder="Enter your name"  value="<%=user.name%>">
+                  
+                        <label for="email">Email:</label>
+                        <input type="email" id="email" name="email" placeholder="Enter your email" value="<%=user.email%>" readonly>
+                  
+                        <label for="phone">Phone Number:</label>
+                        <input type="tel" id="phone" name="phone" placeholder="Enter your phone number" value="<%=user.phone%>">
+                  
+                  
+                       
+                        
+                            
+                        <button type="submit" class="submit-btn">Submit</button>
+                      </form>
+                   
+        
+                    
+               
+            </div>
+        </div>
+        
           
-              <label for="email">E mail</label>
-              <input type="email" id="email" placeholder="email" />
-          
-              <button type="submit">Save</button>
-            </form>
-          </div>
-          
+           
+
+            
+        </div>
     </div>
 
-    <!-- Footer -->
-    <%- include("../../views/partials/user/userfooter.ejs")%>
 
-  
+    <!-- Footer -->
+    <!-- <%- include("../../views/partials/user/userfooter.ejs")%> -->
+<!-- SweetAlert2 Library -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <script>
+        document.getElementById('user-details-form').addEventListener('submit', function (e) {
+    e.preventDefault(); // Prevents the page from reloading
+    
+    const name = document.getElementById('name').value;
+    const phone = document.getElementById('phone').value;
+
+    // Send data to the backend using fetch
+    fetch('/update-profile', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ name, phone })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            Swal.fire({
+                title: 'Profile Updated!',
+                text: 'Your profile has been updated successfully.',
+                icon: 'success',
+                timer: 2000, // 2 seconds
+                showConfirmButton: false, // Hide the confirm button
+                timerProgressBar: false,
+            }).then(() => {
+            
+                window.location.href = window.location.href;
+            });
+        } else {
+            Swal.fire({
+                title: 'Error!',
+                text: 'There was an error updating your profile.',
+                icon: 'error',
+                timer: 2000, 
+                showConfirmButton: false, 
+                timerProgressBar: false,
+            });
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        Swal.fire({
+            title: 'Error!',
+            text: 'There was an error sending the request.',
+            icon: 'error',
+                timer: 2000, 
+                showConfirmButton: false, 
+                timerProgressBar: false,
+        });
+    });
+});
+
+    </script>
+    
 </body>
 </html>

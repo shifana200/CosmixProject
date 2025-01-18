@@ -1,11 +1,11 @@
+const { CancellationToken } = require('mongodb');
 const mongoose = require('mongoose')
-const {Schema} = mongoose
-const {v4:uuidv4} = require('uuid')
+const Schema = mongoose.Schema
 
-const orderSchema = new mongoose.Schema({
+
+const orderSchema = new Schema({
     orderId:{
         type:String,
-        default: ()=>uuidv4(),
         unique :true
 
     },
@@ -32,8 +32,13 @@ const orderSchema = new mongoose.Schema({
         type:Number,
         default:0
     },
-    finalAmount:{
+    PayableAmount:{
         type:Number,
+        required:true
+    },
+    userId:{
+        type:Schema.Types.ObjectId,
+        ref:"User",
         required:true
     },
     address:{
@@ -47,8 +52,11 @@ const orderSchema = new mongoose.Schema({
     status:{
         type:String,
         required:true,
-        enum:['Pending','Processing','Shipped','Delivered','Cancelled','Return Request','Returned']
+        enum:['Pending','Ordered','Shipped','Delivered','Cancelled','Returned']
 
+    },
+    CancellationReason:{
+        type:String,
     },
     createdOn:{
         type:Date,

@@ -3,6 +3,38 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    
+	<link href="https://fonts.googleapis.com/css?family=Montserrat:300,400,500,600,700" rel="stylesheet">
+	<link href="https://fonts.googleapis.com/css?family=Rokkitt:100,300,400,700" rel="stylesheet">
+	
+	<!-- Animate.css -->
+	<link rel="stylesheet" href="css/animate.css">
+	<!-- Icomoon Icon Fonts-->
+	<link rel="stylesheet" href="css/icomoon.css">
+	<!-- Ion Icon Fonts-->
+	<link rel="stylesheet" href="css/ionicons.min.css">
+	<!-- Bootstrap  -->
+	<link rel="stylesheet" href="css/bootstrap.min.css">
+
+	<!-- Magnific Popup -->
+	<link rel="stylesheet" href="css/magnific-popup.css">
+
+	<!-- Flexslider  -->
+	<link rel="stylesheet" href="css/flexslider.css">
+
+	<!-- Owl Carousel -->
+	<link rel="stylesheet" href="css/owl.carousel.min.css">
+	<link rel="stylesheet" href="css/owl.theme.default.min.css">
+	
+	<!-- Date Picker -->
+	<link rel="stylesheet" href="css/bootstrap-datepicker.css">
+	<!-- Flaticons  -->
+	<link rel="stylesheet" href="fonts/flaticon/font/flaticon.css">
+
+	<!-- Theme style  -->
+	<link rel="stylesheet" href="css/style.css">
+
     <title>Dashboard Page</title>
     <style>
         /* General Reset */
@@ -17,13 +49,14 @@
             display: flex;
             flex-direction: column;
             min-height: 100vh;
-            background-color: #f4f4f4;
+            background-color: #ffffff;
         }
 
         /* Sidebar */
         .container {
             display: flex;
             flex: 1;
+            margin-left: 0px;
         }
 
         .sidebar {
@@ -76,126 +109,63 @@
             font-weight: bold;
             margin-bottom: 10px;
         }
+        
 
-        /* Table container */
-.order-table-container {
-  font-family: Arial, sans-serif;
-  margin: 20px auto;
-  width: 80%;
+
+        .order-card-container {
+  display: block; /* Stack cards vertically */
+  gap: 20px;
+}
+
+.order-card {
   border: 1px solid #ddd;
-  border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  padding: 10px;
+  border-radius: 10px;
+  padding: 20px;
+  width: 900px;
+  margin: 15px 5px; /* Center the cards horizontally */
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   background-color: #fff;
 }
 
-/* Table styling */
-.order-table {
+.order-card h3 {
+  margin-top: 0;
+}
+
+table {
   width: 100%;
-  border-collapse: collapse;
+  margin-bottom: 15px;
 }
 
-.order-table th,
-.order-table td {
-  border: 1px solid #ddd;
-  text-align: left;
-  padding: 12px;
+.order-summary {
+  margin-top: 15px;
 }
 
-.order-table thead {
-  background-color: #f9f9f9;
-  font-weight: bold;
+.order-summary p {
+  margin: 5px 0;
 }
 
-.order-table tbody tr:nth-child(even) {
-  background-color: #f2f2f2;
+.cancel-order-btn {
+  display: inline;
+  
+  padding: 10px;
+  background-color: rgb(30, 184, 184);
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
 }
 
-.order-table tbody tr:hover {
-  background-color: #f1f1f1;
-}
-
-/* Actions link styling */
-.order-table a {
-  color: #84CBCB;
-  text-decoration: none;
-  font-weight: bold;
-}
-
-.order-table a:hover {
-  text-decoration: underline;
+.cancel-order-btn:hover {
+  background-color: rgb(24, 107, 120);
 }
 
 
-        /* Footer */
-        .footer {
-            background-color: #84CBCB;
-            padding: 20px;
-            color: #333;
-        }
-
-        .footer-container {
-            display: flex;
-            justify-content: space-between;
-            flex-wrap: wrap;
-            color: white;
-        }
-
-        .footer-column {
-            margin-bottom: 10px;
-        }
-
-        .footer h4 {
-            margin-bottom: 10px;
-            font-size: 16px;
-            color: #fff;
-        }
-
-        .footer ul {
-            list-style: none;
-        }
-
-        .footer ul li {
-            margin-bottom: 5px;
-        }
-
-        .footer ul li a {
-            text-decoration: none;
-            color: #ffffff;
-            transition: color 0.3s;
-        }
-
-        .footer ul li a:hover {
-            color: #0056b3;
-        }
-
-        .newsletter {
-            display: flex;
-            margin-top: 10px;
-        }
-
-        .newsletter input {
-            padding: 10px;
-            flex: 1;
-            border: none;
-            border-radius: 4px 0 0 4px;
-        }
-
-        .newsletter button {
-            padding: 10px 15px;
-            background-color: black;
-            color: white;
-            border: none;
-            border-radius: 0 4px 4px 0;
-            cursor: pointer;
-        }
-
-        .newsletter button:hover {
-            opacity: 0.8;
-        }
     </style>
 </head>
 <body>
+    <%- include("../../views/partials/user/userheader.ejs")%>
+
+
     <!-- Container with Sidebar and Main Content -->
     <div class="container">
         <!-- Sidebar -->
@@ -203,49 +173,71 @@
 
 
         <!-- Main Content -->
-        <div class="order-table-container">
-            <h2>Your Orders</h2>
-            <table class="order-table">
+        <div class="order-card-container">
+          
+        
+          <% if(orderDetails) {%>
+            <% orderDetails.forEach((order)=>{ %>
+          <div class="order-card">
+            <p><%= order.orderId%></p>
+            
+            <!-- Product Details Table -->
+            <table border="1" cellpadding="10" cellspacing="0" style="width:100%; border-collapse: collapse;">
               <thead>
                 <tr>
-                  <th>Orders</th>
-                  <th>Date</th>
-                  <th>Status</th>
-                  <th>Totals</th>
-                  <th>Actions</th>
+                  <th>Product Name</th>
+                  <th>Quantity</th>
+                  <th>Price</th>
                 </tr>
               </thead>
               <tbody>
+                <%order.orderedItems.forEach((item)=>{%>
                 <tr>
-                  <td>#1357</td>
-                  <td>March 19, 2022</td>
-                  <td>Processing</td>
-                  <td>₹483.00</td>
-                  <td><a href="#">View</a></td>
+                  <td><%= item.product.productName%></td>
+                  <td><%= item.quantity%></td>
+                  <td>₹ <%=item.price%></td>
                 </tr>
-                <tr>
-                  <td>#2468</td>
-                  <td>June 29, 2022</td>
-                  <td>Completed</td>
-                  <td>₹449.00</td>
-                  <td><a href="#">View</a></td>
-                </tr>
-                <tr>
-                  <td>#2366</td>
-                  <td>August 02, 2022</td>
-                  <td>Completed</td>
-                  <td>₹617.00</td>
-                  <td><a href="#">View</a></td>
-                </tr>
+                <%})%>
+                <!-- Add more products as needed -->
               </tbody>
             </table>
+        
+            <!-- Order Summary -->
+            <div class="order-summary">
+              <p><strong>Total Amount:</strong>₹ <%= order.totalPrice%></p>
+              <p><strong>Shipping Charge:</strong>₹ 50</p>
+              <p><strong>Payable Amount:</strong>₹ <%= order.PayableAmount%></p>
+            </div>
+            
+            <!-- Cancel Order Button -->
+            <button class="cancel-order-btn">
+              <a href="/myorder/<%= order._id %>">View Details</a></button>
           </div>
+          <%})%>
+          <%} else {%>
+            <h6>No Orders</h6>
+            <%}%>
+        
+          <!-- Add more orders here -->
+        </div>
+        
+        
           
+           
+
+            
+        </div>
     </div>
 
-    <!-- Footer -->
-    <%- include("../../views/partials/user/userfooter.ejs")%>
 
-  
+    <!-- Footer -->
+    <!-- <%- include("../../views/partials/user/userfooter.ejs")%> -->
+
+    <!-- <script>
+        const redirectButton = document.getElementById('editButton')
+        redirectButton.addEventListener('click',()=>{
+            window.location.href= 'http://localhost:4000/myprofile'
+        })
+    </script> -->
 </body>
 </html>

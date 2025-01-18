@@ -36,6 +36,61 @@
 	<link rel="stylesheet" href="css/style.css">
 
 	</head>
+	<style>
+
+		/* Style the container */
+.one-eight {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 20px;  /* Optional: Adjust top margin */
+}
+
+/* Buttons styling */
+.quantity-left-minus, .quantity-right-plus {
+    background-color: #333;  /* Dark grey background */
+    color: white;  /* White text */
+    width: 20px;  /* Button width */
+    height: 20px;  /* Button height */
+    font-size: 2px;  /* Icon size */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+	border-radius: 5px;
+}
+
+.quantity-left-minus:hover, .quantity-right-plus:hover {
+    background-color: #555;  /* Slightly lighter grey on hover */
+}
+
+.quantity-left-minus:focus, .quantity-right-plus:focus {
+    outline: none;
+}
+
+/* Input field styling */
+.form-control.input-number {
+    width: 40px;  /* Input width */
+    height: 30px;  /* Match button height */
+    text-align: center;  /* Center the text inside */
+    font-size: 5px;  /* Adjust font size */
+    border: 1px solid #ccc;  /* Light grey border */
+    padding: 0;  /* Remove padding */
+}
+
+/* Optional: Adjust spacing between buttons and input */
+.display-tc {
+    display: flex;
+    align-items: center;
+}
+
+.display-tc button {
+    margin: 0 5px;  /* Add space between buttons and input field */
+}
+
+	</style>
 	<body>
 		
 	<div class="colorlib-loader"></div>
@@ -75,6 +130,8 @@
 						</div>
 					</div>
 				</div>
+
+
 				<div class="row row-pb-lg">
 					<div class="col-md-12">
 						<div class="product-name d-flex">
@@ -94,100 +151,65 @@
 								<span>Remove</span>
 							</div>
 						</div>
+						
+						<% if (cart.items.length > 0) { %>
+
+						
+							<% cart.items.forEach(item => { %>
+
+
 						<div class="product-cart d-flex">
 							<div class="one-forth">
-								<div class="product-img" style="background-image: url(/images/best\ seller\ pic\ 12.webp);">
+								<div class="product-img" style="background-image: url(/uploads/<%= item.productId.productImage[0] %>);">
 								</div>
 								<div class="display-tc">
-									<h3>Cetaphil Moisturising 
-										Lotion</h3>
+									<h3><%= item.productId.productName %></h3>
 								</div>
 							</div>
 							<div class="one-eight text-center">
 								<div class="display-tc">
-									<span class="price">₹483.00</span>
+									<span class="price" id="price"><%= item.price %></span>
+								</div>
+							</div>
+							
+							<div class="one-eight text-center">
+								<div class="display-tc" style="display: flex;">
+									<input type="hidden" id="productId" value="<%= item.productId%>">
+
+									<!-- Minus Button -->
+									<button type="button" class="quantity-left-minus btn" data-type="minus">
+										<i class="icon-minus2"></i>
+									</button>
+									
+									<!-- Quantity Input -->
+									<input type="text" id="quantity" name="quantity" class="form-control input-number text-center" value="<%=item.quantity%>" min="1" max="100">
+									
+									<!-- Plus Button -->
+									<button type="button" class="quantity-right-plus btn" data-type="plus">
+										<i class="icon-plus2"></i>
+									</button>
+								</div>
+							</div>
+							
+							<div class="one-eight text-center" >
+								<div class="display-tc">
+									<span class="price" id="totalPrice"><%= item.price * item.quantity %></span>
 								</div>
 							</div>
 							<div class="one-eight text-center">
 								<div class="display-tc">
-									<input type="text" id="quantity" name="quantity" class="form-control input-number text-center" value="1" min="1" max="100">
+									<a href="/deleteCart?id=<%=item._id%>" class="closed"></a>
 								</div>
 							</div>
-							<div class="one-eight text-center">
-								<div class="display-tc">
-									<span class="price">₹483.00</span>
-								</div>
-							</div>
-							<div class="one-eight text-center">
-								<div class="display-tc">
-									<a href="#" class="closed"></a>
-								</div>
-							</div>
+							
 						</div>
-						<div class="product-cart d-flex">
-							<div class="one-forth">
-								<div class="product-img" style="background-image: url(/images/best\ seller\ pic3.jpeg);">
-								</div>
-								<div class="display-tc">
-									<h3>Aqualogica dewy sunscreen</h3>
-								</div>
-							</div>
-							<div class="one-eight text-center">
-								<div class="display-tc">
-									<span class="price">₹449.00</span>
-								</div>
-							</div>
-							<div class="one-eight text-center">
-								<div class="display-tc">
-									<form action="#">
-										<input type="text" name="quantity" class="form-control input-number text-center" value="1" min="1" max="100">
-									</form>
-								</div>
-							</div>
-							<div class="one-eight text-center">
-								<div class="display-tc">
-									<span class="price">₹449.00</span>
-								</div>
-							</div>
-							<div class="one-eight text-center">
-								<div class="display-tc">
-									<a href="#" class="closed"></a>
-								</div>
-							</div>
+						
+						<%})%>
 						</div>
-						<div class="product-cart d-flex">
-							<div class="one-forth">
-								<div class="product-img" style="background-image: url(/images/bestseller\ pic1.webp);">
-								</div>
-								<div class="display-tc">
-									<h3>Lakme 9To5  lip & cheek
-										tint(rose toouch)</h3>
-								</div>
-							</div>
-							<div class="one-eight text-center">
-								<div class="display-tc">
-									<span class="price">₹617.00</span>
-								</div>
-							</div>
-							<div class="one-eight text-center">
-								<div class="display-tc">
-									<input type="text" id="quantity" name="quantity" class="form-control input-number text-center" value="1" min="1" max="100">
-								</div>
-							</div>
-							<div class="one-eight text-center">
-								<div class="display-tc">
-									<span class="price">₹617.00</span>
-								</div>
-							</div>
-							<div class="one-eight text-center">
-								<div class="display-tc">
-									<a href="#" class="closed"></a>
-								</div>
-							</div>
-						</div>
-					</div>
+						
+						
 				</div>
-				<div class="row row-pb-lg">
+				<!-- <div class="row row-pb-lg">
 					<div class="col-md-12">
 						<div class="total-wrap">
 							<div class="row">
@@ -206,20 +228,61 @@
 								<div class="col-sm-4 text-center">
 									<div class="total">
 										<div class="sub">
-											<p><span>Subtotal:</span> <span>₹1549.00</span></p>
-											<p><span>Delivery:</span> <span>$0.00</span></p>
-											<p><span>Discount:</span> <span>₹49.00</span></p>
+											<p><span>Subtotal:</span> <span>₹ <%= subtotal%></span></p>
+											<p><span>Delivery:</span> <span>₹0.00</span></p>
+											<p><span>Discount:</span> <span>₹00.00</span></p>
 										</div>
 										<div class="grand-total">
-											<p><span><strong>Total:</strong></span> <span>₹1500.00</span></p>
+											<p><span><strong>Total:</strong></span> <span><%=subtotal%></span></p>
 										</div>
 									</div>
 								</div>
 							</div>
 						</div>
 					</div>
-				</div>
+				</div> -->
 
+				<div class="row row-pb-lg">
+					<div class="col-md-12">
+						<div class="total-wrap">
+							<div class="row align-items-center">
+								<!-- Left: Coupon Section -->
+								<div class="col-md-4">
+									<form action="#">
+										<div class="row form-group">
+											<div class="col-sm-9">
+												<input type="text" name="quantity" class="form-control input-number" placeholder="Your Coupon Number...">
+											</div>
+											<div class="col-sm-3">
+												<input type="submit" value="Apply Coupon" class="btn btn-primary">
+											</div>
+										</div>
+									</form>
+								</div>
+								
+								<!-- Center: Total/Subtotal Section -->
+								<div class="col-md-4 text-center">
+									<div class="total">
+										<div class="sub">
+											<p><span>Subtotal:</span> <span>₹<%= subtotal %></span></p>
+											<p><span>Delivery:</span> <span>₹<%=delivery%></span></p>
+											<p><span>Discount:</span> <span>₹00.00</span></p>
+										</div>
+										<div class="grand-total">
+											<p><span><strong>Total:</strong></span> <span>₹<%= total %></span></p>
+										</div>
+									</div>
+								</div>
+								
+								<!-- Right: Proceed to Checkout Button -->
+								<div class="col-md-4 text-right">
+									<a href="/checkout" class="btn btn-success btn-lg">Proceed to Checkout</a>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+				
 				<div class="row">
 					<div class="col-sm-8 offset-sm-2 text-center colorlib-heading colorlib-heading-sm">
 						<h2>Related Products</h2>
@@ -272,10 +335,19 @@
 								<span class="price">₹433.00</span>
 							</div>
 						</div>
+						<% } else { %>
+							<p style="text-align: center; color: black; font-weight: 300;">Your cart is empty</p>
+						  <% } %>
 					</div>
 				</div>
+
+				
+				
 			</div>
+			
 		</div>
+
+		
         <%- include("../../views/partials/user/footer.ejs")%>
 
 	</div>
@@ -283,6 +355,54 @@
 	<div class="gototop js-top">
 		<a href="#" class="js-gotop"><i class="ion-ios-arrow-up"></i></a>
 	</div>
+
+	<script>
+
+document.querySelector('.quantity-left-minus').addEventListener('click', function () {
+    const quantity = document.getElementById('quantity');
+    const totalPriceElement = document.getElementById('totalPrice');
+    
+    // Fetch the price dynamically from the price span
+    const priceElement = document.getElementById('price');
+    const price = parseFloat(priceElement.textContent.trim()); // Get and parse the price
+    
+    let value = parseInt(quantity.value); // Parse the quantity value
+    
+    if (value > 1) {
+        quantity.value = value - 1; // Decrease the value
+    }
+    
+    const updatedValue = parseInt(quantity.value); // Get the updated quantity value
+    const totalPrice = updatedValue * price; // Calculate the total price
+
+    totalPriceElement.textContent = totalPrice.toFixed(2); // Display the total price with two decimals
+});
+
+
+
+
+document.querySelector('.quantity-right-plus').addEventListener('click', function () {
+    const quantity = document.getElementById('quantity');
+    const totalPriceElement = document.getElementById('totalPrice');
+    
+    // Fetch the price dynamically from the price span
+    const priceElement = document.getElementById('price');
+    const price = parseFloat(priceElement.textContent.trim()); // Get and parse the price
+    
+    let value = parseInt(quantity.value); // Parse the quantity value
+    
+    if (value >= 1) {
+        quantity.value = value + 1; // Decrease the value
+    }
+    
+    const updatedValue = parseInt(quantity.value); // Get the updated quantity value
+    const totalPrice = updatedValue * price; // Calculate the total price
+
+    totalPriceElement.textContent = totalPrice.toFixed(2); // Display the total price with two decimals
+});
+
+
+	</script>
 	
 	<!-- jQuery -->
 	<script src="js/jquery.min.js"></script>

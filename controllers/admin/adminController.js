@@ -2,6 +2,8 @@ const User = require('../../models/userSchema')
 const mongoose = require('mongoose')
 const bcrypt = require('bcrypt')
 const Product = require('../../models/productSchema')
+const Order = require('../../models/orderSchema')
+const Address = require('../../models/addressSchema')
 
 const PageNotFound = async(req,res)=>{
     res.render('Page-404')
@@ -133,13 +135,20 @@ const loadCouponManagement = async(req,res)=>{
 
 const loadOrderManagement = async(req,res)=>{
     if(req.session.admin){
-       try {
-           res.render('ordermanagement')
-       } catch (error) {
-           res.redirect('/pageNotFound')
-       }
-   }
+    try {
+        const orders = await Order.find().populate('userId')
+
+        // console.log(orders)
+
+        res.render('ordermanagement',{orders})
+        
+    } catch (error) {
+        console.error("error loading page ",error)
+        res.redirect('/pageNotFound')
+        
+    }}
 }
+
 
 const loadOfferManagement = async(req,res)=>{
      if(req.session.admin){
@@ -153,7 +162,7 @@ const loadOfferManagement = async(req,res)=>{
 
 const logout = async(req,res)=>{
 
-    res.setHeader('Cache-Control', 'no-store');
+    res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
 
     try {
         req.session.destroy(err=>{
@@ -170,6 +179,29 @@ const logout = async(req,res)=>{
     }
 }
 
+const loadOrderDetailsPage = async(req,res) => {
+    try {
+        const orderId = req.params.id;
+        console.log('**************************')
+        console.log(orderId)
+
+        const orderDetails = await Order.findById(orderId).populate('orderedItems.product')
+        const addressDetails = await Address.findOne({ _id: orderDetails.address });
+
+
+        console.log(orderDetails)
+        console.log('**************************')
+
+        res.render('orderDetailsPage',{orderDetails , addressDetails})
+    } catch (error) {
+        console.error("Error opening order details")
+       return  res.redirect('/pageNotFound')
+        
+    }
+
+}
+
+
 module.exports = {
     loadLogin,
     logIn,
@@ -181,7 +213,7 @@ module.exports = {
     
     loadOrderManagement,
     loadOfferManagement,
-    logout,
+    logout,loadOrderDetailsPage,
 
 
 }
