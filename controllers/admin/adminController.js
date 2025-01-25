@@ -16,37 +16,78 @@ const loadLogin = (req,res) =>{
     }res.render("login",{message:null})
 }
 
-const logIn = async (req,res)=>{
-    try {
+// const logIn = async (req,res)=>{
+//     try {
         
-const {email,password} = req.body
-const admin = await User.findOne({email,isAdmin:true})
-console.log(req.body)
-console.log(email)
-console.log(admin)
+// const {email,password} = req.body
+// const admin = await User.findOne({email,isAdmin:true})
+// console.log(req.body)
+// console.log(email)
+// console.log(admin)
 
-if(admin){
-    const passwordMatch = await bcrypt.compare(password,admin.password)
-    console.log("ankhlhlk")
-if(passwordMatch){
-    console.log("password correct,redirecting")
-    req.session.admin = true;
-    console.log(req.session.admin)
+// if(admin){
+//     const passwordMatch = await bcrypt.compare(password,admin.password)
+    
+// if(passwordMatch){
+//     console.log("password correct,redirecting")
+//     req.session.admin = true;
+//     console.log(req.session.admin)
 
-    return res.redirect("/admin/dashboard")
-}else{
-    return res.render('login',{message:'Invalid credentials'})
+//     return res.render("dashboard" , {
+//         message: 'Login successful!',
+//         success: true})
+// }else{
+//     return res.render('login',{message:'Invalid credentials. Please try again.' , success:false})
     
-}
-}else{
-    return res.render('login',{message:'error here'})
+// }
+// }else{
+//     return res.render('login',{message:'Unexprected error occurd .' , success : false})
     
-}
+// }
+//     } catch (error) {
+//         console.log("login error", error)
+//         return res.redirect('/pageNotFound')
+//     }
+// }
+
+const logIn = async (req, res) => {
+    try {
+      const { email, password } = req.body;
+      const admin = await User.findOne({ email, isAdmin: true });
+      console.log(req.body);
+      console.log(email);
+      console.log(admin);
+  
+      if (admin) {
+        const passwordMatch = await bcrypt.compare(password, admin.password);
+  
+        if (passwordMatch) {
+          console.log("Password correct, redirecting");
+          req.session.admin = true;
+          console.log(req.session.admin);
+  
+          return res.render('login', {
+            message: 'Login successful!',
+            success: true
+          });
+        } else {
+          return res.render('login', {
+            message: 'Invalid credentials. Please try again.',
+            success: false
+          });
+        }
+      } else {
+        return res.render('login', {
+          message: 'Unexpected error occurred.',
+          success: false
+        });
+      }
     } catch (error) {
-        console.log("login error", error)
-        return res.redirect('/pageNotFound')
+      console.log("Login error", error);
+      return res.redirect('/pageNotFound');
     }
-}
+  };
+  
 
 
 const loadDashboard = async(req,res)=>{
@@ -201,6 +242,23 @@ const loadOrderDetailsPage = async(req,res) => {
 
 }
 
+const updateOrderStatus= (req, res) => {
+    const { status, orderId } = req.body;
+
+    console.log("----------------------------")
+    
+
+    // Update the order status in your database (make sure to handle DB logic accordingly)
+    Order.updateOne({ orderId: orderId }, { status: status }, (err, result) => {
+        if (err) {
+            return res.status(500).json({ success: false, message: 'Failed to update status' });
+        }
+
+        res.status(200).json({ success: true, message: 'Order status updated successfully' });
+    });
+}
+
+
 
 module.exports = {
     loadLogin,
@@ -214,6 +272,6 @@ module.exports = {
     loadOrderManagement,
     loadOfferManagement,
     logout,loadOrderDetailsPage,
-
+updateOrderStatus,
 
 }

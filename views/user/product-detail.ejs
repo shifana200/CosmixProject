@@ -94,6 +94,50 @@
 	margin-top: -5px;
 }
 
+/* Transparent Overlay for Blocked Product */
+.overlay-blocked {
+  position: absolute; /* Position it over the whole page */
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.7); /* Semi-transparent black */
+  display: flex;
+  justify-content: center; /* Center the message horizontally */
+  align-items: flex-start; /* Align items to the top */
+  padding-top: 20%; /* Add some space from the top */
+  z-index: 9999; /* Ensure it appears above other content */
+}
+
+/* Message Inside the Overlay */
+/* Transparent Overlay for Blocked Product */
+.overlay-blocked {
+  position: absolute; /* Position it over the whole page */
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.7); /* Semi-transparent black */
+  display: block;
+  justify-content: center; /* Center the message horizontally */
+  align-items: center; /* Align items to the top */
+  padding-top: 20%; /* Add some space from the top */
+  z-index: 9999; /* Ensure it appears above other content */
+}
+
+/* Message Inside the Overlay */
+.blocked-message {
+  color: white;
+  display: block;
+  font-size: 2rem;
+  font-weight: bold;
+  text-align: center;
+  background-color: rgba(255, 255, 255, 0.8); /* Slightly darker background for the message box */
+  padding: 15px;
+  margin-top: 30%;
+}
+
+
 
 
 	</style>
@@ -122,6 +166,14 @@
 		<div class="colorlib-product">
 			<div class="container">
 				<div class="row row-pb-lg product-detail-wrap">
+					<% if (product.isBlocked) { %>
+						<!-- Transparent Overlay -->
+						<div class="overlay-blocked">
+							<div class="blocked-message">
+								<h3 style="color: red;">This Product is Unavailable</h3>
+							</div>
+						</div>
+					<% } %>
 					<div class="col-sm-8">
 						<div class="owl-carousel">
 					
@@ -173,15 +225,14 @@
 						<div class="product-desc">
 							<h3><%=product.productName%></h3>
 							<p class="price">
-								<span>₹<%=product.regularPrice%></span> 
-								<span class="rate">
-									<i class="icon-star-full"></i>
-									<i class="icon-star-full"></i>
-									<i class="icon-star-full"></i>
-									<i class="icon-star-full"></i>
-									<i class="icon-star-half"></i>
-									(74 Rating)
-								</span>
+								<span style="color: black; font-weight: bold;">₹ <%= product.salePrice%> <strike style="color: gray; font-size: 13px;"> ₹<%=product.regularPrice%></strike> </span> 
+								
+									<p style="color: black;">In Stock : <%= product.quantity%></p>
+									<% if (product.quantity === 0) { %>
+										<span style="color: red; font-weight: bold;">Out of Stock !</span>
+									<% } else if (product.quantity < 5) { %>
+										<span style="color: red; font-weight: bold;">Hurry up! Only a few left!</span>
+									  <% } %>
 							
 							</p>
 							<p><%=product.description%></p>
@@ -196,7 +247,17 @@
 								<input type="hidden" name="quantity" id="hiddenQuantity" value="1">
 
 
-								<button>Add to Cart</button>
+								<% if (product.quantity > 0) { %>
+									<button style="background-color: black; color: white; padding: 5px; border-radius: 9px;">
+										Add to Cart
+									</button>
+								<% } else { %>
+									<button style="background-color: grey; color: white; padding: 5px; border-radius: 9px;" disabled>
+										Out of Stock
+									</button>
+								<% } %>
+								
+								<!-- <button style="background-color: black; color: white; padding: 5px; border-radius: 9px;">Add to Cart</button> -->
 							</form>
 								
 										<button style="border: none; background-color: #ffffff;">

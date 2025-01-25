@@ -12,6 +12,8 @@ const userRouter =require('./routes/userRouter')
 const adminRouter = require('./routes/adminRouter')
 const otpRoutes = require('./routes/otpRoutes');
 const filterBlockedProducts = require('./middleware/filterblockedproducts'); // Adjust the path to your middleware
+const Product = require('./models/productSchema')
+
 const checkBan= require("./middleware/checkban");
 
 

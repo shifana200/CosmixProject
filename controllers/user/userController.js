@@ -47,7 +47,9 @@ const loadHomepage = async (req, res) => {
     console.log("Listed categories:", listedCategories);
 
     if (!listedCategories || listedCategories.length === 0) {
-      return res.status(404).send("No listed categories found");
+
+      console.log('no categories are listed')
+      res.render('home',{products:[]})
     }
 
     // Find products that are not blocked and belong to listed categories
@@ -63,7 +65,7 @@ const loadHomepage = async (req, res) => {
   } catch (error) {
     console.error("Error fetching products:", error.message);
     console.error("Stack trace:", error.stack);
-    res.status(500).send("Error fetching products");
+    res.render('home',{products:[]})
   }
 };
 
@@ -130,31 +132,153 @@ const securePassword = async (password) => {
   } catch (error) {}
 };
 
+// const verifyRegister = async (req, res) => {
+//   try {
+//     const { name, email, password, phone } = req.body;
+
+//     const existingUser = await User.findOne({ email });
+//     if (existingUser) {
+//       res.render("signUp", { error: "User already exist" });
+//     } else {
+//       const otp = generateOtp();
+//       const otpExpiration = Date.now() + 5 * 60 * 1000; // 5 minutes
+//       req.session.otpExpiration = otpExpiration;
+
+//       req.session.loggedIn = true;
+//       req.session.userOtp = otp;
+//       req.session.userData = { name, email, password, phone };
+
+//       req.session.save((err) => {
+//         if (err) {
+//           console.error("Error saving session:", err);
+//           return res.status(500).send("Internal Server Error");
+//         }})
+
+//       const emailSent = sendVerificationEmail(email, otp);
+//       if (!emailSent) {
+//         return res.json("email-error");
+//       }
+
+   
+
+//       //console.log(req.session.userData);
+
+//       res.redirect("/verify");
+//       console.log("OTP Sent ", otp);
+//     }
+//   } catch (error) {
+//     console.error("Signup Error", error);
+//     res.status(500).send("Internal Server Error");
+//   }
+// };
+
+const loadOtpPage = (req, res) => {
+  const message = req.session.errorMessage || null;
+  res.render("verify-otp", { message });
+};
+
+// const verifyOtp = async (req, res) => {
+//   try {
+//     const otpArray = req.body.otp;
+//     const otp = Array.isArray(otpArray) ? otpArray.join("") : otpArray;
+
+//     const user = req.session.userData;
+//     console.log(user)
+//     if (!req.session.userData) {
+//       console.error("No user data found in session.");
+//       req.session.errorMessage =
+//         "Session expired or invalid. Please try again.";
+//       return res.render("verify-otp", { message: req.session.errorMessage });
+//     }
+
+//     // const user = req.session.userData;
+
+//     if (Date.now() > req.session.otpExpiration) {
+//       console.error("OTP has expired");
+//       req.session.errorMessage = "OTP has expired. Please request a new one.";
+//       return res.render("verify-otp", { message: req.session.errorMessage });
+//     }
+
+//     if (otp === req.session.userOtp) {
+//       console.log("OTP matched:", otp);
+
+//       const passwordHash = await securePassword(user.password);
+
+//       const saveUserData = new User({
+//         name: user.name,
+//         email: user.email,
+//         phone: user.phone,
+//         password: passwordHash,
+//         otp: otp,
+//         otpExpiration: new Date(Date.now() + 5 * 60 * 1000),
+//       });
+
+//       await saveUserData.save();
+//       //console.log("User Saved Successfully:", saveUserData);
+
+//       req.session.userOtp = null;
+//       req.session.otpExpiration = null;
+//       // req.session.userData = null;
+//       req.session.user = saveUserData
+//       // req.session.email =email;
+
+//       req.session.errorMessage = "OTP verified successfully!";
+
+//       const products = await Product.find().catch((err) => {
+//         console.error("Error fetching products:", err);
+//         return [];
+//       });
+
+//       return res.render("home", { products ,user:saveUserData });
+//     } else {
+//       console.error("Invalid OTP");
+//       req.session.errorMessage = "Invalid OTP. Please try again.";
+//       return res
+//         .status(400)
+//         .render("verify-otp", { message: req.session.errorMessage });
+//     }
+//   } catch (error) {
+//     console.error("Error Verifying OTP:", error);
+//     req.session.errorMessage =
+//       "An unexpected error occurred. Please try again.";
+//     return res
+//       .status(500)
+//       .render("verify-otp", { message: req.session.errorMessage });
+//   }
+// };
+
+
 const verifyRegister = async (req, res) => {
   try {
     const { name, email, password, phone } = req.body;
 
     const existingUser = await User.findOne({ email });
     if (existingUser) {
-      res.render("signUp", { error: "User already exist" });
+      res.render("signUp", { error: "User already exists" });
     } else {
       const otp = generateOtp();
       const otpExpiration = Date.now() + 5 * 60 * 1000; // 5 minutes
       req.session.otpExpiration = otpExpiration;
 
-      const emailSent = await sendVerificationEmail(email, otp);
-      if (!emailSent) {
-        return res.json("email-error");
-      }
-
       req.session.loggedIn = true;
       req.session.userOtp = otp;
       req.session.userData = { name, email, password, phone };
 
-      //console.log(req.session.userData);
+      // Save the session data
+      req.session.save((err) => {
+        if (err) {
+          console.error("Error saving session:", err);
+          return res.status(500).send("Internal Server Error");
+        }
+      });
 
+      const emailSent = sendVerificationEmail(email, otp);
+      if (!emailSent) {
+        return res.json("email-error");
+      }
+
+      console.log("OTP Sent", otp);
       res.redirect("/verify");
-      console.log("OTP Sent ", otp);
     }
   } catch (error) {
     console.error("Signup Error", error);
@@ -162,24 +286,20 @@ const verifyRegister = async (req, res) => {
   }
 };
 
-const loadOtpPage = (req, res) => {
-  const message = req.session.errorMessage || null;
-  res.render("verify-otp", { message });
-};
+
 
 const verifyOtp = async (req, res) => {
   try {
     const otpArray = req.body.otp;
     const otp = Array.isArray(otpArray) ? otpArray.join("") : otpArray;
 
-    if (!req.session.userData) {
+    const user = req.session.userData;  // Make sure user data is loaded from session
+    if (!user) {
       console.error("No user data found in session.");
       req.session.errorMessage =
         "Session expired or invalid. Please try again.";
       return res.render("verify-otp", { message: req.session.errorMessage });
     }
-
-    const user = req.session.userData;
 
     if (Date.now() > req.session.otpExpiration) {
       console.error("OTP has expired");
@@ -197,17 +317,18 @@ const verifyOtp = async (req, res) => {
         email: user.email,
         phone: user.phone,
         password: passwordHash,
-        otp: otp,
+        otp,
         otpExpiration: new Date(Date.now() + 5 * 60 * 1000),
       });
 
       await saveUserData.save();
-      //console.log("User Saved Successfully:", saveUserData);
 
+      // Clear session OTP data after successful verification
       req.session.userOtp = null;
       req.session.otpExpiration = null;
-      req.session.userData = null;
-      req.session.user = saveUserData._id;
+
+      // Store the logged-in user in the session
+      req.session.user = saveUserData;
 
       req.session.errorMessage = "OTP verified successfully!";
 
@@ -215,13 +336,12 @@ const verifyOtp = async (req, res) => {
         console.error("Error fetching products:", err);
         return [];
       });
-      return res.render("home", { products });
+
+      return res.render("home", { products, user: saveUserData });
     } else {
       console.error("Invalid OTP");
       req.session.errorMessage = "Invalid OTP. Please try again.";
-      return res
-        .status(400)
-        .render("verify-otp", { message: req.session.errorMessage });
+      return res.status(400).render("verify-otp", { message: req.session.errorMessage });
     }
   } catch (error) {
     console.error("Error Verifying OTP:", error);
@@ -233,6 +353,52 @@ const verifyOtp = async (req, res) => {
   }
 };
 
+
+// const resendOtp = async (req, res) => {
+//   try {
+
+//     const { email } = req.session.userData;
+//     if (!email) {
+//       return res
+//         .status(400)
+//         .json({ success: false, message: "Email not found in session" });
+//     }
+
+//     const otp = generateOtp();
+//     const otpExpiration = Date.now() + 5 * 60 * 1000; // OTP valid for 5 minutes
+
+//     req.session.userOtp = otp;
+//     req.session.otpExpiration = otpExpiration;
+
+//     console.log(
+//       `Generated OTP: ${otp}, Expires At: ${new Date(otpExpiration)}`
+//     );
+
+//     const emailSent = await sendVerificationEmail(email, otp);
+//     if (emailSent) {
+//       console.log("Resend OTP :", otp);
+//       res
+//         .status(200)
+//         .json({ success: true, message: "OTP Resend Successfully" });
+//     } else {
+//       res
+//         .status(500)
+//         .json({
+//           success: false,
+//           message: "Failed to resend OTP,Please try again",
+//         });
+//     }
+//   } catch (error) {
+//     console.error("Error resending OTP", error);
+//     res
+//       .status(500)
+//       .json({
+//         success: false,
+//         message: "Internal Server Error,Please Try again",
+//       });
+//   }
+// };
+
 const resendOtp = async (req, res) => {
   try {
     const { email } = req.session.userData;
@@ -243,38 +409,34 @@ const resendOtp = async (req, res) => {
     }
 
     const otp = generateOtp();
+    const otpExpiration = Date.now() + 5 * 60 * 1000; // OTP valid for 5 minutes
+
     req.session.userOtp = otp;
     req.session.otpExpiration = otpExpiration;
 
-    console.log(
-      `Generated OTP: ${otp}, Expires At: ${new Date(otpExpiration)}`
-    );
+    console.log(`Generated OTP: ${otp}, Expires At: ${new Date(otpExpiration)}`);
 
-    const otpExpiration = Date.now() + 5 * 60 * 1000; // OTP valid for 5 minutes
     const emailSent = await sendVerificationEmail(email, otp);
     if (emailSent) {
-      console.log("Resend OTP :", otp);
+      console.log("Resend OTP:", otp);
       res
         .status(200)
-        .json({ success: true, message: "OTP Resend Successfully" });
+        .json({ success: true, message: "OTP Resent Successfully" });
     } else {
       res
         .status(500)
-        .json({
-          success: false,
-          message: "Failed to resend OTP,Please try again",
-        });
+        .json({ success: false, message: "Failed to resend OTP, Please try again" });
     }
   } catch (error) {
     console.error("Error resending OTP", error);
-    res
-      .status(500)
-      .json({
-        success: false,
-        message: "Internal Server Error,Please Try again",
-      });
+    res.status(500).json({
+      success: false,
+      message: "Internal Server Error, Please Try again",
+    });
   }
 };
+
+
 
 const registerUser = async (req, res) => {
   try {
@@ -306,7 +468,21 @@ const registerUser = async (req, res) => {
 
     await newUser.save();
 
+    // Store user data in the session
+    req.session.userData = { name, email, password, phone };
+    req.session.userOtp = otp;
+    req.session.otpExpiration = Date.now() + 5 * 60 * 1000;  // OTP expires in 5 minutes
+
+    // Send OTP to the user's email
     await sendOTP(email, otp);
+
+    // Save the session data
+    req.session.save((err) => {
+      if (err) {
+        console.error("Error saving session:", err);
+        return res.status(500).send("Internal Server Error");
+      }
+    });
 
     res.redirect("/verify");
   } catch (err) {
@@ -314,6 +490,49 @@ const registerUser = async (req, res) => {
     res.status(500).send("Internal Server Error");
   }
 };
+
+
+
+// const registerUser = async (req, res) => {
+//   try {
+//     const { name, email, password, phone } = req.body;
+
+//     // Input validation
+//     if (!name || !email || !password || !phone) {
+//       return res.status(400).send("All fields are required");
+//     }
+
+//     // Check if email already exists
+//     const existingUser = await User.findOne({ email });
+//     if (existingUser) {
+//       return res.status(400).send("Email is already registered");
+//     }
+
+//     const otp = crypto.randomInt(100000, 999999).toString();
+
+//     const hashedPassword = await hashPassword(password);
+
+//     const newUser = new User({
+//       name,
+//       email,
+//       phone,
+//       password: hashedPassword,
+//       otp,
+//       otpExpiration: Date.now() + 5 * 60 * 1000, // OTP expires in 5 minutes
+//     });
+
+
+//     await newUser.save();
+
+
+//     await sendOTP(email, otp);
+
+//     res.redirect("/verify");
+//   } catch (err) {
+//     console.error("Error during registration:", err);
+//     res.status(500).send("Internal Server Error");
+//   }
+// };
 
 const loginUser = async (req, res) => {
   req.session.userData = req.body;
@@ -430,10 +649,13 @@ const loadContact = async (req, res) => {
 };
 
 const loadProductDetails = async (req, res) => {
-  const { id } = req.params;
+  const  id  = req.params.id;
+  console.log(id)
 
   try {
-    const product = await Product.findById(id);
+    const product = await Product.findOne({
+      _id:id 
+    });
     console.log("Product Data:", product);
     console.log(
       "Image Path:",
@@ -469,104 +691,12 @@ const loadPageError = async (req, res) => {
   }
 };
 
-const loadCart = async (req, res) => {
-  try {
-
-    const userId = req.session.user;
-
-    if(!userId){
-      return res.redirect('/signin');
-    }
-
-
-
-const cart = await Cart.findOne({userId}).populate('items.productId')
-console.log(cart)
-
-if (!cart || cart.items.length === 0) {
-  return res.render('cart', { cart:{items:[]} });
-}
-// Calculate the subtotal dynamically
-const subtotal = cart.items.reduce((acc, item) => {
-  return acc + item.totalPrice // Access price from the populated productId
-}, 0);
-
-const delivery = 50;
-const total = subtotal+delivery;
-console.log("------------------------------")
 
 
 
 
-     res.render("cart",{cart,subtotal,delivery,total})
-  } catch (error) {
-    console.log("cart page not loading", error);
-    res.status(500).send("Server error");
-  }
-};
-
-const addCart = async (req, res) => {
-  const userId = req.session.user;
-
-  console.log("-------------------")
-  console.log(userId)
-
-  const {productId} = req.body;
-  const quantity = 1;
-  console.log(productId);
-
-  try {
-    const product = await Product.findById(productId);
-
-    if (!product) {
-      return res.status(404).send("Product not found");
-    }
-
-    
-    let cart = await Cart.findOne({ userId }); 
-
-    if (!cart) {
-      cart = new Cart({ userId, items: [{productId,quantity,price:product.regularPrice, totalPrice: product.regularPrice * quantity}] });
-    }
-
-    const existingItem = cart.items.find(
-      (item) => item.productId.toString() === productId);
-
-    if (existingItem) {
-      existingItem.quantity += parseInt(quantity);
-      existingItem.totalPrice = existingItem.quantity * existingItem.price;
-
-    } else {
-      cart.items.push({productId,
-        quantity,
-        price: product.regularPrice,
-        totalPrice: product.regularPrice * quantity
-    });
-    }
-
-    await cart.save();
-
-    
-    res.redirect("/cart"); 
-  } catch (error) {
-    console.error(error);
-    res.status(500).send("Server error");
-  }
-};
 
 
-const deleteCart = async(req,res)=>{
-  try {
-    const cartId = req.query.id;
-    const deleteCart = await Cart.updateOne({"items._id":cartId},{
-      $pull:{items:{_id:cartId}}
-    })
-    res.redirect('/cart')
-  } catch (error) {
-    console.error("Error occured",error)
-    res.redirect('/pageNotFound')
-  }
-}
 
 
 const loadWishlist = async (req, res) => {
@@ -638,12 +768,12 @@ const loadOrderCheckout = async (req, res) => {
       const userData = await User.findById(userId);
       
     const addressData = await Address.findOne({userId:userId})
-    const cart = await Cart.findOne({userId:userId}).populate('items.productId')
+    const cart = await Cart.findOne({ userId: userId }).populate('items.productId');
     console.log("**************************************")
     console.log(cart.items)
     console.log("****************************************")
 
-      
+      console.log(addressData)
 
 
  
@@ -656,7 +786,7 @@ const loadOrderCheckout = async (req, res) => {
       const delivery = 50;
 const total = subtotal+delivery;
 
-    res.render("checkout", {user:userData,userAddress:addressData , cart: cart,subtotal,delivery,total});
+    res.render("checkout", {user:userData,userAddress: addressData , cart: cart,subtotal,delivery,total});
   } catch (error) {
     console.log("checkout page not loading", error);
     res.status(500).send("Server error");
@@ -915,6 +1045,17 @@ console.log("---------------------------")
     }
 
     const newOrder = await Order.create(orderData);
+
+     for (let item of cart.items) {
+      const product = await Product.findById(item.productId);
+
+      if (product) {
+
+        // Decrease the stock by the ordered quantity
+        product.quantity -= item.quantity;
+        await product.save();
+      }
+    }
     await Cart.findByIdAndDelete(cart._id);
 
     res.redirect(`/ordercomplete?orderId=${newOrder.orderId}`)
@@ -1005,7 +1146,6 @@ module.exports = {
   loadAbout,
   loadContact,
   loadProductDetails,
-  loadCart,
   loadWishlist,
   loadOrderComplete,
   loadOrderCheckout,
@@ -1027,8 +1167,7 @@ placeOrder,
   blockUser,
   loadPageError,
   
-  addCart,
-  deleteCart,
+ 
   loadForgetPassword,
   updatePassword,
   updateAddress,

@@ -57,6 +57,7 @@ const orderSchema = new Schema({
     },
     CancellationReason:{
         type:String,
+        default:"None"
     },
     createdOn:{
         type:Date,

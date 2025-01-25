@@ -40,7 +40,7 @@ async (accessToken,refreshToken,profile,done)=>{
 
 
 passport.serializeUser((user,done)=>{
-    done (null,user.id)
+    done (null,{id: user._id , email :user.email, googleId: user.googleId})
 
 });
 

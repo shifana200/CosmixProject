@@ -178,10 +178,7 @@
 											<h6 style="background-color: #47abb8; color: #fff; margin: 0; padding: 5px 10px; border-radius: 4px;"><%=userAddress.address[0].addressType%></h6>
 										</div>
 										
-										<!-- Right side: Icon -->
-										 <!-- <button>
-										<i class="fa-solid fa-pen-to-square" style="color: #47abb8; font-size: 18px; cursor: pointer;" id="edit-Address"></i>
-									</button> -->
+										
 									</div>
 									
 							
@@ -198,7 +195,7 @@
 							
 						</div>
 						
-							<button type="submit" class="add-address-btn" id="showaddAddress">Add  New Address</button>
+							<button type="submit" class="add-address-btn" id="showaddAddress">Add  New Address</button> 
 							<button type="submit" class="add-address-btn" id="edit-Address">Edit Address</button>
 
 							
@@ -264,8 +261,10 @@
 						</form>
 						
 					</div>
-					
+
 					<div class="col-lg-8" style="background-color: #F5F5F5; display: none;" id="editAddress">
+
+						<form id="addressForm">
 
 						<% if (userAddress.address.length>0) {%>
 							<% userAddress.address.forEach(address=>{ %>
@@ -282,10 +281,7 @@
 													<h6 style="background-color: #47abb8; color: #fff; margin: 0; padding: 5px 10px; border-radius: 4px;"><%=address.addressType%></h6>
 									</div>
 									
-									<!-- Right side: Icon -->
-									 <!-- <button>
-									<i class="fa-solid fa-pen-to-square" style="color: #47abb8; font-size: 18px; cursor: pointer;" id="edit-Address"></i>
-								</button> -->
+								
 								</div>
 								
 						
@@ -297,10 +293,11 @@
 							</div>
 							<%})%>
 							<%}%>
-							<button type="button"  id="updateAddressBtn">Update Address</button>
+							<button type="button" class="add-address-btn" id="updateAddressBtn">Update Address</button>
 						<button type="button" class="add-address-btn" id="cancelEdit">Cancel</button>
 
 					</div>
+				</form>
 
 					<div class="col-lg-4">
 						<div class="row">
@@ -367,7 +364,10 @@
 	<div class="gototop js-top">
 		<a href="#" class="js-gotop"><i class="ion-ios-arrow-up"></i></a>
 	</div>
-	<script>
+
+
+
+	<!-- <script>
 		// Get references to elements
 const addressDiv = document.getElementById('addressdiv');
 const addAddressDiv = document.getElementById('addAddress');
@@ -402,90 +402,139 @@ cancelEditBtn.addEventListener('click', function() {
 });
 
 
-// document.getElementById('updateAddressBtn').addEventListener('click', function() {
-//     // Find the selected radio button
-//     const selectedRadio = document.querySelector('input[name="address"]:checked');
-    
-//     if (selectedRadio) {
-//       // Get the ID of the selected address
-//       const selectedAddressId = selectedRadio.getAttribute('data-id');
-      
-//       // Send the selected address ID to the backend (using fetch or AJAX)
-//       fetch('/updateAddress', {
-//         method: 'POST',
-//         headers: {
-//           'Content-Type': 'application/json'
-//         },
-//         body: JSON.stringify({ addressId: selectedAddressId })
-//       })
-//       .then(response => response.json())
-//       .then(data => {
-//         if (data.success) {
-//           // Handle success (e.g., show a success message or update the page)
-//           alert('Address updated successfully');
-//         } else {
-//           // Handle failure (e.g., show an error message)
-//           alert('Failed to update address');
-//         }
-//       })
-//       .catch(error => {
-//         console.error('Error:', error);
-//       });
-//     } else {
-//       alert('Please select an address to update');
-//     }
-//   });
 
-document.getElementById('updateAddressButton').addEventListener('click', async () => {
-  // Get the selected address ID from the radio button
-  const selectedAddressId = document.querySelector('input[name="address"]:checked')?.value;
+document.getElementById('updateAddressBtn').addEventListener('click', function() {
+    // Get the selected radio button's ID or value
+    const selectedRadio = document.querySelector('input[name="address"]:checked');
+    let selectedAddress;
 
-  if (!selectedAddressId) {
-    alert('Please select an address.');
-    return;
-  }
-
-  try {
-    // Send the selected address ID to the backend
-    const response = await fetch('/update-address', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ addressId: selectedAddressId }),
-    });
-
-    const result = await response.json();
-
-    if (response.ok && result.success) {
-      const address = result.address; // The updated address object from the backend
-
-      // Update the UI to show the selected address
-      const addressDiv = document.getElementById('addressDiv');
-
-      addressDiv.innerHTML = `
-        <div style="padding: 20px;">
-          <h6>${address.addressType}</h6>
-          <strong>${address.name}</strong>
-          <p>Phone: ${address.phone}</p>
-          <p>${address.city}, ${address.landMark}, <br/>
-             ${address.district}, ${address.state} - ${address.pincode}</p>
-        </div>
-      `;
-
-      alert(result.message);
-    } else {
-      alert(result.message || 'Failed to update the address.');
+    if (selectedRadio) {
+        // Get the address ID from the selected radio button
+        const selectedAddressId = selectedRadio.getAttribute('data-id');
+        
+        // Assuming `userAddress.address` is available and contains the list of addresses
+        selectedAddress = userAddress.address.find(address => address._id === selectedAddressId);
     }
-  } catch (error) {
-    console.error('Error updating address:', error);
-    alert('Something went wrong. Please try again later.');
-  }
+
+    // If no address is selected, default to the first address (0th index)
+    if (!selectedAddress) {
+        selectedAddress = userAddress.address[0];
+    }
+
+    // Update the address content div with the selected or 0th index address
+    const addressContentDiv = document.getElementById('addressContentDiv');
+    addressContentDiv.innerHTML = `
+        <div class="radio-section" style="display: flex; align-items: center; justify-content: space-between; padding: 10px;">
+            <div style="display: flex; align-items: center; gap: 5px;">
+                <input type="radio" name="address" id="address1" data-id="${selectedAddress._id}" checked>
+                <h6 style="background-color: #47abb8; color: #fff; margin: 0; padding: 5px 10px; border-radius: 4px;">
+                    ${selectedAddress.addressType}
+                </h6>
+            </div>
+        </div>
+        <strong>${selectedAddress.name}</strong>
+        <p>Phone: ${selectedAddress.phone} <br/>
+           Alt Phone: ${selectedAddress.altPhone}</p>
+        <p>
+            ${selectedAddress.city}, ${selectedAddress.landMark},<br/>
+            ${selectedAddress.district}, ${selectedAddress.state} - 
+            <strong>${selectedAddress.pincode}</strong>
+        </p>
+    `;
+});
+
+  
+    
+
+
+
+
+	</script> -->
+
+	
+	 
+	 
+	<script>
+		document.addEventListener("DOMContentLoaded", function() {
+
+		// Get references to elements
+const addressDiv = document.getElementById('addressdiv');
+const addAddressDiv = document.getElementById('addAddress');
+const editAddressDiv = document.getElementById('editAddress');
+const showAddAddressBtn = document.getElementById('showaddAddress');
+const editAddressBtn = document.getElementById('edit-Address');
+const cancelBtn = document.getElementById('cancel');
+const cancelEditBtn = document.getElementById('cancelEdit');
+const updateAddressBtn = document.getElementById('updateAddressBtn');
+const addressForm = document.getElementById('addressForm');
+
+
+// Show the "Add Address" form
+showAddAddressBtn.addEventListener('click', function() {
+    addressDiv.style.display = 'none';  // Hide address list
+    addAddressDiv.style.display = 'block';  // Show Add Address form
+});
+
+// Show the "Edit Address" form
+editAddressBtn.addEventListener('click', function() {
+    addressDiv.style.display = 'none';  // Hide address list
+    editAddressDiv.style.display = 'block';  // Show Edit Address form
+});
+
+// Cancel button in "Add Address" form
+cancelBtn.addEventListener('click', function() {
+    addAddressDiv.style.display = 'none';  // Hide Add Address form
+    addressDiv.style.display = 'block';  // Show address list
+});
+
+// Cancel button in "Edit Address" form
+cancelEditBtn.addEventListener('click', function() {
+    editAddressDiv.style.display = 'none';  // Hide Edit Address form
+    addressDiv.style.display = 'block';  // Show address list
 });
 
 
+addressForm.addEventListener('submit', function(e) {
+    e.preventDefault(); // Prevent the form from submitting normally
 
+    // Get the selected address ID from the radio buttons
+    const selectedAddressId = document.querySelector('input[name="address"]:checked');
+
+    if (selectedAddressId) {
+      // Get the selected address object from the userAddress data
+      const selectedAddress = userAddress.address.find(address => address._id === selectedAddressId.value);
+
+      if (selectedAddress) {
+        // Hide the edit address section
+        editAddressDiv.style.display = 'none';
+
+        // Display the selected address in the address div
+        addressDiv.innerHTML = `
+          <strong>${selectedAddress.name}</strong><br/>
+          Phone: ${selectedAddress.phone} <br/>
+          Alt Phone: ${selectedAddress.altPhone} <br/>
+          ${selectedAddress.city}, ${selectedAddress.landMark}, ${selectedAddress.district}, ${selectedAddress.state} - <strong>${selectedAddress.pincode}</strong>
+        `;
+
+        // Show the selected address div
+        addressDiv.style.display = 'block';
+      }
+    } else {
+      alert('Please select an address.');
+    }
+  });
+
+  // Event listener for the cancel button
+  cancelEditBtn.addEventListener('click', function() {
+    // Hide the edit address section
+    editAddressDiv.style.display = 'none';
+  });
+
+		})
 	</script>
+
+
+
 	<!-- jQuery -->
 	<script src="js/jquery.min.js"></script>
    <!-- popper -->

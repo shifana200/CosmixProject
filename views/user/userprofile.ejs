@@ -291,12 +291,16 @@ textarea {
 
                         <label for="name">Name:</label>
                         <input type="text" id="name" name="name" placeholder="Enter your name"  value="<%=user.name%>">
+                        <p class="error" id="name-error" style="color: red;"></p>
+
                   
                         <label for="email">Email:</label>
                         <input type="email" id="email" name="email" placeholder="Enter your email" value="<%=user.email%>" readonly>
                   
                         <label for="phone">Phone Number:</label>
                         <input type="tel" id="phone" name="phone" placeholder="Enter your phone number" value="<%=user.phone%>">
+                        <p class="error" id="phone-error" style="color: red;"></p>
+
                   
                   
                        
@@ -324,60 +328,90 @@ textarea {
 <!-- SweetAlert2 Library -->
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
-    <script>
-        document.getElementById('user-details-form').addEventListener('submit', function (e) {
-    e.preventDefault(); // Prevents the page from reloading
-    
-    const name = document.getElementById('name').value;
-    const phone = document.getElementById('phone').value;
+<script>
+    document.getElementById('user-details-form').addEventListener('submit', function (e) {
+        e.preventDefault(); // Prevents the page from reloading
+        
+        const name = document.getElementById('name').value.trim();
+        const phone = document.getElementById('phone').value.trim();
+        let isValid = true;
 
-    // Send data to the backend using fetch
-    fetch('/update-profile', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ name, phone })
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            Swal.fire({
-                title: 'Profile Updated!',
-                text: 'Your profile has been updated successfully.',
-                icon: 'success',
-                timer: 2000, // 2 seconds
-                showConfirmButton: false, // Hide the confirm button
-                timerProgressBar: false,
-            }).then(() => {
-            
-                window.location.href = window.location.href;
-            });
-        } else {
+        // Clear any previous error messages
+        document.getElementById('name-error').textContent = '';
+        document.getElementById('phone-error').textContent = '';
+
+        // Validate Name
+        if (!name || name.length < 3 || !/^[A-Za-z\s]+$/.test(name)) {
+    document.getElementById('name-error').textContent = 'Enter a valid name (letters and spaces only).';
+    isValid = false;
+}
+
+
+     // Validate Phone
+const phoneRegex = /^[6-9]\d{9}$/; // First digit must be 6, 7, 8, or 9, followed by 9 digits
+if (!phone) {
+    document.getElementById('phone-error').textContent = 'Phone number is required.';
+    isValid = false;
+} else if (!phoneRegex.test(phone)) {
+    document.getElementById('phone-error').textContent = 'Enter a valid 10-digit phone number';
+    isValid = false;
+} else if (/^(\d)\1{9}$/.test(phone)) { 
+    document.getElementById('phone-error').textContent = 'Phone number cannot contain all the same digits.';
+    isValid = false;
+} else {
+    document.getElementById('phone-error').textContent = ''; 
+}
+
+
+        // If validation fails, stop execution
+        if (!isValid) return;
+
+        // Send data to the backend using fetch
+        fetch('/update-profile', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ name, phone })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                Swal.fire({
+                    title: 'Profile Updated!',
+                    text: 'Your profile has been updated successfully.',
+                    icon: 'success',
+                    timer: 2000, // 2 seconds
+                    showConfirmButton: false, // Hide the confirm button
+                    timerProgressBar: false,
+                }).then(() => {
+                    window.location.href = window.location.href; // Reload the page
+                });
+            } else {
+                Swal.fire({
+                    title: 'Error!',
+                    text: data.message || 'There was an error updating your profile.',
+                    icon: 'error',
+                    timer: 2000, 
+                    showConfirmButton: false, 
+                    timerProgressBar: false,
+                });
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
             Swal.fire({
                 title: 'Error!',
-                text: 'There was an error updating your profile.',
+                text: 'There was an error sending the request.',
                 icon: 'error',
                 timer: 2000, 
                 showConfirmButton: false, 
                 timerProgressBar: false,
             });
-        }
-    })
-    .catch(error => {
-        console.error('Error:', error);
-        Swal.fire({
-            title: 'Error!',
-            text: 'There was an error sending the request.',
-            icon: 'error',
-                timer: 2000, 
-                showConfirmButton: false, 
-                timerProgressBar: false,
         });
     });
-});
+</script>
 
-    </script>
     
 </body>
 </html>

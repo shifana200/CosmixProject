@@ -151,6 +151,8 @@
 					<table border="1" cellpadding="10" cellspacing="0" style="width:100%; border-collapse: collapse;">
   							<thead>
    							 <tr>
+								<th>Product Image</th>
+
 							<th>Product Name</th>
 							<th>Quantity</th>
 							<th>Price</th>
@@ -159,6 +161,9 @@
 						<tbody>
 							<% orderDetails.orderedItems.forEach((item) => { %>
 							<tr>
+								<td> <img    src="/uploads/<%= item.product.productImage[0]%>" alt="Product Image"  style="height: 60px; width: 50px;" >
+								</td>
+
 								<td><%= item.product.productName %></td>
 								<td><%= item.quantity %></td>
 								<td><%= item.price %></td>

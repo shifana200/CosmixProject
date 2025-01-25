@@ -174,8 +174,8 @@
 
         /* Style for buttons */
 button {
-    padding: 10px 20px; /* Same size for both buttons */
-    font-size: 16px;
+    padding: 5px 10px; /* Same size for both buttons */
+    font-size: 15px;
     border: none;
     cursor: pointer;
     text-align: center;
@@ -187,6 +187,7 @@ button {
 /* Block button (red) */
 .btn-block {
     background-color: red;
+    padding: 5px 10px;
     color: white;
 }
 
@@ -238,19 +239,7 @@ button:hover {
     </style>
 </head>
 <body>
-    <!-- Sidebar -->
-    <!-- <div class="sidebar">
-        <h1>CosmiX</h1>
-        <ul>
-            <li>Dashboard</li>
-            <li>User Management</li>
-            <li>Products Management</li>
-            <li>Order Management</li>
-            <li>Category Management</li>
-            <li>Coupon Management</li>
-            <li>Offers Management</li>
-        </ul>
-    </div> -->
+   
 
     <!-- Main Section -->
     <div class="main">
@@ -301,17 +290,16 @@ button:hover {
 
 
                             <td>
-                                <%if(product.isBlocked===false){%>
-                                <button class="btn-block">
-                                <a href="/admin/blockProduct?id=<%=product._id%>">Unlist</a>
-                            </button>
-                                 <%} else {%>
-                            
-                                <button class="btn-unblock">
-                                    <a href="/admin/unblockProduct?id=<%=product._id%>">List</a>
-                                </button>
-                                <%}%>
-                            </td>
+                                <% if (product.isBlocked === false) { %>
+                                  <button class="btn-block" onclick="confirmAction('/admin/blockProduct?id=<%= product._id %>', 'Are you sure you want to unlist this product?')">
+                                    Unlist
+                                  </button>
+                                <% } else { %>
+                                  <button class="btn-unblock" onclick="confirmAction('/admin/unblockProduct?id=<%= product._id %>', 'Are you sure you want to list this product?')">
+                                    List
+                                  </button>
+                                <% } %>
+                              </td>
 
 
 
@@ -342,5 +330,29 @@ button:hover {
           
         </div>
     </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <script>
+
+function confirmAction(url, message) {
+  Swal.fire({
+    title: 'Confirmation',
+    text: message,
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonColor: '#3085d6',
+    cancelButtonColor: '#d33',
+    confirmButtonText: 'Yes, proceed',
+    cancelButtonText: 'Cancel',
+  }).then((result) => {
+    if (result.isConfirmed) {
+      // Redirect to the specified URL
+      window.location.href = url;
+    }
+  });
+}
+
+    </script>
 </body>
 </html>

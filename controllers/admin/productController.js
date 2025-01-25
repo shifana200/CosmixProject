@@ -22,6 +22,8 @@ const getaddProduct = async(req,res)=>{
     try {
         
         const category =await Category.find({isListed:true});
+        console.log("))))))))))))))))))))")
+        console.log(category)
         res.render('addproduct',{
             cat:category
         });
@@ -74,15 +76,15 @@ const addProducts = async(req,res)=>{
             await newProduct.save();
             return res.redirect('/admin/productmanagement')
         }
-        else {
-            return res.status(400).json({message: "product already exists,please try with another name"})
-        }
+        
     } catch (error) {
         
         console.error("Error saving product",error)
         return res.redirect('/PageError')
     }
 }
+
+
 
 
 

@@ -72,18 +72,53 @@ const getUnlistCategory = async(req,res)=>{
 }
 
 // Update Category Route
-const updateCategory =async (req, res) => {
+// const updateCategory =async (req, res) => {
+//     const { categoryId, name, description } = req.body;
+  
+//     // Find and update the category in the database
+//     Category.findByIdAndUpdate(categoryId, { name, description }, { new: true })
+//       .then(updatedCategory => {
+//         res.json(updatedCategory);
+//       })
+//       .catch(err => {
+//         res.status(500).send('Error updating category');
+//       });
+//   }
+
+const updateCategory = async (req, res) => {
     const { categoryId, name, description } = req.body;
   
-    // Find and update the category in the database
-    Category.findByIdAndUpdate(categoryId, { name, description }, { new: true })
-      .then(updatedCategory => {
-        res.json(updatedCategory);
-      })
-      .catch(err => {
-        res.status(500).send('Error updating category');
+    try {
+      // Check if the category name already exists (case insensitive), excluding the current category
+      const existingCategory = await Category.findOne({
+        name: { $regex: new RegExp(`^${name}$`, 'i') }, // Case-insensitive regex
+        _id: { $ne: categoryId }, // Exclude the current category
       });
-  }
+  
+      if (existingCategory) {
+        // If the category name already exists, send an error response
+        return res.status(400).json({ success: false, message: 'Category already exists' });
+      }
+  
+      // Update the category if no duplicate is found
+      const updatedCategory = await Category.findByIdAndUpdate(
+        categoryId,
+        { name, description },
+        { new: true } // Return the updated document
+      );
+  
+      if (!updatedCategory) {
+        return res.status(404).json({ success: false, message: 'Category not found' });
+      }
+  
+      // Send a success response
+      res.json({ success: true, message: 'Category updated successfully', category: updatedCategory });
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ success: false, message: 'Error updating category' });
+    }
+  };
+  
   
 
 

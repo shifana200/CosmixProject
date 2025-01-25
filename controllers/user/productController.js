@@ -13,26 +13,30 @@ const Cart = require('../../models/cartSchema')
 const Address = require('../../models/addressSchema')
 const Order = require('../../models/orderSchema')
 
+
 const loadShopPage = async (req, res) => {
-    try {
-      
-      const Categories = await Category.find({isListed:true})
-  
-      
-    
-      
-  
-      const products = await Product.find({isBlocked:false})
-      
+  try {
+    const listedCategories = await Category.find({ isListed: true });
 
-      
-
-
-      res.render('shopPage',{products:products})
-    } catch (error) {
-      res.redirect("/pageNotFound");
+    if (listedCategories.length === 0) {
+      console.log("No listed categories found. Rendering shop page with no products.");
+      return res.render('shopPage', { products: [] });
     }
-  };
+
+    const products = await Product.find({
+      isBlocked: false,
+      category: { $in: listedCategories.map(cat => cat._id) },
+    });
+
+    console.log("Filtered products:", products);
+
+    res.render('shopPage', { products });
+  } catch (error) {
+    console.error("Error loading shop page:", error.message);
+    res.render('shopPage', { products: [] });
+  }
+};
+
 
 
   

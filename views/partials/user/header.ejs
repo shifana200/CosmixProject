@@ -20,21 +20,12 @@
                         <li><a href="http://localhost:4000">Home</a></li>
                         <li><a href="http://localhost:4000/shop">SHOP</a></li>
 
-                        <li><a href="http://localhost:4000/skincare">SKIN</a></li>
-                        <li><a href="http://localhost:4000/haircare">HAIR</a></li>
+                        <!-- <li><a href="http://localhost:4000/skincare">SKIN</a></li> -->
+                        <!-- <li><a href="http://localhost:4000/haircare">HAIR</a></li> -->
                         <li><a href="http://localhost:4000/about">ABOUT</a></li>
                         <li><a href="http://localhost:4000/contact">CONTACT</a></li>
 
-                        <!-- <li class="has-dropdown">
-                            <a href="men.html">SKIN</a>
-                            <ul class="dropdown">
-                                <li><a href="product-detail.html">Product Detail</a></li>
-                                <li><a href="cart.html">Shopping Cart</a></li>
-                                <li><a href="checkout.html">Checkout</a></li>
-                                <li><a href="order-complete.html">Order Complete</a></li>
-                                <li><a href="add-to-wishlist.html">Wishlist</a></li>
-                            </ul>
-                        </li> -->
+                       
                         
 
                         <li><a href="#" id="authButton" class="button" style="background-color: cornflowerblue; color: white;">Sign In</a></li>
@@ -69,31 +60,34 @@
         </div>
     </div>
 </nav>
+
 <script>
     document.addEventListener("DOMContentLoaded", function() {
     
-    function updateAuthButton() {
-        const authButton = document.getElementById('authButton');
-        
-        
-        fetch('/auth/status') 
-            .then(response => response.json())
-            .then(data => {
-                if (data.loggedIn) {
-                    authButton.textContent = 'none'; 
-                    authButton.style.display= "none"
-                } else {
-                    authButton.textContent = 'Sign In';
-                    authButton.href = '/signin';
-                }
-            })
-            .catch(error => {
-                console.error('Error checking authentication status:', error);
-            });
-    }
+        function updateAuthButton() {
+            const authButton = document.getElementById('authButton');
+            
+            // Fetch authentication status from the server
+            fetch('/auth/status')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.loggedIn) {
+                        // If the user is logged in, hide the "Sign In" button
+                        authButton.style.display = "none"; 
+                    } else {
+                        // If the user is not logged in, show the "Sign In" button and link it to the sign-in page
+                        authButton.style.display = "inline";
+                        authButton.textContent = 'Sign In';  // Ensure the text is correct
+                        authButton.href = '/signin';  // Set the href to the sign-in page
+                    }
+                })
+                .catch(error => {
+                    console.error('Error checking authentication status:', error);
+                });
+        }
 
-    
-    updateAuthButton();
-});
-
+        // Call the function to update the auth button when the page loads
+        updateAuthButton();
+    });
 </script>
+

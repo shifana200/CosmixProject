@@ -3,127 +3,63 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link href="https://fonts.googleapis.com/css?family=Montserrat:300,400,500,600,700" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css?family=Rokkitt:100,300,400,700" rel="stylesheet">
-    <link rel="stylesheet" href="css/animate.css">
-    <link rel="stylesheet" href="css/icomoon.css">
-    <link rel="stylesheet" href="css/ionicons.min.css">
-    <link rel="stylesheet" href="css/bootstrap.min.css">
-    <link rel="stylesheet" href="css/magnific-popup.css">
-    <link rel="stylesheet" href="css/flexslider.css">
-    <link rel="stylesheet" href="css/owl.carousel.min.css">
-    <link rel="stylesheet" href="css/owl.theme.default.min.css">
-    <link rel="stylesheet" href="css/bootstrap-datepicker.css">
-    <link rel="stylesheet" href="fonts/flaticon/font/flaticon.css">
-    <link rel="stylesheet" href="/css/style.css">
-    <title>Order Details</title>
-
+    <title>Admin Panel</title>
+    <link rel="stylesheet" href="/css/style.css"> 
     <style>
-        /* General Reset */
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
             font-family: Arial, sans-serif;
         }
-
         body {
             display: flex;
-            flex-direction: column;
-            min-height: 100vh;
-            background-color: #ffffff;
+            background-color: #f5f5f5;
         }
 
         /* Sidebar */
-        .container {
-            display: flex;
-            flex: 1;
-            margin-left: 0px;
-        }
-
         .sidebar {
-            width: 200px;
-            background-color: #ffffff;
-            border-right: 1px solid #ddd;
+            width: 220px;
+            background-color: #fff;
+            height: 100vh;
             padding: 20px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            box-shadow: 2px 0px 5px rgba(0,0,0,0.1);
         }
-
+        .sidebar h1 {
+            color: #84CBCB;
+            margin-bottom: 20px;
+            font-size: 24px;
+        }
         .sidebar ul {
-            list-style: none;
+            list-style-type: none;
         }
-
-        .sidebar li {
-            margin-bottom: 15px;
-        }
-
-        .sidebar a {
-            text-decoration: none;
-            display: block;
-            padding: 10px;
+        .sidebar ul li {
+            margin: 15px 0;
+            cursor: pointer;
             color: #333;
-            border-radius: 5px;
-            transition: background-color 0.3s, color 0.3s;
+        }
+        .sidebar ul li:hover {
+            color: #84CBCB;
         }
 
-        .sidebar a.active, .sidebar a:hover {
+        /* Main Content */
+        .main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+        /* Top Header */
+        .header {
             background-color: #84CBCB;
-            color: rgb(255, 255, 255);
+            height: 50px;
+            display: flex;
+            align-items: center;
+            padding-left: 20px;
+            color: white;
+            font-size: 18px;
         }
 
-       
-        /* Responsive Design */
-        @media (max-width: 768px) {
-            .sidebar {
-                width: 100%;
-                margin-bottom: 20px;
-            }
-
-            .content {
-                padding: 15px;
-            }
-
-            .product-card {
-                flex-direction: column;
-                align-items: center;
-                text-align: center;
-                padding-bottom: 10px;
-            }
-
-            .product-card img {
-                margin-bottom: 10px;
-                height: 50px;
-                width: 50px;
-            }
-
-         .cancel-btn{
-            background-color: black;
-         }
-
-            .footer-container {
-                flex-direction: column;
-                align-items: center;
-                text-align: center;
-            }
-
-            .menu-1 {
-                display: block;
-            }
-
-            .menu-1 ul {
-                padding: 10px;
-            }
-
-            .menu-1 li {
-                display: block;
-                margin: 5px 0;
-            }
-
-            .icon-user {
-                font-size: 20px;
-            }
-        }
-
+        
         /* General Styles */
        
 
@@ -237,104 +173,191 @@
 .card-price-card{
 margin: 25px auto;}
 
+
+        
     </style>
-
-
 </head>
 <body>
-  
- 
+   
 
-<%- include("../../views/partials/user/userheader.ejs")%>
-
-
-
-
-
-
-
-
+    <!-- Main Section -->
+    <div class="main">
+      <%- include("../../views/partials/admin/header.ejs")%>
+            
+      <div class="container1" style="width: 100%; padding-left: 20px;">
+        <h1>Order Details</h1>
     
-    <div class="container">
-        <!-- Sidebar -->
-    <%- include("../../views/partials/user/usersidebar.ejs")%>
-      
-        <!-- Main Content -->
-        <div class="container1" style="width: 100%; padding-left: 20px;">
-            <h1>Order Details</h1>
-        
-            <!-- Product Details Section -->
-            <div class="card">
-              <p>  ORDER ID : <%= orderDetails.orderId %></p>
-              <div class="card-header">Product Details</div>
-        
-              <% orderDetails.orderedItems.forEach((item)=>{ %>
-              <div class="product-card" style="display: flex;">
-                <img    src="/uploads/<%= item.product.productImage[0]%>" alt="Product Image"  style="height: 60px; width: 50px;" >
-                <div class="product-details">
-                  <h4><%=item.product.productName%></h4>
-                  <p>Quantity: <%= item.quantity%></p>
-                  <p>Price: ₹ <%= item.price%></p>
-                </div>
-              </div>
-              <%})%>
-        
-             
-        
-              <!-- Cancel Button -->
-              
-            </div>
-            <div style="display: flex; justify-content: space-between; padding: 5px;">
-                <h6>Need to cancel the order? </h6>
-            <button id="button-cancel" class="cancel-btn">Cancel Order</button>
-        </div>
-
-            <!-- Price Details Section -->
-            <div class="card-price-card">
-              <div class="card-header">Price Details</div>
-              <p>Total Amount: ₹ <%= orderDetails.totalPrice%></p>
-              <p>Shipping Charge: ₹ 50</p>
-              <p>Payable Amount: ₹ <%= orderDetails.PayableAmount%></p>
-            </div>
-        
-            <!-- Shipping Details Section -->
-            <div class="card shipping-card">
-              <div class="card-header">Shipping Details</div>
-              <p> Address Type : <%=addressDetails.address[0].addressType%> <br>
-                LandMark : <%= addressDetails.address[0].landMark%> <br>
-                <%= addressDetails.address[0].city%> , <%= addressDetails.address[0].district%> , <%= addressDetails.address[0].state%> - <%= addressDetails.address[0].pincode%></p>
-              <p>Contact Details : <%=addressDetails.address[0].phone%> <br>
-                Alternative Phone number : <%= addressDetails.address[0].altPhone%></p>
+        <!-- Product Details Section -->
+        <div class="card">
+          <p>  ORDER ID : <%= orderDetails.orderId %></p>
+          <div class="card-header">Product Details</div>
+    
+          <% orderDetails.orderedItems.forEach((item)=>{ %>
+          <div class="product-card" style="display: flex;">
+            <img    src="/uploads/<%= item.product.productImage[0]%>" alt="Product Image"  style="height: 60px; width: 50px;" >
+            <div class="product-details">
+              <h4><%=item.product.productName%></h4>
+              <p>Quantity: <%= item.quantity%></p>
+              <p>Price: ₹ <%= item.price%></p>
             </div>
           </div>
+          <%})%>
+    
+         
+    
+          <!-- Cancel Button -->
           
-           
-
-            
         </div>
+        <div style="display: flex; justify-content: space-between; padding: 5px;">
+            <h6>Need to update the order status? </h6>
+        <button id="button-cancel" class="cancel-btn">Update</button>
+    </div>
+
+    <div>
+        <form id="order-status-form" method="POST" action="/update-order-status">
+            <div id="reasondiv" class="cancellation-reason-container" style="display: none;">
+                <h3>Order Status</h3>
+                <select id="order-status" name="status" class="form-control">
+                    <option value="Cancelled">Cancelled</option>
+                    <option value="Processing">Processing</option>
+                    <option value="Shipped">Shipped</option>
+                    <option value="Delivered">Delivered</option>
+                </select>
+                <div class="buttons">
+                    <button type="button" id="go-back" class="btn btn-secondary">Go Back</button>
+                    <button type="submit" id="update-status" class="btn btn-primary">Update Status</button>
+                </div>
+            </div>
+        </form>
+        
+        
+    </div>
+
+    
+        <!-- Price Details Section -->
+        <div class="card-price-card">
+          <div class="card-header">Price Details</div>
+          <p>Total Amount: ₹ <%= orderDetails.totalPrice%></p>
+          <p>Shipping Charge: ₹ 50</p>
+          <p>Payable Amount: ₹ <%= orderDetails.PayableAmount%></p>
+        </div>
+    
+        <!-- Shipping Details Section -->
+        <div class="card shipping-card">
+          <div class="card-header">Shipping Details</div>
+          <p> Address Type : <%=addressDetails.address[0].addressType%> <br>
+            LandMark : <%= addressDetails.address[0].landMark%> <br>
+            <%= addressDetails.address[0].city%> , <%= addressDetails.address[0].district%> , <%= addressDetails.address[0].state%> - <%= addressDetails.address[0].pincode%></p>
+          <p>Contact Details : <%=addressDetails.address[0].phone%> <br>
+            Alternative Phone number : <%= addressDetails.address[0].altPhone%></p>
+        </div>
+      </div>
+      
+       
+
+        
+    </div>
     </div>
 
 
-<script>
-const buttonCancel = document.getElementById('button-cancel')
-const buttonGoBack = document.getElementById('go-back')
-const buttonCancelOrder = document.getElementById('cancel-order')
-const cancelReason = document.getElementById('reasondiv')
+    <% if (typeof success !== 'undefined' && typeof message !== 'undefined') { %>
+        <script>
+            // Display SweetAlert based on the success flag and message
+            const message = '<%= message %>';
+            const success = <%= success %>;
+            
+            if (success) {
+                Swal.fire({
+                    title: 'Success!',
+                    text: message,
+                    icon: 'success',
+                    confirmButtonText: 'OK'
+                });
+            } else {
+                Swal.fire({
+                    title: 'Error!',
+                    text: message,
+                    icon: 'error',
+                    confirmButtonText: 'OK'
+                });
+            }
+        </script>
+    <% } %>
+   
 
-buttonCancel.addEventListener('click',()=>{
-if(cancelReason.style.display==='none'){
-cancelReason.style.display='block';
-buttonCancel.style.display='none'}
-})
-buttonGoBack.addEventListener('click',()=>{
-if(cancelReason.style.display==='block'){
-cancelReason.style.display='none';
-buttonCancel.style.display='block'}
-})
+    <script>
 
+const buttonCancel = document.getElementById('button-cancel');
+const buttonGoBack = document.getElementById('go-back');
+const cancelReason = document.getElementById('reasondiv');
+const orderStatusForm = document.getElementById('order-status-form');
 
-</script>
+buttonCancel.addEventListener('click', () => {
+    if (cancelReason.style.display === 'none') {
+        cancelReason.style.display = 'block';
+        buttonCancel.style.display = 'none';
+    }
+});
 
+buttonGoBack.addEventListener('click', () => {
+    if (cancelReason.style.display === 'block') {
+        cancelReason.style.display = 'none';
+        buttonCancel.style.display = 'block';
+    }
+});
 
+const buttonUpdateStatus = document.getElementById('update-status');
+
+buttonUpdateStatus.addEventListener('click', () => {
+    const orderStatus = document.getElementById('order-status').value;  // Get selected status
+    const orderId = "<%= orderDetails.orderId %>";  // Get the order ID from your EJS template or other variable
+
+    // Create a data object to send to the backend
+    const data = {
+        orderId: orderId,
+        status: orderStatus
+    };
+
+    // Make the POST request to update the order status
+    fetch('/update-order-status', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(data)
+    })
+    .then(response => response.json())
+    .then(result => {
+        if (result.success) {
+            Swal.fire({
+                title: 'Success!',
+                text: result.message,
+                icon: 'success',
+                confirmButtonText: 'OK'
+            });
+            // Optionally hide the reason div
+            cancelReason.style.display = 'none';
+            buttonCancel.style.display = 'block';
+        } else {
+            Swal.fire({
+                title: 'Error!',
+                text: result.message,
+                icon: 'error',
+                confirmButtonText: 'OK'
+            });
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        Swal.fire({
+            title: 'Error!',
+            text: 'Something went wrong while updating the status.',
+            icon: 'error',
+            confirmButtonText: 'OK'
+        });
+    });
+});
+
+    </script>
 </body>
 </html>

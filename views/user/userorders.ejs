@@ -159,6 +159,13 @@ table {
   background-color: rgb(24, 107, 120);
 }
 
+.ordered-status {
+  color: green; /* Green color for ordered status */
+}
+
+.cancelled-status {
+  color: red; /* Red color for cancelled status */
+}
 
     </style>
 </head>
@@ -179,7 +186,13 @@ table {
           <% if(orderDetails) {%>
             <% orderDetails.forEach((order)=>{ %>
           <div class="order-card">
-            <p><%= order.orderId%></p>
+            <div style="display: flex; justify-content: space-between;">
+              <p><%= order.orderId%></p>
+              <p class="<%= order.status === 'Ordered' ? 'ordered-status' : 'cancelled-status' %>">
+                <%= order.status %>
+              </p>
+            </div>
+
             
             <!-- Product Details Table -->
             <table border="1" cellpadding="10" cellspacing="0" style="width:100%; border-collapse: collapse;">

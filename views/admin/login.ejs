@@ -74,11 +74,36 @@
   <div class="login-box">
     <h2>Admin Login</h2>
     <form action="/admin/login" method="POST">
-      <input type="email" name="email" class="input-field" placeholder="Email Address" required>
-      <input type="password" name="password" class="input-field" placeholder="Password" required>
+      <input type="email" name="email" class="input-field" placeholder="Email Address" >
+      <input type="password" name="password" class="input-field" placeholder="Password" >
       <button type="submit" class="submit-btn">Login</button>
     </form>
   </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+  <script>
+   
+  // Retrieve the `message` and `success` variables from the backend
+  const message = "<%= message || '' %>";
+  const success = <%= typeof success !== 'undefined' ? success : false %>;
+
+  if (message) {
+    Swal.fire({
+      title: success ? 'Success!' : 'Error!',
+      text: message,
+      icon: success ? 'success' : 'error',
+      confirmButtonText: 'OK'
+    }).then(() => {
+      // If login is successful, redirect to the dashboard
+      if (success) {
+        window.location.href = '/admin/dashboard';
+      }
+    });
+  }
+</script>
+
+
 
 </body>
 </html>

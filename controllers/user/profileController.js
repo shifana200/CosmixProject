@@ -157,7 +157,7 @@ const loadEditAddress = async (req,res)=>{
         const userAddress = await Address.find({userId:userId})
         console.log("user address")
         console.log(userId)
-        csonsole.log(userAddress)
+        console.log(userAddress)
         console.log("------------------------------------------")
          return res.render('useraddress',{userAddress:userAddress})
          
@@ -250,7 +250,70 @@ const updateProfile = async (req, res) => {
     }
 };
 
+// POST route to handle order cancellation
+const cancelOrder= async (req, res) => {
+    try {
+     
 
+       
+
+        const { cancellationReason} = req.body;
+        const orderId = req.query.id;
+
+        const orderDetails = await Order.findById(orderId).populate('orderedItems.product')
+        const addressDetails = await Address.findOne({ _id: orderDetails.address });
+
+        console.log("---------------")
+        console.log(cancellationReason)
+        console.log(orderId)
+
+        // Check if orderId and cancellationReason are provided
+        if (!cancellationReason || !orderId) {
+            return res.render('orderDetails',{ success: false, message: 'Order ID and cancellation reason are required',orderDetails,addressDetails });
+        }
+
+        // Find the order by ID
+        const order = await Order.findById(orderId);
+        if (!order) {
+            return res.render('orderDetails',{ success: false, message: 'Order not found' ,orderDetails,addressDetails});
+        }
+
+        // If the order is already cancelled, return an error
+        if (order.status === 'Cancelled') {
+            return res.render('orderDetails',{ success: false, message: 'Order is already cancelled',orderDetails,addressDetails });
+        }
+
+        if (order.status === 'Ordered') {
+            for (let item of order.orderedItems) {
+              const product = await Product.findById(item.product)
+              if (product) {
+                product.quantity += item.quantity;  // Restore product quantity when order is cancelled
+                await product.save();  // Save the updated product quantity
+              }
+            }
+          }
+
+        // Update the order status to 'Cancelled' and store the cancellation reason
+        const updatedOrder = await Order.updateOne(
+            { _id: orderId },
+            {
+              $set: {
+                status: 'Cancelled',
+                CancellationReason: cancellationReason
+              }
+            }
+          );
+
+        // Save the updated order
+        await order.save();
+
+        // Send a success response
+        res.render('orderDetails',{ success: true, message: 'Order cancelled successfully',orderDetails,addressDetails });
+    } catch (error) {
+        console.error(error);
+        res.render('signIn',{ success: false, message: 'Server error' });
+    }
+}
 
 
 
@@ -271,7 +334,7 @@ module.exports = {
     loadUserDashboard,loadUpdateUserAdress,
     loadUserAddress,loadWalletTransactions,loadWalletAddmoney,
     loadUserWallet,loadUpdateProfile,loadUserOrder,
-    addNewAddress,editAddress,loadEditAddress,updateProfile,deleteAddress,loadOrderDetails,
+    addNewAddress,editAddress,loadEditAddress,updateProfile,deleteAddress,loadOrderDetails,cancelOrder,
     
     
 }

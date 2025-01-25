@@ -29,35 +29,30 @@ router.get('/pageNotFound',adminController.PageNotFound)
 router.get('/login',adminController.loadLogin)
 router.post('/login',adminController.logIn)
 router.get('/dashboard',adminAuth,adminController.loadDashboard)
-
 router.get('/couponmanagement',adminAuth,adminController.loadCouponManagement)
 router.get('/ordermanagement',adminAuth,adminController.loadOrderManagement)
 router.get('/ordermanagement/:id',adminAuth,adminController.loadOrderDetailsPage)
-
+router.post('/update-order-status',adminAuth,adminController.updateOrderStatus)
 router.get('/offermanagement',adminAuth,adminController.loadOfferManagement)
 router.get('/logout',adminAuth,adminController.logout)
 
 //user management routes
 router.get('/usermanagement',adminAuth,adminController.loadUserManagement)
-
 router.get('/blockCustomer',adminAuth,customerController.customerBlocked)
 router.get('/unblockCustomer',adminAuth,customerController.customerunBlocked)
-
 router.get('/getUserDetails/:id',adminAuth,customerController.getUserDetails)
 
 //category management routes
 
 router.get('/categorymanagement',adminAuth,categoryController.CategoryInfo)
 router.post('/addCategory',adminAuth,categoryController.addCategory)
-
 router.get('/listCategory',adminAuth,categoryController.getListCategory)
 router.get('/unlistCategory',adminAuth,categoryController.getUnlistCategory)
 router.post('/updateCategory',adminAuth,categoryController.updateCategory)
 
 
-
+//product  management routes
 router.get('/productmanagement',adminAuth,productController.getProducts)
-
 router.get('/addProduct',adminAuth,productController.getaddProduct)
 router.post('/addProduct',adminAuth,uploads.array("images",4),productController.addProducts)
 router.get('/blockProduct',adminAuth,productController.blockProduct);

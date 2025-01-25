@@ -72,7 +72,7 @@
 
 /* Input field styling */
 .form-control.input-number {
-    width: 40px;  /* Input width */
+    width: 20px;  /* Input width */
     height: 30px;  /* Match button height */
     text-align: center;  /* Center the text inside */
     font-size: 5px;  /* Adjust font size */
@@ -89,6 +89,7 @@
 .display-tc button {
     margin: 0 5px;  /* Add space between buttons and input field */
 }
+
 
 	</style>
 	<body>
@@ -158,7 +159,7 @@
 							<% cart.items.forEach(item => { %>
 
 
-						<div class="product-cart d-flex">
+						<div class="product-cart d-flex   quantity-update" data-product-id="<%=item.productId%>">
 							<div class="one-forth">
 								<div class="product-img" style="background-image: url(/uploads/<%= item.productId.productImage[0] %>);">
 								</div>
@@ -172,28 +173,43 @@
 								</div>
 							</div>
 							
-							<div class="one-eight text-center">
-								<div class="display-tc" style="display: flex;">
-									<input type="hidden" id="productId" value="<%= item.productId%>">
-
+							<div class="one-eight text-center ">
+								<div class="display-tc"   style="display: flex;">
+									<input type="hidden" id="productId" value="<%= item.productId._id %>">
+									<input type="hidden" class="availableStock" value="<%= item.productId.quantity %>"> <!-- Stock quantity -->
+									
+							
 									<!-- Minus Button -->
 									<button type="button" class="quantity-left-minus btn" data-type="minus">
 										<i class="icon-minus2"></i>
 									</button>
-									
+							
 									<!-- Quantity Input -->
-									<input type="text" id="quantity" name="quantity" class="form-control input-number text-center" value="<%=item.quantity%>" min="1" max="100">
-									
+
+									<input type="text" class="quantity form-control input-number text-center" name="quantity" style="width: 40px;" value="<%= item.quantity %>" min="1" max="3" readonly>
+
 									<!-- Plus Button -->
 									<button type="button" class="quantity-right-plus btn" data-type="plus">
 										<i class="icon-plus2"></i>
 									</button>
+								
+							
+									
 								</div>
+								<!-- Error message (initially hidden) -->
+								<div class="error-message" style="color: red; display: none;">
+									<p>Stock not available.</p>
+								</div>
+								<div class="error-message1" style="color: red; display: none;">
+									<p>You cannot add more than 3 quantity at the same time.</p>
+								</div>
+
+								
 							</div>
 							
 							<div class="one-eight text-center" >
 								<div class="display-tc">
-									<span class="price" id="totalPrice"><%= item.price * item.quantity %></span>
+									<span class="totalPrice" id="totalPrice"><%= item.price * item.quantity %></span>
 								</div>
 							</div>
 							<div class="one-eight text-center">
@@ -201,46 +217,15 @@
 									<a href="/deleteCart?id=<%=item._id%>" class="closed"></a>
 								</div>
 							</div>
-							
 						</div>
+						
 						
 						<%})%>
 						</div>
 						
 						
 				</div>
-				<!-- <div class="row row-pb-lg">
-					<div class="col-md-12">
-						<div class="total-wrap">
-							<div class="row">
-								<div class="col-sm-8">
-									<form action="#">
-										<div class="row form-group">
-											<div class="col-sm-9">
-												<input type="text" name="quantity" class="form-control input-number" placeholder="Your Coupon Number...">
-											</div>
-											<div class="col-sm-3">
-												<input type="submit" value="Apply Coupon" class="btn btn-primary">
-											</div>
-										</div>
-									</form>
-								</div>
-								<div class="col-sm-4 text-center">
-									<div class="total">
-										<div class="sub">
-											<p><span>Subtotal:</span> <span>₹ <%= subtotal%></span></p>
-											<p><span>Delivery:</span> <span>₹0.00</span></p>
-											<p><span>Discount:</span> <span>₹00.00</span></p>
-										</div>
-										<div class="grand-total">
-											<p><span><strong>Total:</strong></span> <span><%=subtotal%></span></p>
-										</div>
-									</div>
-								</div>
-							</div>
-						</div>
-					</div>
-				</div> -->
+				
 
 				<div class="row row-pb-lg">
 					<div class="col-md-12">
@@ -264,12 +249,12 @@
 								<div class="col-md-4 text-center">
 									<div class="total">
 										<div class="sub">
-											<p><span>Subtotal:</span> <span>₹<%= subtotal %></span></p>
-											<p><span>Delivery:</span> <span>₹<%=delivery%></span></p>
+											<p><span>Subtotal:</span> <span class="subtotal" > </span></p>
+											<p><span>Delivery:</span> <span class="delivery"> ₹50</span></p>
 											<p><span>Discount:</span> <span>₹00.00</span></p>
 										</div>
 										<div class="grand-total">
-											<p><span><strong>Total:</strong></span> <span>₹<%= total %></span></p>
+											<p><span><strong>Total:</strong></span> <span class="totalAmount"></span></p>
 										</div>
 									</div>
 								</div>
@@ -356,53 +341,111 @@
 		<a href="#" class="js-gotop"><i class="ion-ios-arrow-up"></i></a>
 	</div>
 
-	<script>
+<script>
+	document.addEventListener('DOMContentLoaded', function () {
+    function calculateSubtotal() {
+        let subtotal = 0;
+        document.querySelectorAll('.totalPrice').forEach(function (totalPriceElement) {
+            subtotal += parseFloat(totalPriceElement.textContent.trim());
+        });
+        const subtotalElement = document.querySelector('.subtotal');
+        subtotalElement.textContent = subtotal.toFixed(2);
 
-document.querySelector('.quantity-left-minus').addEventListener('click', function () {
-    const quantity = document.getElementById('quantity');
-    const totalPriceElement = document.getElementById('totalPrice');
-    
-    // Fetch the price dynamically from the price span
-    const priceElement = document.getElementById('price');
-    const price = parseFloat(priceElement.textContent.trim()); // Get and parse the price
-    
-    let value = parseInt(quantity.value); // Parse the quantity value
-    
-    if (value > 1) {
-        quantity.value = value - 1; // Decrease the value
+        const additionalCharge = 50;
+        const total = subtotal + additionalCharge;
+
+        const totalElement = document.querySelector('.totalAmount');
+        totalElement.textContent = total.toFixed(2);
     }
-    
-    const updatedValue = parseInt(quantity.value); // Get the updated quantity value
-    const totalPrice = updatedValue * price; // Calculate the total price
 
-    totalPriceElement.textContent = totalPrice.toFixed(2); // Display the total price with two decimals
+    async function updateQuantityInDatabase(productId, quantity) {
+        try {
+            const response = await fetch('/updateQuantity', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ productId:productId, quantity: quantity }),
+            });
+            if (!response.ok) {
+                throw new Error('Failed to update quantity in database');
+            }
+            console.log('Quantity updated successfully');
+        } catch (error) {
+            console.error(error.message);
+        }
+    }
+
+    document.querySelectorAll('.quantity-left-minus').forEach(function (button) {
+        button.addEventListener('click', function () {
+            const product = button.closest('.quantity-update');
+            const productId = product.querySelector('input#productId').value;
+            const quantityInput = product.querySelector('.quantity');
+            const availableStock = parseInt(product.querySelector('.availableStock').value);
+            const errorMessage = product.querySelector('.error-message');
+            const errorMessage1 = product.querySelector('.error-message1');
+            const totalPriceElement = product.querySelector('.totalPrice');
+            const priceElement = product.querySelector('.price');
+
+            const price = parseFloat(priceElement.textContent.trim());
+            let quantity = parseInt(quantityInput.value);
+
+            if (quantity > 1) {
+                quantity -= 1;
+                quantityInput.value = quantity;
+                errorMessage.style.display = 'none';
+                errorMessage1.style.display = 'none';
+
+                const totalPrice = quantity * price;
+                totalPriceElement.textContent = totalPrice.toFixed(2);
+
+                calculateSubtotal();
+                updateQuantityInDatabase(productId, quantity);
+            }
+        });
+    });
+
+    document.querySelectorAll('.quantity-right-plus').forEach(function (button) {
+        button.addEventListener('click', function () {
+            const product = button.closest('.quantity-update');
+            const productId = product.querySelector('input#productId').value;
+            const quantityInput = product.querySelector('.quantity');
+            const availableStock = parseInt(product.querySelector('.availableStock').value);
+            const errorMessage = product.querySelector('.error-message');
+            const errorMessage1 = product.querySelector('.error-message1');
+            const totalPriceElement = product.querySelector('.totalPrice');
+            const priceElement = product.querySelector('.price');
+
+            const price = parseFloat(priceElement.textContent.trim());
+            let quantity = parseInt(quantityInput.value);
+
+            if (quantity < availableStock && quantity < 3) {
+                quantity += 1;
+                quantityInput.value = quantity;
+                errorMessage.style.display = 'none';
+                errorMessage1.style.display = 'none';
+
+                const totalPrice = quantity * price;
+                totalPriceElement.textContent = totalPrice.toFixed(2);
+
+                calculateSubtotal();
+                updateQuantityInDatabase(productId, quantity);
+            } else {
+                if (quantity >= availableStock) {
+                    errorMessage.style.display = 'block';
+                }
+                if (quantity >= 3) {
+                    errorMessage1.style.display = 'block';
+                }
+            }
+        });
+    });
+
+    calculateSubtotal();
 });
 
-
-
-
-document.querySelector('.quantity-right-plus').addEventListener('click', function () {
-    const quantity = document.getElementById('quantity');
-    const totalPriceElement = document.getElementById('totalPrice');
-    
-    // Fetch the price dynamically from the price span
-    const priceElement = document.getElementById('price');
-    const price = parseFloat(priceElement.textContent.trim()); // Get and parse the price
-    
-    let value = parseInt(quantity.value); // Parse the quantity value
-    
-    if (value >= 1) {
-        quantity.value = value + 1; // Decrease the value
-    }
-    
-    const updatedValue = parseInt(quantity.value); // Get the updated quantity value
-    const totalPrice = updatedValue * price; // Calculate the total price
-
-    totalPriceElement.textContent = totalPrice.toFixed(2); // Display the total price with two decimals
-});
-
-
-	</script>
+</script>
+	
 	
 	<!-- jQuery -->
 	<script src="js/jquery.min.js"></script>
@@ -430,4 +473,3 @@ document.querySelector('.quantity-right-plus').addEventListener('click', functio
 
 	</body>
 </html>
-

@@ -6,6 +6,7 @@ const {checkBlockedStatus, userAuth}  = require('../middleware/auth');
 const checkBan = require('../middleware/checkban');
 const profileController = require('../controllers/user/profileController');
 const productController = require('../controllers/user/productController')
+const cartController = require('../controllers/user/cartController')
 
 
  // Import your controller methods
@@ -31,9 +32,10 @@ router.get('/haircare',userController.loadHaircare)
 router.get('/about',userController.loadAbout)
 router.get('/contact',userController.loadContact)
 router.get('/productdetails/:id',userController.loadProductDetails)
-router.get('/cart',userController.loadCart)
-router.post('/addCart',userController.addCart)
-router.get('/deleteCart',userController.deleteCart)
+router.get('/cart', cartController.loadCart)
+router.post('/addCart',cartController.addCart)
+router.post('/updateQuantity',cartController.updateQuantity)
+router.get('/deleteCart',cartController.deleteCart)
 router.get('/wishlist',userController.loadWishlist)
 router.get('/ordercomplete',userController.loadOrderComplete)
 router.get('/checkout',userController.loadOrderCheckout)
@@ -54,6 +56,7 @@ router.get('/serum',userController.getserumPage)
 router.get('/dashboard',userAuth,profileController.loadUserDashboard)
 router.get('/myorder',userAuth,profileController.loadUserOrder)
 router.get('/myorder/:id',userAuth,profileController.loadOrderDetails)
+router.post('/cancel-order',userAuth,profileController.cancelOrder)
 router.get('/myprofile',userAuth,profileController.loadUpdateProfile)
 router.get('/mywallet',userAuth,profileController.loadUserWallet)
 router.get('/mywalletmoney',userAuth,profileController.loadWalletAddmoney)

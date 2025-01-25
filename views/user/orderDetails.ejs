@@ -275,6 +275,9 @@ margin: 25px auto;}
                   <h4><%=item.product.productName%></h4>
                   <p>Quantity: <%= item.quantity%></p>
                   <p>Price: ₹ <%= item.price%></p>
+                  <p>Total Price: ₹ <%= item.quantity * item.price%></p>
+
+
                 </div>
               </div>
               <%})%>
@@ -293,12 +296,18 @@ margin: 25px auto;}
         <div>
             <div id="reasondiv" class="cancellation-reason-container" style="display: none;">
                 <h3>Reason for Cancellation</h3>
-                <input type="text" id="cancellation-reason" placeholder="Enter reason for cancellation" />
+                <form id="cancel-form" action="/cancel-order?id=<%=orderDetails._id%>" method="POST">
+
+                <input type="text" id="cancellation-reason" placeholder="Enter reason for cancellation" name="cancellationReason" />
+                <input type="hidden" name="orderId" id="orderId" value="<%= orderDetails.orderId%>" />
+
                 <div class="buttons">
                     <button id="go-back" class="btn btn-secondary">Go Back</button>
                     <button id="cancel-order" class="btn btn-danger">Cancel Order</button>
 
                 </div>
+            </form>
+
             </div>
             
         </div>
@@ -308,8 +317,12 @@ margin: 25px auto;}
             <div class="card-price-card">
               <div class="card-header">Price Details</div>
               <p>Total Amount: ₹ <%= orderDetails.totalPrice%></p>
+              <p>Discount: ₹ <%= orderDetails.totalPrice * 3 /100 %></p>
+
               <p>Shipping Charge: ₹ 50</p>
-              <p>Payable Amount: ₹ <%= orderDetails.PayableAmount%></p>
+              <p>GST: ₹15</p>
+
+              <p>Payable Amount: ₹ <%= orderDetails.PayableAmount + 15 - orderDetails.totalPrice *3/100%></p>
             </div>
         
             <!-- Shipping Details Section -->
@@ -328,13 +341,39 @@ margin: 25px auto;}
             
         </div>
     </div>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
+<% if (typeof success !== 'undefined' && typeof message !== 'undefined') { %>
+    <script>
+        // Display SweetAlert based on the success flag and message
+        const message = '<%= message %>';
+        const success = <%= success %>;
+        
+        if (success) {
+            Swal.fire({
+                title: 'Success!',
+                text: message,
+                icon: 'success',
+                confirmButtonText: 'OK'
+            });
+        } else {
+            Swal.fire({
+                title: 'Error!',
+                text: message,
+                icon: 'error',
+                confirmButtonText: 'OK'
+            });
+        }
+    </script>
+<% } %>
 
 <script>
 const buttonCancel = document.getElementById('button-cancel')
 const buttonGoBack = document.getElementById('go-back')
 const buttonCancelOrder = document.getElementById('cancel-order')
 const cancelReason = document.getElementById('reasondiv')
+
+
 
 buttonCancel.addEventListener('click',()=>{
 if(cancelReason.style.display==='none'){
