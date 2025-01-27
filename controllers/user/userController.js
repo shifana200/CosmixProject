@@ -656,17 +656,22 @@ const loadProductDetails = async (req, res) => {
     const product = await Product.findOne({
       _id:id 
     });
-    console.log("Product Data:", product);
-    console.log(
-      "Image Path:",
-      product.productImage ? product.productImage[0] : "No Image"
-    );
+    // console.log("Product Data:", product);
+    // console.log(
+    //   "Image Path:",
+    //   product.productImage ? product.productImage[0] : "No Image"
+    // );
 
     if (!product) {
       return res.status(404).send("Product not found");
     }
 
-    res.render("product-detail", { product });
+    const relatedProducts = await Product.find({
+      category: product.category,
+      _id: { $ne: product }, // Exclude the current product
+  }).limit(4);
+
+    res.render("product-detail", { product ,relatedProducts });
   } catch (err) {
     console.error(err);
     res.status(500).send("Server Error");

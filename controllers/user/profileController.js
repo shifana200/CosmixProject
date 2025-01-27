@@ -27,7 +27,7 @@ const loadUserDashboard =  async (req, res) => {
 const loadUserOrder =  async (req, res) => {
     try {
         const userId = req.session.user;
-        const orderDetails = await Order.find({userId}).populate('orderedItems.product')
+        const orderDetails = await Order.find({userId}).populate('orderedItems.product').sort({createdAt: -1});
         console.log("---------------------")
         console.log(orderDetails)
         return res.render('userorders',{orderDetails})

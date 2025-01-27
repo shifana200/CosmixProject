@@ -28,7 +28,11 @@ const CategoryInfo = async(req,res)=>{
 }
 
 const addCategory = async(req,res)=>{
-    const {name,description}=req.body;
+    const name =req.body.name;
+    const description = req.body.description;
+
+    console.log("pppppppppppppppppppppppppppppppppp")
+    console.log(req.body)
     try {
         const existingCategory = await Category.findOne({ name: { $regex: `^${name}$`, $options: 'i' }});
         if(existingCategory){

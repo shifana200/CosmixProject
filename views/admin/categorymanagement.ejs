@@ -367,18 +367,18 @@ button.updatebtn:active {
               <button id="addCategorybtn" style="background-color: #1e7e34; border-radius: 5px; border: none; color: white; padding: 8px; margin-top: 20px;">Add Category</button>
             </div>
             <!-- Form  to add new category-->
-             <form method="POST" action="/admin/addCategory" onsubmit="return handleFormSubmit(event)" id="addCategoryform" style="display: none;">
+             <form method="POST" action="/admin/addCategory" onsubmit="return handleAddCategoryFormSubmit(event)" id="addCategoryform" style="display: none;">
             <div class="form-container">
                 <h3>Add new category</h3>
-                <input type="text" placeholder="name" name="name">
-                <span id="name.error" class="error.message" style="color: red; display: none;"></span>
+                <input type="text" placeholder="name" name="name" id="nameId">
+                <span id="nameError" class="error-message" style="color: red; display: none;"></span>
                 
                 <input type="text" placeholder="description" name="description" id="descriptionId">
-                <span id="description.error" class="error.message" style="color: red; display: none;"></span>
+                <span id="descriptionError" class="error-message" style="color: red; display: none;"></span>
                 
                 
 
-                <button class="create-btn">Create</button>
+                <button  type="submit"  class="create-btn">Create</button>
             </div>
         </form>
        
@@ -397,14 +397,14 @@ button.updatebtn:active {
             <div class="form-group">
                 <label for="categoryName">Category Name:</label>
                 <input type="text" id="categoryName" name="name" placeholder="Enter category name" >
-                <span id="name.error" class="error.message" style="color: red; display: none;"></span>
+                <span id="updateNameError" class="error-message" style="color: red; display: none;"></span>
 
             </div>
             
             <div class="form-group">
                 <label for="categoryDescription">Category Description:</label>
-                <input id="categoryDescription" name="description" placeholder="Enter category description"></input>
-                <span id="description.error" class="error.message" style="color: red; display: none;"></span>
+                <input type="text" id="categoryDescription" name="description" placeholder="Enter category description"></input>
+                <span id="updateDescriptionError" class="error-message" style="color: red; display: none;"></span>
 
             </div>
             
@@ -419,7 +419,7 @@ button.updatebtn:active {
     <!-- SweetAlert CDN -->
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
-<script>
+<!-- <script>
 
 
 function confirmAction(url, message) {
@@ -449,111 +449,103 @@ function confirmAction(url, message) {
         } 
     });
 
-    function handleFormSubmit(event) {
-        
-        event.preventDefault();  
-        alert("Form submitted!");
-        return false;  
+   
+
+
+
+// Make sure there's only one handleFormSubmit function
+function handleFormSubmit(event) {
+    event.preventDefault();
+
+    if (!validateForm()) {
+        return;
     }
 
+    const name = document.getElementsById("nameId")[0].value;
+    const description = document.getElementById("descriptionId").value;
 
-
-
-    function handleFormSubmit(event){
-        event.preventDefault();
-
-        if(!validateForm()){
-
-            return 
-
+    fetch('/admin/addCategory', {
+        method: 'POST',
+        headers: {
+            'content-type': 'application/json'
+        },
+        body: JSON.stringify({ name, description })
+    })
+    .then(response => {
+        if (!response.ok) {
+            return response.json().then(err => {
+                throw new Error(err.error);
+            });
         }
-        const name = document.getElementsByName("name")[0].value;
-        const description = document.getElementById("descriptionId").value;
-
-        fetch('/admin/addCategory',{
-            method:'POST',
-            headers:{
-                'content-type':'application/json'
-            },
-            body:JSON.stringify({name,description})
-        })
-        .then(response=>{
-            if(!response.ok){
-                return response.json().then(err=>{
-                    throw new Error(err.error);
-                })
-            }
-            return response.json();
-        })
-        .then(data=>{
+        return response.json();
+    })
+    .then(data => {
+        Swal.fire({
+            icon: "success",
+            title: "Success",
+            text: "Category Added successfully",
+            showConfirmButton: false,
+            timer: 1500
+        });
+        setTimeout(() => {
+            location.reload();
+        }, 1500);
+    })
+    .catch(error => {
+        if (error.message === "Category already exists") {
             Swal.fire({
-                icon:"success",
-                title:"success",
-                text:"Category Added successfully",
-                showConfirmButton: false,
-                timer:"1500"
-
-            })
-            setTimeout(() => {
-                location.reload();
-            }, 1500);
-        })
-        .catch(error=>{
-            if(error.message === "Category already exists"){
-                Swal.fire({
-                    icon:"error",
-                    title:"Oops",
-                    text:"Category already exists"
-                })
-            }else{
-                Swal.fire({
-                    icon:"error",
-                    title:"oops",
-                    text:"AN error occured while adding the category"
-                })
-            }
-        })
-    }
-
-    function validateForm(){
-        clearErrorMessages();
-        const name = document.getElementsByName("name")[0].value.trim();
-        const description = document.getElementById('descriptionId').value.trim();
-        isValid = true;
-
-        if(name.tri === ""){
-            displayErrorMessage("name.error", "Please enter a name");
-            isValid = false;
-        }else if(!/^[a-zA-Z\s]+$/.test(name)){
-            displayErrorMessage(
-                "name.error",
-                "category name should contain only alphabetics characters"
-            );
-            isValid = false;
+                icon: "error",
+                title: "Oops",
+                text: "Category already exists"
+            });
+        } else {
+            Swal.fire({
+                icon: "error",
+                title: "Oops",
+                text: "An error occurred while adding the category"
+            });
         }
-        if(description === ""){
-            displayErrorMessage("description.error","Please enter a description")
-            isValid = false;
-        }
-        return isValid;
+    });
+}
+
+// Corrected validateForm function with trim() fix
+function validateForm() {
+    clearErrorMessages();
+    const name = document.getElementsById("nameId")[0].value.trim();
+    const description = document.getElementById('descriptionId').value.trim();
+    let isValid = true;
+
+    if (name === "") {
+        displayErrorMessage("name.error", "Please enter a name");
+        isValid = false;
+    } else if (!/^[a-zA-Z\s]+$/.test(name)) {
+        displayErrorMessage(
+            "name.error",
+            "Category name should contain only alphabetic characters"
+        );
+        isValid = false;
     }
-
-
-    function displayErrorMessage(elementId,message){
-        var errorElement = document.getElementById(elementId);
-        errorElement.innerText = message;
-        errorElement.style.display = "block";
+    if (description === "") {
+        displayErrorMessage("description.error", "Please enter a description");
+        isValid = false;
     }
+    return isValid;
+}
 
-    function clearErrorMessages(){
-        const errorElements = document.getElementsByClassName("error.message");
+function displayErrorMessage(elementId, message) {
+    var errorElement = document.getElementById(elementId);
+    errorElement.innerText = message;
+    errorElement.style.display = "block";
+}
 
-        Array.from(errorElements).forEach((element)=>{
-            element.innerText="";
-            element.style.display="none";
+function clearErrorMessages() {
+    const errorElements = document.getElementsByClassName("error.message");
+    Array.from(errorElements).forEach((element) => {
+        element.innerText = "";
+        element.style.display = "none";
+    });
+}
 
-        })
-    }
 
 
 
@@ -690,8 +682,207 @@ function confirmAction(url, message) {
             element.style.display = "none";
         });
     }
-</script>
+</script> -->
 
+
+<script>
+    // Function to confirm actions with SweetAlert
+    function confirmAction(url, message) {
+        Swal.fire({
+            title: 'Are you sure?',
+            text: message,
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Yes, proceed!',
+            cancelButtonText: 'Cancel',
+        }).then((result) => {
+            if (result.isConfirmed) {
+                window.location.href = url;
+            }
+        });
+    }
+    
+    // Toggle Add Category Form
+    document.getElementById("addCategorybtn").addEventListener("click", function () {
+        const form = document.getElementById("addCategoryform");
+        form.style.display = form.style.display === "none" || form.style.display === "" ? "block" : "none";
+        this.style.display = "none";
+    });
+    
+    // Clear Error Messages
+    function clearErrorMessages() {
+        const errorElements = document.getElementsByClassName("error-message");
+        Array.from(errorElements).forEach((element) => {
+            element.innerText = "";
+            element.style.display = "none";
+        });
+    }
+    
+    // Display Error Message
+    function displayErrorMessage(elementId, message) {
+        const errorElement = document.getElementById(elementId);
+        errorElement.innerText = message;
+        errorElement.style.display = "block";
+    }
+    
+    // Validate Add Category Form
+    function validateAddCategoryForm() {
+        clearErrorMessages();
+        const name = document.getElementById("nameId").value.trim();
+        const description = document.getElementById("descriptionId").value.trim();
+        let isValid = true;
+    
+        if (!name) {
+            displayErrorMessage("nameError", "Please enter a name");
+            isValid = false;
+        } else if (!/^[a-zA-Z\s]+$/.test(name)) {
+            displayErrorMessage("nameError", "Category name should contain only alphabetic characters");
+            isValid = false;
+        }
+    
+        if (!description) {
+            displayErrorMessage("descriptionError", "Please enter a description");
+            isValid = false;
+        }
+    
+        return isValid;
+    }
+    
+    // Handle Add Category Form Submission
+    function handleAddCategoryFormSubmit(event) {
+        event.preventDefault();
+    
+        if (!validateAddCategoryForm()) {
+            return;
+        }
+    
+        const name = document.getElementById("nameId").value;
+        const description = document.getElementById("descriptionId").value;
+    
+        fetch('/admin/addCategory', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ name, description }),
+        })
+            .then((response) => {
+                if (!response.ok) {
+                    return response.json().then((err) => {
+                        throw new Error(err.error);
+                    });
+                }
+                return response.json();
+            })
+            .then(() => {
+                Swal.fire({
+                    icon: "success",
+                    title: "Success",
+                    text: "Category added successfully",
+                    showConfirmButton: false,
+                    timer: 1500,
+                });
+                setTimeout(() => location.reload(), 1500);
+            })
+            .catch((error) => {
+                Swal.fire({
+                    icon: "error",
+                    title: "Oops",
+                    text: error.message || "An error occurred while adding the category",
+                });
+            });
+    }
+    
+    // Open Update Category Modal
+    function openUpdateCategoryModal(categoryId, name, description) {
+        document.getElementById('categoryId').value = categoryId;
+        document.getElementById('categoryName').value = name;
+        document.getElementById('categoryDescription').value = description;
+        document.getElementById('updateCategoryModal').style.display = 'block';
+    }
+    
+    // Close Update Category Modal
+    document.getElementById('closeModal').onclick = function () {
+        document.getElementById('updateCategoryModal').style.display = 'none';
+    };
+    
+    window.onclick = function (event) {
+        if (event.target === document.getElementById('updateCategoryModal')) {
+            document.getElementById('updateCategoryModal').style.display = 'none';
+        }
+    };
+    
+    // Validate Update Category Form
+    function validateUpdateCategoryForm() {
+        clearErrorMessages();
+        const name = document.getElementById("categoryName").value.trim();
+        const description = document.getElementById("categoryDescription").value.trim();
+        let isValid = true;
+    
+        if (!name) {
+            displayErrorMessage("updateNameError", "Please enter a name");
+            isValid = false;
+        } else if (!/^[a-zA-Z\s]+$/.test(name)) {
+            displayErrorMessage("updateNameError", "Category name should contain only alphabetic characters");
+            isValid = false;
+        }
+    
+        if (!description) {
+            displayErrorMessage("updateDescriptionError", "Please enter a description");
+            isValid = false;
+        }
+    
+        return isValid;
+    }
+    
+    // Handle Update Category Form Submission
+    document.getElementById('updateCategoryForm').onsubmit = function (event) {
+        event.preventDefault();
+    
+        if (!validateUpdateCategoryForm()) {
+            return;
+        }
+    
+        const categoryId = document.getElementById('categoryId').value.trim();
+        const name = document.getElementById('categoryName').value.trim();
+        const description = document.getElementById('categoryDescription').value.trim();
+    
+        fetch('/admin/updateCategory', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ categoryId, name, description }),
+        })
+            .then((response) => {
+                if (!response.ok) {
+                    return response.json().then((data) => {
+                        throw new Error(data.message || 'Error updating category');
+                    });
+                }
+                return response.json();
+            })
+            .then(() => {
+                Swal.fire({
+                    icon: "success",
+                    title: "Success",
+                    text: "Category updated successfully",
+                    showConfirmButton: false,
+                    timer: 1500,
+                });
+                setTimeout(() => location.reload(), 1500);
+            })
+            .catch((error) => {
+                Swal.fire({
+                    icon: "error",
+                    title: "Oops",
+                    text: error.message || "An error occurred while updating the category",
+                });
+            });
+    };
+    </script>
 
 
 </body>

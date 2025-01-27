@@ -48,6 +48,11 @@ const loadCart = async (req, res) => {
     console.log(productId);
   
     try {
+
+      if(!userId){
+        return res.redirect('/signin')
+      }
+
       const product = await Product.findById(productId);
   
       if (!product) {
