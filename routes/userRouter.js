@@ -7,6 +7,7 @@ const checkBan = require('../middleware/checkban');
 const profileController = require('../controllers/user/profileController');
 const productController = require('../controllers/user/productController')
 const cartController = require('../controllers/user/cartController')
+const wishlistController = require('../controllers/user/wishlistController')
 
 
  // Import your controller methods
@@ -36,7 +37,6 @@ router.get('/cart', cartController.loadCart)
 router.post('/addCart',cartController.addCart)
 router.post('/updateQuantity',cartController.updateQuantity)
 router.get('/deleteCart',cartController.deleteCart)
-router.get('/wishlist',userController.loadWishlist)
 router.get('/ordercomplete',userController.loadOrderComplete)
 router.get('/checkout',userController.loadOrderCheckout)
 router.post('/placeOrder',userController.placeOrder)
@@ -65,7 +65,6 @@ router.get('/myaddressupdate',userAuth,profileController.loadUpdateUserAdress)
 router.post('/resend-otp', userController.resendOtp);
 router.post('/send-otp', userController.verifyOtp);
 router.get('/shop',productController.loadShopPage);
-router.get('/shop/filter',productController.filterProducts)
 router.get('/forgetPassword',userController.loadForgetPassword)
 router.post('/updatePassword',userController.updatePassword)
 
@@ -78,6 +77,11 @@ router.post('/editAddress/:id',userAuth,profileController.editAddress)
 router.get('/deleteAddress',userAuth,profileController.deleteAddress)
 router.post('/updateAddress',userAuth,userController.updateAddress)
 
+
+//wishlist
+router.get('/wishlist',wishlistController.loadWishlist)
+router.post('/addRemove-wishlist',wishlistController.addRemoveWishlist)
+router.delete('/removeFromWishlist',wishlistController.removeFromWishlist)
 
 
 router.get('/auth/google', (req, res, next) => {

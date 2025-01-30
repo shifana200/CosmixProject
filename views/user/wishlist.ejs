@@ -7,6 +7,8 @@
 
 	<link href="https://fonts.googleapis.com/css?family=Montserrat:300,400,500,600,700" rel="stylesheet">
 	<link href="https://fonts.googleapis.com/css?family=Rokkitt:100,300,400,700" rel="stylesheet">
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
 	
 	<!-- Animate.css -->
 	<link rel="stylesheet" href="css/animate.css">
@@ -34,6 +36,50 @@
 
 	<!-- Theme style  -->
 	<link rel="stylesheet" href="css/style.css">
+	<style>
+		.product-entry {
+  position: relative;
+}
+
+.wishlist-btn {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: rgba(255, 255, 255, 0.9);
+  border: none;
+  border-radius: 50%;
+  padding: 5px;
+  width: 35px;
+  height: 35px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  z-index: 1000;
+}
+
+.wishlist-btn:hover {
+  background: rgba(255, 0, 0, 0.8);
+}
+
+.wishlist-btn .fa-heart {
+  color: black;
+  font-size: 16px;
+}
+
+.wishlist-btn:hover .fa-heart {
+  color: #fff;
+}
+
+.addCart-btn{
+	background-color: black; 
+	color: white; 
+	padding: 5px;
+	 border-radius: 9px;
+}
+	</style>
 
 	</head>
 	<body>
@@ -62,82 +108,48 @@
 				</div>
 				<div class="row row-pb-md">
 				
+					<% if (products.length > 0) { %>
+						<% products.forEach(product => { %>
 
 					<div class="col-lg-3 mb-4 text-center">
 						<div class="product-entry border">
-							<a href="" class="prod-img">
-								<img src="/images/bestseller pic1.webp" class="img-fluid" alt="Free html5 bootstrap 4 template">
+							<button class="wishlist-btn position-absolute" data-product-id="<%= product._id %>" onclick="RemoveWishlist('<%= product._id %>', this)">
+								<i class="fa fa-heart"></i>
+								</button
+							<a href="/productdetails/<%= product._id %>" class="prod-img">
+								<% if (product.productImage && product.productImage.length > 0) { %>
+									<img src="/uploads/<%= product.productImage[0] %>" class="img-fluid" alt="<%= product.productName %>">
+								  <% } else { %>
+									<p>No Image</p>
+								  <% } %>
 							</a>
 							<div class="desc">
-								<h2><a href="#">Lakme 9To5  Lip & cheek tint</a></h2>
-								<span class="price">₹617.00</span>
-								<p class="addtocart"><a href="http://localhost:4000/cart" class="btn btn-primary btn-addtocart"><i class="icon-shopping-cart"></i>   Add to Cart</a></p>
+								<h2><a href="/productdetails/<%= product._id %>"><%=product.productName%></a></h2>
+								<span class="price">₹<%=product.salePrice%></span>
+								<form action="/addCart" method="post">
+									<input type="hidden" name="productId" value="<%= product._id %>">
+									<input type="hidden" name="quantity" id="hiddenQuantity" value="1">
+								<button class="addCart-btn"><i class="icon-shopping-cart"></i>   Add to Cart</a></button>
+								</form>
 							</div>
 						</div>
 					</div>
-
+					<%})%>
+					<%}%>
 					
 
 
-					<div class="col-lg-3 mb-4 text-center">
-						<div class="product-entry border">
-							<a href="#" class="prod-img">
-								<img src="/images/best seller pics2.jpg" class="img-fluid" alt="Free html5 bootstrap 4 template">
-							</a>
-							<div class="desc">
-								<h2><a href="#">ponds niacinamide
-									serum </a></h2>
-								<span class="price">₹490.00</span>
-								<p class="addtocart"><a href="http://localhost:4000/cart" class="btn btn-primary btn-addtocart"><i class="icon-shopping-cart"></i>   Add to Cart</a></p>
-							</div>
-						</div>
-					</div>
-					<div class="col-lg-3 mb-4 text-center">
-						<div class="product-entry border">
-							<a href="#" class="prod-img">
-								<img src="/images/best seller pic3.jpeg" class="img-fluid" alt="Free html5 bootstrap 4 template">
-							</a>
-							<div class="desc">
-								<h2><a href="#">aqualogica
-									dewy sunscreen</a></h2>
-								<span class="price">₹449.00</span>
-								<p class="addtocart"><a href="http://localhost:4000/cart" class="btn btn-primary btn-addtocart"><i class="icon-shopping-cart"></i>   Add to Cart</a></p>
-							</div>
-						</div>
-					</div>
-					<div class="col-lg-3 mb-4 text-center">
-						<div class="product-entry border">
-							<a href="#" class="prod-img">
-								<img src="/images/bestseller pic4.webp" class="img-fluid" alt="Free html5 bootstrap 4 template">
-							</a>
-							<div class="desc">
-								<h2><a href="#">mars fabulash mascara</a></h2>
-								<span class="price">₹229.00</span>
-								<p class="addtocart"><a href="http://localhost:4000/cart" class="btn btn-primary btn-addtocart"><i class="icon-shopping-cart"></i>   Add to Cart</a></p>
-							</div>
-						</div>
-					</div>
+					
+					
+				
 					<div class="w-100"></div>
 					
-					<div class="col-lg-3 mb-4 text-center">
-						<div class="product-entry border">
-							<a href="#" class="prod-img">
-								<img src="/images/best seller pic 6.jpg" class="img-fluid" alt="Free html5 bootstrap 4 template">
-							</a>
-							<div class="desc">
-								<h2><a href="#">
-									Nykaa Nail Enamel Polish
-									 (Rouge Rose)</a></h2>
-								<span class="price">₹ 244.00</span>
-								<p class="addtocart"><a href="http://localhost:4000/cart" class="btn btn-primary btn-addtocart"><i class="icon-shopping-cart"></i>   Add to Cart</a></p>
-							</div>
-						</div>
-					</div>
+					
 					
 				</div>
 				<div class="row">
 					<div class="col-md-12 text-center">
-						<p><a href="#" class="btn btn-primary btn-lg">Shop All Products</a></p>
+						<p><a href="http://localhost:4000/shop" class="btn btn-primary btn-lg">Shop All Products</a></p>
 					</div>
 				</div>
 			</div>
@@ -152,6 +164,57 @@
 	<div class="gototop js-top">
 		<a href="#" class="js-gotop"><i class="ion-ios-arrow-up"></i></a>
 	</div>
+
+
+
+	<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+	<Script>
+		async function RemoveWishlist(productId, button) {
+    try {
+        const response = await fetch('/removeFromWishlist', {
+            method: 'DELETE',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ productId }),
+        });
+
+        const result = await response.json();
+
+        if (response.ok) {
+            // Show SweetAlert notification
+            Swal.fire({
+                icon: 'success',
+                title: 'Removed from Wishlist!',
+                text: result.message,
+                showConfirmButton: false,
+                timer: 1500
+            });
+
+            // Find the nearest product entry and remove it from the UI
+            const productElement = button.closest('.col-lg-3'); // Selects the parent column div
+            if (productElement) {
+                productElement.remove();
+            }
+
+        } else {
+            Swal.fire({
+                icon: 'error',
+                title: 'Error!',
+                text: result.message,
+                showConfirmButton: true
+            });
+        }
+    } catch (error) {
+        console.error('Error removing product from wishlist:', error);
+        Swal.fire({
+            icon: 'error',
+            title: 'Oops...',
+            text: 'An error occurred while removing the product from your wishlist.',
+            showConfirmButton: true
+        });
+    }
+}
+
+	</Script>
 	
 	<!-- jQuery -->
 	<script src="js/jquery.min.js"></script>

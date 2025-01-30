@@ -141,7 +141,7 @@
 			<div class="container">
 				<div class="row">
 					<div class="col-sm-8 offset-sm-2 text-center colorlib-heading">
-						<h2>Best Sellers</h2>
+						<h2>New Arrivals</h2>
 					</div>
 				</div>
 				<% if(products.length ===0){%>
@@ -162,7 +162,7 @@
 							</a>
 							<div class="desc">
 								<h2><a href="/productdetails/<%= product._id %>"><%=product.productName%></a></h2>
-								<span class="price"><%=product.regularPrice%></span>
+								<span class="price"> ₹ <%=product.regularPrice%></span>
 								<% if (product.quantity === 0) { %>
 									<span class="out-of-stock-label" style="color: red;">Out of Stock</span>
 								<% } %>

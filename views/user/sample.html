@@ -1,56 +1,113 @@
-<div class="cancellation-reason-container">
-  <h3>Reason for Cancellation</h3>
-  <input type="text" id="cancellation-reason" placeholder="Enter reason for cancellation" />
-  <div class="buttons">
-      <button id="cancel-order" class="btn btn-danger">Cancel Order</button>
-      <button id="go-back" class="btn btn-secondary">Go Back</button>
+<div class="filter-box">
+    <div class="filter-item">
+      <span class="filter-text">Categories</span>
+      <div class="dropdown-content">
+        <a href="#">Category 1</a>
+        <a href="#">Category 2</a>
+        <a href="#">Category 3</a>
+        <a href="#">Category 4</a>
+      </div>
+    </div>
+  
+    <div class="filter-item">
+      <span class="filter-text">Price</span>
+      <div class="dropdown-content">
+        <a href="#">Low to High</a>
+        <a href="#">High to Low</a>
+        <a href="#">Under $50</a>
+        <a href="#">Above $100</a>
+      </div>
+    </div>
+  
+    <div class="filter-item">
+      <span class="filter-text">New Arrivals</span>
+      <div class="dropdown-content">
+        <a href="#">Last 7 Days</a>
+        <a href="#">Last 30 Days</a>
+        <a href="#">Last 90 Days</a>
+        <a href="#">This Month</a>
+      </div>
+    </div>
+  
+    <div class="filter-item">
+      <span class="filter-text">A-Z</span>
+      <div class="dropdown-content">
+        <a href="#">A to Z</a>
+        <a href="#">Z to A</a>
+        <a href="#">Popular</a>
+        <a href="#">Discounted</a>
+      </div>
+    </div>
   </div>
-</div>
 
-<style>
-  .cancellation-reason-container {
-    padding: 20px;
-    border: 1px solid #ddd;
-    background-color: #f9f9f9;
-    width: 300px;
-    margin: 0 auto;
-    border-radius: 8px;
+  <style>
+    /* Container for the filter items (in a row) */
+.filter-box {
+  display: flex;
+  justify-content: space-between;
+  background-color: #f8f5e4;  /* Slight cream color */
+  border: 1px solid #ddd;
+  padding: 10px;
+  border-radius: 10px;
+  width: 100%;
+  max-width: 900px;
+  margin: 20px auto;
 }
 
-.cancellation-reason-container h3 {
-    text-align: center;
-    font-size: 1.5em;
-    margin-bottom: 15px;
+/* Each filter item (text + dropdown) */
+.filter-item {
+  position: relative;
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 0 10px;
 }
 
-.cancellation-reason-container input {
-    width: 100%;
-    padding: 10px;
-    margin-bottom: 15px;
-    border-radius: 4px;
-    border: 1px solid #ccc;
+/* Style for the filter text */
+.filter-text {
+  font-size: 16px;
+  color: #007bff;
+  font-weight: bold;
+  cursor: pointer;
 }
 
-.buttons {
-    display: flex;
-    justify-content: space-between;
+/* Style for the dropdown menu */
+.dropdown-content {
+  display: none;
+  position: absolute;
+  background-color: white;
+  min-width: 160px;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+  z-index: 1;
+  border-radius: 5px;
+  margin-top: 5px;
+  width: 100%;
+  box-sizing: border-box;
 }
 
-.buttons button {
-    padding: 10px 15px;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
+/* Links inside the dropdown */
+.dropdown-content a {
+  color: black;
+  padding: 12px 16px;
+  text-decoration: none;
+  display: block;
+  font-size: 14px;
 }
 
-.buttons .btn-danger {
-    background-color: #f44336;
-    color: white;
+/* Change color of dropdown items on hover */
+.dropdown-content a:hover {
+  background-color: #ddd;
 }
 
-.buttons .btn-secondary {
-    background-color: #757575;
-    color: white;
+/* Show dropdown on hover */
+.filter-item:hover .dropdown-content {
+  display: block;
 }
 
-</style>
+/* Optional: Text hover effect */
+.filter-text:hover {
+  color: #0056b3;
+}
+
+  </style>

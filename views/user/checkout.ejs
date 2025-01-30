@@ -493,36 +493,44 @@ cancelEditBtn.addEventListener('click', function() {
     addressDiv.style.display = 'block';  // Show address list
 });
 
+let selectedAddressId= null;
 
-addressForm.addEventListener('submit', function(e) {
-    e.preventDefault(); // Prevent the form from submitting normally
+document.querySelectorAll('.address-radio').forEach((radio)=>{
+	radio.addEventListener('change',(e)=>{
+		selectedAddressId=e.target.getAttribute('data-id');
+		console.log("selected address" ,selectedAddressId)
+	})
+})
 
-    // Get the selected address ID from the radio buttons
-    const selectedAddressId = document.querySelector('input[name="address"]:checked');
-
-    if (selectedAddressId) {
-      // Get the selected address object from the userAddress data
-      const selectedAddress = userAddress.address.find(address => address._id === selectedAddressId.value);
-
-      if (selectedAddress) {
-        // Hide the edit address section
-        editAddressDiv.style.display = 'none';
-
-        // Display the selected address in the address div
-        addressDiv.innerHTML = `
-          <strong>${selectedAddress.name}</strong><br/>
-          Phone: ${selectedAddress.phone} <br/>
-          Alt Phone: ${selectedAddress.altPhone} <br/>
-          ${selectedAddress.city}, ${selectedAddress.landMark}, ${selectedAddress.district}, ${selectedAddress.state} - <strong>${selectedAddress.pincode}</strong>
-        `;
-
-        // Show the selected address div
-        addressDiv.style.display = 'block';
-      }
-    } else {
-      alert('Please select an address.');
+document.getElementById("updateAddressBtn").addEventListener("click", () => {
+    if (!selectedAddressId) {
+        alert("Please select an address.");
+        return;
     }
-  });
+
+	fetch("/placeOrder", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ addressId: selectedAddressId , paymentMethod:"COD" }),
+    })
+        .then((response) => response.json())
+        .then((data) => {
+            if (data.success) {
+                alert("Address updated successfully!");
+                // Optionally close the edit address form
+                editAddressDiv.style.display = "none";
+				addressDiv.style.display = "block"
+            } else {
+                alert("Failed to update address. Please try again.");
+            }
+        })
+        .catch((error) => {
+            console.error("Error:", error);
+        });
+});
+
 
   // Event listener for the cancel button
   cancelEditBtn.addEventListener('click', function() {
