@@ -2,6 +2,9 @@ const express = require('express')
 const app= express()
 const env = require('dotenv').config()
 const path = require('path');
+const crypto = require("node:crypto");
+const razorpayInstance = require("./config/razorpayConfig"); // Import the configured instance
+
 const connectDB =require('./config/db')
 const bodyParser = require('body-parser');
 const User = require('./models/userSchema');
@@ -13,8 +16,11 @@ const adminRouter = require('./routes/adminRouter')
 const otpRoutes = require('./routes/otpRoutes');
 const filterBlockedProducts = require('./middleware/filterblockedproducts'); // Adjust the path to your middleware
 const Product = require('./models/productSchema')
+const multer = require("multer");
+const upload = multer();
 
 const checkBan= require("./middleware/checkban");
+const Razorpay = require('razorpay');
 
 
 connectDB();
@@ -40,6 +46,7 @@ app.use(session({
 app.use(passport.initialize());
 app.use(passport.session());
 app.use(passport.authenticate('session'));
+app.use(upload.none());
 
 
 app.set('views',[path.join(__dirname, 'views/user'),path.join(__dirname, 'views/admin')]);
@@ -93,6 +100,24 @@ app.get('/api/products', async (req, res) => {
   }
 });
 
+app.get('/api/getCategories', async (req, res) => {
+  try {
+      const categories = await Category.find();  // Fetch categories from your database
+      res.json(categories);
+  } catch (err) {
+      res.status(500).send('Error fetching categories');
+  }
+});
+
+// Example route to get products
+app.get('/api/getProducts', async (req, res) => {
+  try {
+      const products = await Product.find();  // Fetch products from your database
+      res.json(products);
+  } catch (err) {
+      res.status(500).send('Error fetching products');
+  }
+});
 
 
 app.get('/auth/status', (req, res) => {

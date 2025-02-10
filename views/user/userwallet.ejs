@@ -3,7 +3,38 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="/css/style.css">
+
+    
+	<link href="https://fonts.googleapis.com/css?family=Montserrat:300,400,500,600,700" rel="stylesheet">
+	<link href="https://fonts.googleapis.com/css?family=Rokkitt:100,300,400,700" rel="stylesheet">
+	
+	<!-- Animate.css -->
+	<link rel="stylesheet" href="css/animate.css">
+	<!-- Icomoon Icon Fonts-->
+	<link rel="stylesheet" href="css/icomoon.css">
+	<!-- Ion Icon Fonts-->
+	<link rel="stylesheet" href="css/ionicons.min.css">
+	<!-- Bootstrap  -->
+	<link rel="stylesheet" href="css/bootstrap.min.css">
+
+	<!-- Magnific Popup -->
+	<link rel="stylesheet" href="css/magnific-popup.css">
+
+	<!-- Flexslider  -->
+	<link rel="stylesheet" href="css/flexslider.css">
+
+	<!-- Owl Carousel -->
+	<link rel="stylesheet" href="css/owl.carousel.min.css">
+	<link rel="stylesheet" href="css/owl.theme.default.min.css">
+	
+	<!-- Date Picker -->
+	<link rel="stylesheet" href="css/bootstrap-datepicker.css">
+	<!-- Flaticons  -->
+	<link rel="stylesheet" href="fonts/flaticon/font/flaticon.css">
+
+	<!-- Theme style  -->
+	<link rel="stylesheet" href="css/style.css">
+
     <title>Dashboard Page</title>
     <style>
         /* General Reset */
@@ -18,13 +49,14 @@
             display: flex;
             flex-direction: column;
             min-height: 100vh;
-            background-color: #f4f4f4;
+            background-color: #ffffff;
         }
 
         /* Sidebar */
         .container {
             display: flex;
             flex: 1;
+            margin-left: 0px;
         }
 
         .sidebar {
@@ -77,95 +109,76 @@
             font-weight: bold;
             margin-bottom: 10px;
         }
-
-        .wallet-container {
-  background-color: #ffffff;
-  border-radius: 10px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  width: 90%; /* Adjusted to cover most of the page */
-  max-width: 900px; /* Prevent it from becoming too large */
-  padding: 20px;
-  margin: 10px; /* Margin for spacing on small screens */
+        .user-details-form {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
 }
 
-/* Wallet card section */
-.wallet-card {
-  background-color: #002b62;
-  color: #ffffff;
-  border-radius: 10px;
-  padding: 20px;
-  margin-bottom: 20px;
-  text-align: left;
-}
-
-.wallet-header h3 {
-  margin: 0;
-  font-size: 18px;
-}
-
-.wallet-header p {
-  margin: 5px 0;
-  font-size: 14px;
-}
-
-.wallet-header h2 {
-  margin: 10px 0;
-  font-size: 24px;
+label {
   font-weight: bold;
+  margin: 10px 0 5px;
 }
 
-.wallet-header .validity {
-  font-size: 12px;
-  margin-top: 5px;
-}
-
-/* Wallet form */
-.wallet-form label {
-  display: block;
-  font-size: 14px;
-  margin-bottom: 5px;
-  font-weight: bold;
-  color: #333333;
-}
-
-.wallet-form input {
+input, textarea, select {
   width: 100%;
-  padding: 10px;
-  font-size: 14px;
+  padding: 8px;
   margin-bottom: 15px;
   border: 1px solid #cccccc;
-  border-radius: 5px;
+  border-radius: 4px;
   box-sizing: border-box;
 }
 
-/* Buttons */
-.wallet-buttons {
-  display: flex;
-  gap: 10px;
+textarea {
+  resize: vertical;
+  height: 80px;
 }
 
-.add-money-btn,
-.transactions-btn {
+.gender-container {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 15px;
+}
+
+.gender-label {
+  font-size: 16px;
+  font-weight: 400;
+  margin-bottom: 10px;
+}
+
+
+.gender-options {
+    display: flex;
+    align-items: center; /* Aligns the radio buttons and labels vertically */
+    gap: 20px; /* Adds spacing between Male and Female options */
+}
+
+.gender-option {
+    display: flex;
+    align-items: center; /* Ensures the radio button and label are vertically aligned */
+}
+
+.gender-options input {
+    margin-right: 5px; /* Adds space between radio button and label */
+    cursor: pointer;
+}
+
+.gender-options label{
+    margin-top: -9px;
+}
+
+
+
+
+
+
+.submit-btn {
+  background-color: #4CAF50;
+  color: white;
   border: none;
   padding: 10px 15px;
-  font-size: 14px;
+  border-radius: 4px;
   cursor: pointer;
-  color: #ffffff;
-  border-radius: 5px;
-  font-weight: bold;
-}
-
-.add-money-btn {
-  background-color: #84CBCB;
-}
-
-.transactions-btn {
-  background-color: #4CAF50; /* Green as per the image */
-}
-
-.add-money-btn:hover,
-.transactions-btn:hover {
-  opacity: 0.9;
 }
 
         /* Footer */
@@ -234,38 +247,143 @@
         .newsletter button:hover {
             opacity: 0.8;
         }
+
+
+        .dashboard-header h1{
+            color: #52cbcb;
+        }
+
+        .dashboard-header li{
+            list-style: none;
+            padding: 20px 0px;
+            color: black;
+        }
+
+        .dashboard-header button{
+            padding: 8px 20px;
+
+            color: rgb(255, 255, 255);
+            background-color: #84CBCB;
+            border: none;
+        }
+        .edit-btn {
+            background-color: #4CAF50;
+  color: white;
+  border: none;
+  padding: 10px 15px;
+  border-radius: 4px;
+  cursor: pointer;
+
+}
+.wallet-container {
+        max-width: 600px;
+        margin: auto;
+        text-align: center;
+    }
+
+    /* Wallet Balance Box */
+    .wallet-balance-box {
+        background-color: #0a3d62; /* Dark Blue */
+        color: #ffffff; /* White Text */
+        padding: 20px;
+        border-radius: 10px;
+        font-size: 24px;
+        font-weight: bold;
+        margin-bottom: 20px;
+    }
+
+    /* Table Styling */
+    .wallet-history-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 10px;
+    }
+
+    .wallet-history-table th, 
+    .wallet-history-table td {
+        border: 1px solid #ddd;
+        padding: 10px;
+        text-align: center;
+    }
+
+    .wallet-history-table th {
+        background-color: #f4f4f4;
+        font-weight: bold;
+    }
+
+    .credit {
+        color: green; /* Green for added balance */
+    }
+
+    .debit {
+        color: red; /* Red for deducted balance */
+    }
+
+
+
     </style>
 </head>
 <body>
+    <%- include("../../views/partials/user/userheader.ejs")%>
+
+
     <!-- Container with Sidebar and Main Content -->
     <div class="container">
         <!-- Sidebar -->
         <%- include("../../views/partials/user/usersidebar.ejs")%>
 
 
-        <div class="wallet-container">
-    <div class="wallet-card">
-      <div class="wallet-header">
-        <h3>CosmiX</h3>
-        <p>**** **** **** 2004</p>
-        <h2>₹900.00</h2>
-        <p class="validity">Valid Thru: 12/26</p>
-      </div>
-    </div>
-    <div class="wallet-form">
-      <label for="amount">Add Amount</label>
-      <input type="text" id="amount" placeholder="Enter amount">
-      <div class="wallet-buttons">
-        <a href="http://localhost:4000/mywalletmoney"  class="add-money-btn">Add Money</a>
-        <a href="http://localhost:4000/mywallettransactions"  class="transactions-btn">Transactions</a>
-      </div>
-    </div>
-  </div>
+        <!-- Main Content -->
+        <div class="content">
+            <div class="user-details-card">
+                <div class="wallet-container">
+                    
+                    <!-- Wallet Balance Section -->
+                    <div class="wallet-balance-box">
+                        Wallet Balance: ₹ <%= walletAmount %>
+                    </div>
+                    
+                    <!-- Referral Code -->
+                    <h3>Your Referral Code</h3>
+                    <div class="referral-code"><%= user.referralCode%></div>
+                    
+                    <!-- Wallet History Table -->
+                    <h3>Wallet History</h3>
+                    <table class="wallet-history-table">
+                        <thead>
+                            <tr>
+                                <th>Amount</th>
+                                <th>Transaction Type</th>
+                                <th>Time</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <% if (transactions.length === 0) { %>
+                                <tr><td colspan="3">No transactions found</td></tr>
+                            <% } else { %>
+                                <% transactions.forEach(transaction => { %>
+                                    <tr>
+                                        <td>  <%= transaction.amount > 0 ? `+ ₹ ${transaction.amount}` : `- ₹ ${Math.abs(transaction.amount)}` %></td>
+                                        <td><%= transaction.transactionType %></td>
+                                        <td><%= new Date(transaction.timestamp).toLocaleString() %></td>
+                                    </tr>
+                                <% }) %>
+                            <% } %>
+                        </tbody>
+                    </table>
+                    
+                </div>
+            </div>
+        </div>
+        
+          
+           
+
+            
+        </div>
     </div>
 
-    <!-- Footer -->
-    <%- include("../../views/partials/user/userfooter.ejs")%>
 
-  
+   
 </body>
 </html>

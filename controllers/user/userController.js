@@ -1,7 +1,8 @@
 const express = require("express");
 const router = express.Router();
 const mongoose = require('mongoose');
-
+const crypto = require('crypto'); // This is necessary to use createHmac
+const razorpayInstance = require("../../config/razorpayConfig"); 
 const User = require("../../models/userSchema");
 const nodemailer = require("nodemailer");
 const bcrypt = require("bcrypt");
@@ -13,6 +14,8 @@ const Category = require("../../models/categorySchema");
 const Cart = require('../../models/cartSchema')
 const Address = require('../../models/addressSchema')
 const Order = require('../../models/orderSchema')
+const Referral = require('../../models/referralSchema')
+const Coupon = require('../../models/couponSchema')
 
 
 const pageNotFound = async (req, res) => {
@@ -22,24 +25,6 @@ const pageNotFound = async (req, res) => {
     res.redirect("/pageNotFound");
   }
 };
-
-// const loadHomepage = async (req, res) => {
-//   try {
-//     const homeCategory = await Category.find({ isListed: true }).select('_id');
-
-//     if (!homeCategory) {
-//       return res.status(404).send("Category products not found");
-//     }
-
-//     const products = await Product.find({ isBlocked: false});
-
-//     res.render("home", { products });
-//   } catch (error) {
-//     console.error("Error fetching products:", error);
-//     res.status(500).send("Error fetching products");
-//   }
-// };
-
 
 const loadHomepage = async (req, res) => {
   try {
@@ -69,11 +54,6 @@ const loadHomepage = async (req, res) => {
     res.render('home', { products: [] })
   }
 };
-
-
-
-
-
 
 
 const loadSignIn = async (req, res) => {
@@ -133,46 +113,6 @@ const securePassword = async (password) => {
   } catch (error) { }
 };
 
-// const verifyRegister = async (req, res) => {
-//   try {
-//     const { name, email, password, phone } = req.body;
-
-//     const existingUser = await User.findOne({ email });
-//     if (existingUser) {
-//       res.render("signUp", { error: "User already exist" });
-//     } else {
-//       const otp = generateOtp();
-//       const otpExpiration = Date.now() + 5 * 60 * 1000; // 5 minutes
-//       req.session.otpExpiration = otpExpiration;
-
-//       req.session.loggedIn = true;
-//       req.session.userOtp = otp;
-//       req.session.userData = { name, email, password, phone };
-
-//       req.session.save((err) => {
-//         if (err) {
-//           console.error("Error saving session:", err);
-//           return res.status(500).send("Internal Server Error");
-//         }})
-
-//       const emailSent = sendVerificationEmail(email, otp);
-//       if (!emailSent) {
-//         return res.json("email-error");
-//       }
-
-
-
-//       //console.log(req.session.userData);
-
-//       res.redirect("/verify");
-//       console.log("OTP Sent ", otp);
-//     }
-//   } catch (error) {
-//     console.error("Signup Error", error);
-//     res.status(500).send("Internal Server Error");
-//   }
-// };
-
 const loadOtpPage = (req, res) => {
   const message = req.session.errorMessage || null;
   res.render("verify-otp", { message });
@@ -216,7 +156,6 @@ const verifyRegister = async (req, res) => {
     res.status(500).send("Internal Server Error");
   }
 };
-
 
 
 const verifyOtp = async (req, res) => {
@@ -284,52 +223,6 @@ const verifyOtp = async (req, res) => {
   }
 };
 
-
-// const resendOtp = async (req, res) => {
-//   try {
-
-//     const { email } = req.session.userData;
-//     if (!email) {
-//       return res
-//         .status(400)
-//         .json({ success: false, message: "Email not found in session" });
-//     }
-
-//     const otp = generateOtp();
-//     const otpExpiration = Date.now() + 5 * 60 * 1000; // OTP valid for 5 minutes
-
-//     req.session.userOtp = otp;
-//     req.session.otpExpiration = otpExpiration;
-
-//     console.log(
-//       `Generated OTP: ${otp}, Expires At: ${new Date(otpExpiration)}`
-//     );
-
-//     const emailSent = await sendVerificationEmail(email, otp);
-//     if (emailSent) {
-//       console.log("Resend OTP :", otp);
-//       res
-//         .status(200)
-//         .json({ success: true, message: "OTP Resend Successfully" });
-//     } else {
-//       res
-//         .status(500)
-//         .json({
-//           success: false,
-//           message: "Failed to resend OTP,Please try again",
-//         });
-//     }
-//   } catch (error) {
-//     console.error("Error resending OTP", error);
-//     res
-//       .status(500)
-//       .json({
-//         success: false,
-//         message: "Internal Server Error,Please Try again",
-//       });
-//   }
-// };
-
 const resendOtp = async (req, res) => {
   try {
     const { email } = req.session.userData;
@@ -367,25 +260,201 @@ const resendOtp = async (req, res) => {
   }
 };
 
+const generateReferralCode = async () => {
+  let referralCode;
+  let existingReferral;
+  do {
+    referralCode = "COSREF" + crypto.randomBytes(3).toString("hex").toUpperCase(); // Example: "COSREFA1B2C3"
+    existingReferral = await Referral.findOne({ referralCode });
+  } while (existingReferral); // Ensure uniqueness
 
+  return referralCode;
+};
+
+// const registerUser = async (req, res) => {
+//   try {
+//     const { name, email, password, phone ,referralCode} = req.body;
+
+//     if (!name || !email || !password || !phone) {
+//       return res.status(400).send("All fields are required");
+//     }
+
+//     const existingUser = await User.findOne({ email });
+//     if (existingUser) {
+//       return res.status(400).send("Email is already registered");
+//     }
+
+//     const otp = crypto.randomInt(100000, 999999).toString();
+//     const hashedPassword = await hashPassword(password);
+
+//     const newUser = new User({
+//       name,
+//       email,
+//       phone,
+//       password: hashedPassword,
+//       otp,
+//       otpExpiration: Date.now() + 5 * 60 * 1000,
+//     });
+
+//     await newUser.save(); // ✅ Save the user before using its ID for the wallet
+
+//     // ✅ Handle referral bonus
+//     if (referralCode) {
+//       const referrer = await User.findOne({ referralCode });
+
+//       if (referrer) {
+//         // ✅ Update referrer and new user's wallet
+//         await Wallet.findOneAndUpdate(
+//           { userId: referrer._id },
+//           {
+//             $inc: { walletAmount: 50 },
+//             $push: { transactions: { amount: 50, transactionType: "Referral" } }
+//           },
+//           { upsert: true, new: true }
+//         );
+
+//         await Wallet.findOneAndUpdate(
+//           { userId: newUser._id },
+//           {
+//             $inc: { walletAmount: 50 },
+//             $push: { transactions: { amount: 50, transactionType: "Referral" } }
+//           },
+//           { upsert: true, new: true }
+//         );
+//       }
+//     } else {
+//       // ✅ If no referral code, ensure new user still gets a wallet
+//       await Wallet.findOneAndUpdate(
+//         { userId: newUser._id },
+//         { walletAmount: 0, transactions: [] },
+//         { upsert: true, new: true }
+//       );
+//     }
+
+
+//     // Generate and store referral code
+   
+// ;
+
+//     req.session.userData = { name, email, password, phone };
+//     req.session.userOtp = otp;
+//     req.session.otpExpiration = Date.now() + 5 * 60 * 1000;
+
+//     await sendOTP(email, otp);
+
+//     req.session.save((err) => {
+//       if (err) {
+//         console.error("Error saving session:", err);
+//         return res.status(500).send("Internal Server Error");
+//       }
+//     });
+
+//     res.redirect("/verify");
+//   } catch (err) {
+//     console.error("Error during registration:", err);
+//     res.status(500).send("Internal Server Error");
+//   }
+// };
+
+// const registerUser = async (req, res) => {
+//   try {
+//     const { name, email, password, phone, referralCode } = req.body;
+
+//     if (!name || !email || !password || !phone) {
+//       return res.status(400).send("All fields are required");
+//     }
+
+//     const existingUser = await User.findOne({ email });
+//     if (existingUser) {
+//       return res.status(400).send("Email is already registered");
+//     }
+
+//     const otp = crypto.randomInt(100000, 999999).toString();
+//     const hashedPassword = await hashPassword(password);
+
+//     const newUser = new User({
+//       name,
+//       email,
+//       phone,
+//       password: hashedPassword,
+//       otp,
+//       otpExpiration: Date.now() + 5 * 60 * 1000,
+//     });
+
+//     await newUser.save(); // ✅ Save the user before updating the wallet
+
+//     // ✅ Handle referral bonus
+//     if (referralCode) {
+//       const referrer = await User.findOne({ referralCode });
+
+//       if (referrer) {
+//         console.log("✅ Referrer Found:", referrer.name);
+
+//         // ✅ Update referrer's wallet
+//         await Wallet.findOneAndUpdate(
+//           { userId: referrer._id },
+//           {
+//             $inc: { walletAmount: 50 },
+//             $push: { transactions: { amount: 50, transactionType: "Referral Bonus", date: new Date() } },
+//           },
+//           { upsert: true, new: true }
+//         );
+
+//         // ✅ Update new user's wallet
+//         await Wallet.findOneAndUpdate(
+//           { userId: newUser._id },
+//           {
+//             $inc: { walletAmount: 50 },
+//             $push: { transactions: { amount: 50, transactionType: "Referral Bonus", date: new Date() } },
+//           },
+//           { upsert: true, new: true }
+//         );
+//       } else {
+//         console.log("❌ No referrer found for this code.");
+//       }
+//     }
+
+//     // ✅ Ensure new user gets a wallet even if no referral is used
+//     await Wallet.findOneAndUpdate(
+//       { userId: newUser._id },
+//       { $setOnInsert: { walletAmount: 0, transactions: [] } }, 
+//       { upsert: true }
+//     );
+
+//     req.session.userData = { name, email, password, phone };
+//     req.session.userOtp = otp;
+//     req.session.otpExpiration = Date.now() + 5 * 60 * 1000;
+
+//     await sendOTP(email, otp);
+
+//     req.session.save((err) => {
+//       if (err) {
+//         console.error("Error saving session:", err);
+//         return res.status(500).send("Internal Server Error");
+//       }
+//     });
+
+//     res.redirect("/verify");
+//   } catch (err) {
+//     console.error("Error during registration:", err);
+//     res.status(500).send("Internal Server Error");
+//   }
+// };
 
 const registerUser = async (req, res) => {
   try {
-    const { name, email, password, phone } = req.body;
+    const { name, email, password, phone, referralCode } = req.body;
 
-    // Input validation
     if (!name || !email || !password || !phone) {
       return res.status(400).send("All fields are required");
     }
 
-    // Check if email already exists
     const existingUser = await User.findOne({ email });
     if (existingUser) {
       return res.status(400).send("Email is already registered");
     }
 
     const otp = crypto.randomInt(100000, 999999).toString();
-
     const hashedPassword = await hashPassword(password);
 
     const newUser = new User({
@@ -394,20 +463,57 @@ const registerUser = async (req, res) => {
       phone,
       password: hashedPassword,
       otp,
-      otpExpiration: Date.now() + 5 * 60 * 1000, // OTP expires in 5 minutes
+      otpExpiration: Date.now() + 5 * 60 * 1000,
     });
 
     await newUser.save();
 
-    // Store user data in the session
+    // ✅ Handle referral bonus
+    if (referralCode) {
+      const referrer = await User.findOne({ referralCode });
+
+      if (referrer) {
+        console.log("✅ Referrer Found:", referrer.name);
+
+        // ✅ Update referrer's wallet
+        await Wallet.findOneAndUpdate(
+          { userId: referrer._id },
+          {
+            $inc: { walletAmount: 50 },
+            $push: { transactions: { amount: 50, transactionType: "Referral Bonus", date: new Date() } },
+          },
+          { upsert: true, new: true }
+        );
+
+        // ✅ Update new user's wallet
+        await Wallet.findOneAndUpdate(
+          { userId: newUser._id },
+          {
+            $inc: { walletAmount: 50 },
+            $push: { transactions: { amount: 50, transactionType: "Referral Bonus", date: new Date() } },
+          },
+          { upsert: true, new: true }
+        );
+      } else {
+        console.log("❌ No referrer found for this code.");
+      }
+    }
+
+    // ✅ Ensure new user gets a wallet even if no referral is used
+    console.log("🔍 Checking wallet for:", newUser._id);
+    const wallet = await Wallet.findOneAndUpdate(
+      { userId: newUser._id },
+      { $setOnInsert: { walletAmount: 0, transactions: [] } }, 
+      { upsert: true, new: true }
+    );
+    console.log("✅ Wallet created:", wallet);
+
     req.session.userData = { name, email, password, phone };
     req.session.userOtp = otp;
-    req.session.otpExpiration = Date.now() + 5 * 60 * 1000;  // OTP expires in 5 minutes
+    req.session.otpExpiration = Date.now() + 5 * 60 * 1000;
 
-    // Send OTP to the user's email
     await sendOTP(email, otp);
 
-    // Save the session data
     req.session.save((err) => {
       if (err) {
         console.error("Error saving session:", err);
@@ -423,47 +529,6 @@ const registerUser = async (req, res) => {
 };
 
 
-
-// const registerUser = async (req, res) => {
-//   try {
-//     const { name, email, password, phone } = req.body;
-
-//     // Input validation
-//     if (!name || !email || !password || !phone) {
-//       return res.status(400).send("All fields are required");
-//     }
-
-//     // Check if email already exists
-//     const existingUser = await User.findOne({ email });
-//     if (existingUser) {
-//       return res.status(400).send("Email is already registered");
-//     }
-
-//     const otp = crypto.randomInt(100000, 999999).toString();
-
-//     const hashedPassword = await hashPassword(password);
-
-//     const newUser = new User({
-//       name,
-//       email,
-//       phone,
-//       password: hashedPassword,
-//       otp,
-//       otpExpiration: Date.now() + 5 * 60 * 1000, // OTP expires in 5 minutes
-//     });
-
-
-//     await newUser.save();
-
-
-//     await sendOTP(email, otp);
-
-//     res.redirect("/verify");
-//   } catch (err) {
-//     console.error("Error during registration:", err);
-//     res.status(500).send("Internal Server Error");
-//   }
-// };
 
 const loginUser = async (req, res) => {
   req.session.userData = req.body;
@@ -500,8 +565,6 @@ const loginUser = async (req, res) => {
     res.status(500).json({ error: "Server error." });
   }
 };
-
-
 
 const loadSkincare = async (req, res) => {
   try {
@@ -587,12 +650,7 @@ const loadProductDetails = async (req, res) => {
     const product = await Product.findOne({
       _id: id
     });
-    // console.log("Product Data:", product);
-    // console.log(
-    //   "Image Path:",
-    //   product.productImage ? product.productImage[0] : "No Image"
-    // );
-
+   
     if (!product) {
       return res.status(404).send("Product not found");
     }
@@ -627,98 +685,167 @@ const loadPageError = async (req, res) => {
   }
 };
 
-
-
-
-
-
-
-
-
-
-
 const loadOrderComplete = async (req, res) => {
   const orderId = req.query.orderId;
   const userId = req.session.user;
 
-  console.log('========================')
+  console.log("___________________0_________0________");
+  console.log(orderId);
+  console.log(userId);
 
-  console.log(userId)
   try {
     if (!orderId) {
       console.log("Order ID is missing");
       return res.status(400).send("Order ID is required");
     }
 
-    const orderDetails = await Order.findOne({ orderId }).populate('orderedItems.product');
+    // Populate orderedItems.product but not addressId directly
+    const orderDetails = await Order.findOne({ orderId })
+      .populate('orderedItems.product') 
+      .lean(); // Convert to plain JavaScript object
+
     if (!orderDetails) {
       console.log("No order found for the given orderId");
       return res.status(404).send("Order not found");
-
     }
 
-    console.log('________________________')
-    console.log(orderDetails)
+    console.log('________________________');
+    console.log(orderDetails);
 
-    const userDetails = await User.findOne({ _id: orderDetails.userId });
+    const userDetails = await User.findById(orderDetails.userId);
     if (!userDetails) {
-      console.log("User not found for the given addressId");
+      console.log("User not found");
+      return res.status(404).send("User details not found");
+    }
+
+    console.log('________________________');
+    console.log(userDetails);
+
+    // Fetch the user's addresses
+    const userAddressDoc = await Address.findOne({ userId: orderDetails.userId });
+
+    if (!userAddressDoc) {
+      console.log("Address document not found");
       return res.status(404).send("Address details not found");
     }
 
-
-    console.log('________________________')
-    console.log(userDetails)
-    const addressDetails = await Address.findOne({ _id: orderDetails.address });
+    // Find the specific address from the address array
+    const addressDetails = userAddressDoc.address.find(addr => addr._id.toString() === orderDetails.addressId.toString());
 
     if (!addressDetails) {
-      console.log("Address not found for the given addressId");
+      console.log("Address not found for the given order");
       return res.status(404).send("Address details not found");
     }
 
-    console.log('________________________')
-    console.log(addressDetails)
+    console.log('________________________');
+    console.log(addressDetails);
 
     return res.render("order-complete", { orderDetails, userDetails, addressDetails });
+
   } catch (error) {
-    console.log("order complete page not loading", error);
+    console.log("Order complete page not loading", error);
     res.status(500).send("Server error");
   }
 };
 
-const loadOrderCheckout = async (req, res) => {
+// const loadOrderCheckout = async (req, res) => {
 
+//   const userId = req.session.user;
+
+//   if (!userId) {
+//     return res.redirect('/signin')
+//   }
+//   try {
+//     const userData = await User.findById(userId);
+
+//     const addressData = await Address.findOne({ userId: userId })
+//     const cart = await Cart.findOne({ userId: userId }).populate('items.productId');
+//     console.log("**************************************")
+//     console.log(cart.items)
+//     console.log("****************************************")
+
+//     console.log(addressData)
+
+
+
+
+
+//     const subtotal = cart.items.reduce((acc, item) => {
+//       return acc + item.totalPrice // Access price from the populated productId
+//     }, 0);
+
+//     const delivery = 50;
+//     const total = subtotal + delivery;
+
+//     res.render("checkout", { user: userData, userAddress: addressData, cart: cart, subtotal, delivery, total });
+//   } catch (error) {
+//     console.log("checkout page not loading", error);
+//     res.status(500).send("Server error");
+//   }
+// };
+
+const loadOrderCheckout = async (req, res) => {
   const userId = req.session.user;
 
   if (!userId) {
-    return res.redirect('/signin')
+      return res.redirect('/signin');
   }
+
   try {
-    const userData = await User.findById(userId);
+      const userData = await User.findById(userId);
+      const addressData = await Address.findOne({ userId });
+      const cart = await Cart.findOne({ userId }).populate('items.productId');
 
-    const addressData = await Address.findOne({ userId: userId })
-    const cart = await Cart.findOne({ userId: userId }).populate('items.productId');
-    console.log("**************************************")
-    console.log(cart.items)
-    console.log("****************************************")
+      if (!cart || cart.items.length === 0) {
+          return res.render("checkout", {
+              user: userData,
+              userAddress: addressData,
+              cart: { items: [] },
+              subtotal: 0,
+              additionalCharge: 50,
+              totalAmount: 50,
+              discount: 0,
+              appliedCoupon: null,
+              coupons: [],
+          });
+      }
 
-    console.log(addressData)
+      // Calculate subtotal
+      let subtotal = cart.items.reduce((total, item) => {
+          return total + (item.totalPrice || 0);
+      }, 0);
 
+      if (isNaN(subtotal)) subtotal = 0;
 
+      // Retrieve applied coupon and discount from session
+      const discount = req.session.discount || 0;
+      const appliedCoupon = req.session.appliedCoupon || null;
+      const additionalCharge = 50;
+      const totalAmount = subtotal - discount + additionalCharge;
 
+      // Fetch active coupons
+      const coupons = await Coupon.find({
+          isActive: true,
+          startDate: { $lte: new Date() },
+          expiryDate: { $gte: new Date() },
+          minimumPurchase: { $lte: subtotal },
+      });
 
+      res.render("checkout", {
+          user: userData,
+          userAddress: addressData,
+          cart,
+          subtotal,
+          additionalCharge,
+          totalAmount,
+          discount,
+          appliedCoupon,
+          coupons,
+      });
 
-    const subtotal = cart.items.reduce((acc, item) => {
-      return acc + item.totalPrice // Access price from the populated productId
-    }, 0);
-
-    const delivery = 50;
-    const total = subtotal + delivery;
-
-    res.render("checkout", { user: userData, userAddress: addressData, cart: cart, subtotal, delivery, total });
   } catch (error) {
-    console.log("checkout page not loading", error);
-    res.status(500).send("Server error");
+      console.log("Checkout page not loading", error);
+      res.status(500).send("Server error");
   }
 };
 
@@ -926,205 +1053,213 @@ const updatePassword = async (req, res) => {
   }
 }
 
-
 // const placeOrder = async (req, res) => {
-
-//   console.log("Received request for /placeOrder");
-
-//   const userId = req.session.user;
-//   console.log(userId)
-//   if (!userId) {
-//     return res.redirect('/signin');
-//   }
-//   try {
-//     const { cartId, addressId, paymentMethod } = req.body;
-//     console.log("00000000000000000000000000000000000000000000")
-//     console.log(addressId)
-//     console.log(req.body)
-
-
-//     const objectIdUserId = new  mongoose.Types.ObjectId(userId);
-//     const objectIdAddressId = new mongoose.Types.ObjectId(addressId);
-
-//     const cart = await Cart.findOne({ _id: cartId }).populate('items.productId')
-//     const addressData = await Address.findOne({ userId: objectIdUserId, "address._id": objectIdAddressId });
-
-//     console.log("---------------------------")
-//     console.log(addressData)
-
-//     console.log(cart)
-
-
-//     if (!cart) {
-//       return res.status(400).json({ success: false, message: 'Invalid cart ' });
+//     const userId = req.session.user._id;
+// console.log("----------------------------")
+//     console.log(userId)
+//     console.log("------------------------")
+//     if (!userId) {
+//         return res.redirect('/signin');
 //     }
 
-//     if (!addressData) {
-//       return res.status(400).json({ success: false, message: 'Invalid address ' });
-//     }
+//     try {
+//         const { cartId, paymentMethod, selectedAddress } = req.body;
+//         console.log("------------------------");
+//         console.log("Cart ID:", cartId);
+//         console.log("Payment Method:", paymentMethod);
+//         console.log("Selected Address:", selectedAddress);
 
-
-//     const orderData = {
-//       orderId: 'ORD' + new Date().getTime(),
-//       userId: userId,
-//       orderedItems: cart.items.map(item => ({
-//         product: item.productId,
-//         price: item.price, // Ensure populated
-//         quantity: item.quantity,
-//         totalPrice: item.totalPrice,
-//       })),
-//       totalPrice: cart.items.reduce((acc, item) => acc + item.totalPrice, 0),
-//       PayableAmount: cart.items.reduce((acc, item) => acc + item.totalPrice, 0) + 50,
-//       deliveryAddress: addressData,
-//       paymentMethod: paymentMethod,
-//       address: addressData._id,
-
-//       status: 'Ordered',
-//       placedAt: new Date(),
-
-//     }
-
-//     const newOrder = await Order.create(orderData);
-
-//     for (let item of cart.items) {
-//       const product = await Product.findById(item.productId);
-
-//       if (product) {
-
-//         // Decrease the stock by the ordered quantity
-//         product.quantity -= item.quantity;
-//         await product.save();
-//       }
-//     }
-//     await Cart.findByIdAndDelete(cart._id);
-
-//     return res.redirect(`/ordercomplete?orderId=${newOrder.orderId}`)
-//   } catch (error) {
-//     console.error("Error placing order ", error)
-//     return res.status(500).send("server error")
-//   }
-
+//         const cart = await Cart.findOne({ _id: cartId, userId }).populate('items.productId');
+// if (!cart) {
+//     return res.status(400).json({ success: false, message: 'Invalid cart ID' });
 // }
 
 
-// const updateAddress = async(req,res)=>{
+//         console.log("99999999999999999999999999")
+//         console.log(cart)
+
+//         const userAddressDoc = await Address.findOne({ userId });
+
+//         console.log("))))))))))))))))))))))))))))")
+//         console.log(userAddressDoc)
+//         if (!userAddressDoc) {
+//             return res.status(400).json({ success: false, message: "No address found for user" });
+//         }
+
+//         // Find the specific address inside the array
+//         const addressData = userAddressDoc.address.find(addr => addr._id.toString() === selectedAddress.trim());
+//         if (!addressData || !addressData._id) {
+//             return res.status(400).json({ success: false, message: "Invalid selected address" });
+//         }
+
+//         const subtotal = cart.items.reduce((acc, item) => acc + item.totalPrice, 0);
+
+//         // Define additional charge and discount (if any)
+//         const additionalCharge = 50; // This can be dynamic if you want
+//         const totalAmount = subtotal + additionalCharge - discount;
 
 
+//         const orderData = {
+//             orderId: 'ORD' + new Date().getTime(),
+//             userId: userId,
+//             orderedItems: cart.items.map(item => ({
+//                 product: item.productId,
+//                 price: item.price, 
+//                 quantity: item.quantity,
+//                 totalPrice: item.totalPrice,
+//             })),
+//             totalPrice: subtotal,  // Total price before additional charges and discount
+//             PayableAmount: totalAmount,
+//             addressId: addressData._id, // ✅ Only store the ObjectId
+//             paymentMethod: paymentMethod,
+//             status: 'Ordered',
+// razorpayPaymentStatus:"NA",
+//             placedAt: new Date(),
+//         };
 
-//     const { addressId } = req.body;
-//     console.log("}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}")
-//     console.log(req.body)
+//         const newOrder = await Order.create(orderData);
 
-//     if (addressId) {
-//       Address.updateOne(
-//         { _id: addressId },
-//         { $set: { isDefault: true } })
-//         .then(result => {
-//           res.json({ success: true, message: 'Address updated successfully' });
-//         })
-//         .catch(error => {
-//           console.error(error);
-//           res.status(500).json({ success: false, message: 'Update failed' });
-//         });
+//         // Reduce stock quantity
+//         for (let item of cart.items) {
+//             const product = await Product.findById(item.productId);
+//             if (product) {
+//                 product.quantity -= item.quantity;
+//                 await product.save();
+//             }
+//         }
 
+//         res.status(200).json({
+//           success: true,
+//           orderId: newOrder.orderId
+//       });
+      
+//         // Remove cart after order
+//         await Cart.findByIdAndDelete(cart._id);
 
-//     } else {
-//       res.status(400).json({ success: false, message: 'Address ID is required' });
+//     } catch (error) {
+//         console.error("Error in placeOrder:", error);
+//         res.status(500).json({ success: false, message: "Failed to place order.", error: error.message });
 //     }
+// };
 
-
-
-// }
-
-
-const placeOrder = async(req,res)=>{
-  const userId = req.session.user;
+const placeOrder = async (req, res) => {
+  const userId = req.session.user._id;
+  console.log("----------------------------")
+  console.log(userId)
+  console.log("------------------------")
   if (!userId) {
-    return res.redirect('/signin');
+      return res.redirect('/signin');
   }
- try {
-  const { cartId , addressId, paymentMethod } = req.body;
-console.log("00000000000000000000000000000000000000000000")
-console.log(addressId)
-console.log(cartId)
 
+  try {
+      const { cartId, paymentMethod, selectedAddress } = req.body;
+      console.log("------------------------");
+      console.log("Cart ID:", cartId);
+      console.log("Payment Method:", paymentMethod);
+      console.log("Selected Address:", selectedAddress);
 
-
-  const cart = await Cart.findOne({userId}).populate('items.productId')
-    const addressData = await Address.findOne({ userId });
-console.log("---------------------------")
-    console.log(cart)
-
-    if (!cart) {
-      return res.status(400).send('Invalid cart ');
-    }
-
-    if (!addressData) {
-      return res.status(400).send('Invalid address ');
-    }
-
-    const orderData = {
-      orderId: 'ORD' + new Date().getTime(),
-      userId:userId,
-      orderedItems: cart.items.map(item => ({
-        product: item.productId,
-        price:item.price, // Ensure populated
-        quantity: item.quantity,
-        totalPrice: item.totalPrice,
-      })),
-      totalPrice: cart.items.reduce((acc, item) => acc + item.totalPrice, 0),
-      PayableAmount: cart.items.reduce((acc, item) => acc + item.totalPrice, 0) + 50, 
-      deliveryAddress:addressData,
-      paymentMethod: paymentMethod,
-      address: addressData._id,
-
-      status:'Ordered',
-      placedAt: new Date(),
-
-    }
-
-    const newOrder = await Order.create(orderData);
-
-     for (let item of cart.items) {
-      const product = await Product.findById(item.productId);
-
-      if (product) {
-
-        // Decrease the stock by the ordered quantity
-        product.quantity -= item.quantity;
-        await product.save();
+      const cart = await Cart.findOne({ _id: cartId, userId }).populate('items.productId');
+      if (!cart) {
+          return res.status(400).json({ success: false, message: 'Invalid cart ID' });
       }
-    }
-    await Cart.findByIdAndDelete(cart._id);
 
-    res.redirect(`/ordercomplete?orderId=${newOrder.orderId}`)
- } catch (error) {
-  console.error("Error placing order ",error)
-  res.status(500).send("server error")
- }
+      console.log("99999999999999999999999999")
+      console.log(cart)
 
-}
+      const userAddressDoc = await Address.findOne({ userId });
+
+      console.log("))))))))))))))))))))))))))))")
+      console.log(userAddressDoc)
+      if (!userAddressDoc) {
+          return res.status(400).json({ success: false, message: "No address found for user" });
+      }
+
+      // Find the specific address inside the array
+      const addressData = userAddressDoc.address.find(addr => addr._id.toString() === selectedAddress.trim());
+      if (!addressData || !addressData._id) {
+          return res.status(400).json({ success: false, message: "Invalid selected address" });
+      }
+
+      const subtotal = cart.items.reduce((acc, item) => acc + item.totalPrice, 0);
+
+      // Get the discount from the cart document
+      const discount = cart.discount || 0;  // Fetch discount from the cart or set to 0 if not found
+
+      // Define additional charge
+      const additionalCharge = 50;  // This can be dynamic if you want
+      const totalAmount = subtotal + additionalCharge - discount;
+
+      const orderData = {
+          orderId: 'ORD' + new Date().getTime(),
+          userId: userId,
+          orderedItems: cart.items.map(item => ({
+              product: item.productId,
+              price: item.price, 
+              quantity: item.quantity,
+              totalPrice: item.totalPrice,
+          })),
+          totalPrice: subtotal,  // Total price before additional charges and discount
+          PayableAmount: totalAmount,
+          discount: discount, // Store discount in the Order document
+          addressId: addressData._id, // ✅ Only store the ObjectId
+          paymentMethod: paymentMethod,
+          status: 'Ordered',
+          razorpayPaymentStatus: "NA",
+          placedAt: new Date(),
+      };
+
+      const newOrder = await Order.create(orderData);
+
+      // Reduce stock quantity
+      for (let item of cart.items) {
+          const product = await Product.findById(item.productId);
+          if (product) {
+              product.quantity -= item.quantity;
+              await product.save();
+          }
+      }
+
+      res.status(200).json({
+          success: true,
+          orderId: newOrder.orderId
+      });
+
+      // Remove cart after order
+      await Cart.findByIdAndDelete(cart._id);
+
+  } catch (error) {
+      console.error("Error in placeOrder:", error);
+      res.status(500).json({ success: false, message: "Failed to place order.", error: error.message });
+  }
+};
 
 const updateAddress = async (req, res) => {
-  const { addressId } = req.body;
-  const userId = req.user._id; // Assuming you get the logged-in user's ID'
+  const { selectedAddressId } = req.body;
+  const userId = req.session.user; // Assuming you get the logged-in user's ID'
   console.log('++++++++++++++++++++++++++++')
   console.log(req.body)
+  console.log(userId)
 
-  if (!addressId) {
+  if (!selectedAddressId) {
     return res.status(400).json({ success: false, message: 'Address ID is required.' });
   }
 
   try {
     // Set all addresses' isDefault to false for the user
-    await Address.updateMany({ userId }, { $set: { isDefault: false } });
-
+    await Address.updateMany(
+      { userId: userId },
+      { $set: { "address.$[].isDefault": false } }  // ✅ Update all elements in the array
+    );
+    
     // Set the selected address' isDefault to true
     const updatedAddress = await Address.findOneAndUpdate(
-      { _id: addressId, userId },
-      { $set: { isDefault: true } },
-      { new: true } // Return the updated document
+      { "address._id": selectedAddressId, userId: userId },  // ✅ Corrected query
+      { $set: { "address.$.isDefault": true } },  // ✅ Use `$` to update the correct element
+      { new: true }
     );
+    
+
+    console.log(updatedAddress)
 
     if (!updatedAddress) {
       return res.status(404).json({ success: false, message: 'Address not found.' });
@@ -1133,7 +1268,7 @@ const updateAddress = async (req, res) => {
     res.status(200).json({
       success: true,
       message: 'Address updated successfully.',
-      address: updatedAddress, // Send back the updated address
+      addressId: updatedAddress, // Send back the updated address
     });
   } catch (error) {
     console.error('Error updating address:', error);
@@ -1141,28 +1276,139 @@ const updateAddress = async (req, res) => {
   }
 };
 
+const createOrder = async (req, res) => {
+  try {
+      const userId = req.session.user;
+      if (!userId) return res.redirect('/signin');
+
+      const { cartId, selectedAddress, paymentMethod } = req.body;
+
+      // Fetch Cart
+      const cart = await Cart.findOne({ _id: cartId, userId }).populate('items.productId');
+      if (!cart) return res.status(400).json({ success: false, message: 'Invalid cart ID' });
+
+      // Fetch Discount from Cart
+      const discount = cart.discount || 0; // Set discount to 0 if not found in the cart
+
+      // Calculate Subtotal (Total Price before additional charges and discount)
+      const subtotal = cart.items.reduce((acc, item) => acc + item.totalPrice, 0);
+
+      // Calculate Payable Amount: Subtotal + Additional Charge - Discount
+      const additionalCharge = 50; // Can be dynamic if needed
+      const payableAmount = subtotal + additionalCharge - discount; // Corrected Payable Amount calculation
+
+      console.log("Subtotal:", subtotal);
+      console.log("Additional Charge:", additionalCharge);
+      console.log("Discount:", discount);
+      console.log("Payable Amount:", payableAmount);
+
+      // Validate Address
+      const userAddressDoc = await Address.findOne({ userId });
+      if (!userAddressDoc) return res.status(400).json({ success: false, message: "No address found for user" });
+
+      const addressData = userAddressDoc.address.find(addr => addr._id.toString() === selectedAddress.trim());
+      if (!addressData) return res.status(400).json({ success: false, message: "Invalid selected address" });
+
+      // Create Razorpay Order
+      const options = {
+          amount: payableAmount * 100, // Amount in paise
+          currency: "INR",
+          receipt: 'receipt_' + new Date().getTime()
+      };
+
+      const order = await razorpayInstance.orders.create(options);
+      console.log("Razorpay Order Created:", order);
+
+      // Create New Order and Save
+      const newOrder = new Order({
+          orderId: 'ORD' + new Date().getTime(),
+          razorpayOrderId: order.id,
+          userId,
+          orderedItems: cart.items.map(item => ({
+              product: item.productId,
+              price: item.price,
+              quantity: item.quantity,
+              totalPrice: item.totalPrice,
+          })),
+          totalPrice: subtotal, // Total Price before additional charges and discount
+          PayableAmount: payableAmount, // Final Payable Amount after adding additional charges and discount
+          discount: discount, // Store discount in the Order document
+          addressId: addressData._id,
+          paymentMethod: paymentMethod || "Online Payment",
+          status: 'Ordered', // Change from "pending" to "Ordered"
+          paymentStatus: 'pending',
+          razorpayPaymentStatus: 'pending',
+          placedAt: new Date(),
+      });
+
+      await newOrder.save();
+      console.log("New Order Saved:", newOrder);
+
+      res.json(order);
+  } catch (error) {
+      console.error("Error in createOrder:", error);
+      res.status(500).json({ error: error.message });
+  }
+};
+
+
+const verifyPayment = async (req, res) => {
+  try {
+      const { paymentData, cartId } = req.body;
+
+      // Find Order
+      const order = await Order.findOne({ razorpayOrderId: paymentData.razorpay_order_id });
+      if (!order) return res.status(400).json({ success: false, message: "Order not found!" });
+
+
+      console.log("000000000000000")
+      console.log(process.env.RAZORPAY_SECRET_KEY)
+      // Verify Signature
+      const hmac = crypto.createHmac("sha256", process.env.RAZORPAY_SECRET_KEY || "UtyGDX3LSJwz3Qb7J05jyfA4");
+      hmac.update(paymentData.razorpay_order_id + "|" + paymentData.razorpay_payment_id);
+      const generatedSignature = hmac.digest("hex");
+
+      if (generatedSignature === paymentData.razorpay_signature) {
+          order.status = "Paid";
+          order.paymentStatus = "Paid";
+          order.razorpayPaymentStatus = "Paid";
+          order.paymentId = paymentData.razorpay_payment_id;
+          await order.save();
+
+          // Delete Cart **AFTER SUCCESSFUL PAYMENT**
+          await Cart.findByIdAndDelete(cartId);
+
+          res.json({ success: true, message: "Payment verified and order placed!", orderId: order.orderId });
+      } else {
+        order.status = "pending";
+        order.paymentStatus = "pending";
+        order.razorpayPaymentStatus = "pending";
+
+        await order.save();
+
+       res.status(400).json({ success: false, message: "Payment verification failed." });
+      }
+  } catch (error) {
+      console.error("Error in verifyPayment:", error);
+      res.status(500).json({ success: false, message: "Error verifying payment." });
+  }
+};
+
 
 
 
 module.exports = {
-  loadHomepage,
-  loadSignIn,
-  loadSignUp,
-  loadOtpPage,
-  loginUser,
-  loadSkincare,
-  loadHaircare,
-  loadAbout,
-  loadContact,
-  loadProductDetails,
-  loadOrderComplete,
+  loadHomepage, loadSignIn,
+  loadSignUp, loadOtpPage, loginUser,
+  loadSkincare, loadHaircare,
+  loadAbout, loadContact,
+  loadProductDetails, loadOrderComplete,
   loadOrderCheckout,
   pageNotFound,
   registerUser,
   verifyOtp,
   verifyRegister,
   loadBanPage,
-
   resendOtp,
   logout,
   getmakeupPage,
@@ -1174,9 +1420,9 @@ module.exports = {
   placeOrder,
   blockUser,
   loadPageError,
-
-
   loadForgetPassword,
   updatePassword,
   updateAddress,
+  createOrder,
+  verifyPayment,
 };

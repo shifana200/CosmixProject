@@ -236,28 +236,37 @@
 							<div class="row align-items-center">
 								<!-- Left: Coupon Section -->
 								<div class="col-md-4">
-									<form action="#">
-										<div class="row form-group">
-											<div class="col-sm-9">
-												<input type="text" name="quantity" class="form-control input-number" placeholder="Your Coupon Number...">
-											</div>
-											<div class="col-sm-3">
-												<input type="submit" value="Apply Coupon" class="btn btn-primary">
-											</div>
-										</div>
-									</form>
+									
+			<form action="/apply-coupon" method="POST">
+						<div class="row form-group">
+					<div class="col-sm-9">
+						<select name="couponCode" class="form-control">
+							<option value="">Select a Coupon</option>
+							<% coupons.forEach(coupon => { %>
+								<option value="<%= coupon.couponCode %>">
+									<%= coupon.couponCode %> - 
+									<%= coupon.discountType === 'percentage' ? coupon.discountValue + '%' : '₹' + coupon.discountValue %> off
+								</option>
+							<% }) %>
+						</select>
+					</div>
+					<div class="col-sm-3">
+						<input type="submit" value="Apply Coupon" class="btn btn-primary">
+					</div>
+				</div>
+							</form>
 								</div>
 								
 								<!-- Center: Total/Subtotal Section -->
 								<div class="col-md-4 text-center">
 									<div class="total">
 										<div class="sub">
-											<p><span>Subtotal:</span> <span class="subtotal" > </span></p>
-											<p><span>Delivery:</span> <span class="delivery"> ₹50</span></p>
-											<p><span>Discount:</span> <span>₹00.00</span></p>
+											<p><span>Subtotal:</span> <span class="subtotal" >₹<%=subtotal.toFixed(2)%></span></p>
+											<p><span>Delivery:</span> <span class="delivery"> ₹<%= additionalCharge %></span></p>
+											<p><span>Discount:</span> <span>₹<%=discount%></span></p>
 										</div>
 										<div class="grand-total">
-											<p><span><strong>Total:</strong></span> <span class="totalAmount"></span></p>
+											<p><span><strong>Total:</strong></span> <span class="totalAmount">₹<%= totalAmount.toFixed(2) %></span></p>
 										</div>
 									</div>
 								</div>
@@ -287,7 +296,7 @@
 		<a href="#" class="js-gotop"><i class="ion-ios-arrow-up"></i></a>
 	</div>
 
-<script>
+<!-- <script>
 	document.addEventListener('DOMContentLoaded', function () {
     function calculateSubtotal() {
         let subtotal = 0;
@@ -390,8 +399,65 @@
     calculateSubtotal();
 });
 
-</script>
+</script> -->
 	
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        async function updateQuantityInDatabase(productId, quantity) {
+            try {
+                const response = await fetch('/updateQuantity', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ productId, quantity }),
+                });
+
+                if (!response.ok) {
+                    throw new Error('Failed to update quantity in database');
+                }
+
+                console.log('Quantity updated successfully');
+                window.location.reload(); // Reload to fetch updated subtotal and total
+            } catch (error) {
+                console.error(error.message);
+            }
+        }
+
+        document.querySelectorAll('.quantity-left-minus').forEach(function (button) {
+            button.addEventListener('click', function () {
+                const product = button.closest('.quantity-update');
+                const productId = product.querySelector('input#productId').value;
+                const quantityInput = product.querySelector('.quantity');
+                let quantity = parseInt(quantityInput.value);
+
+                if (quantity > 1) {
+                    quantity -= 1;
+                    quantityInput.value = quantity;
+                    updateQuantityInDatabase(productId, quantity);
+                }
+            });
+        });
+
+        document.querySelectorAll('.quantity-right-plus').forEach(function (button) {
+            button.addEventListener('click', function () {
+                const product = button.closest('.quantity-update');
+                const productId = product.querySelector('input#productId').value;
+                const quantityInput = product.querySelector('.quantity');
+                const availableStock = parseInt(product.querySelector('.availableStock').value);
+                let quantity = parseInt(quantityInput.value);
+
+                if (quantity < availableStock && quantity < 3) {
+                    quantity += 1;
+                    quantityInput.value = quantity;
+                    updateQuantityInDatabase(productId, quantity);
+                }
+            });
+        });
+    });
+</script>
+
 	
 	<!-- jQuery -->
 	<script src="js/jquery.min.js"></script>

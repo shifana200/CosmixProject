@@ -187,7 +187,7 @@
                             <td><%= order.orderId%></td>
                             <td><%= order.userId.name%></td>
                             <td><%= order.status%></td>
-                            <td>COD</td>
+                            <td><%= order.paymentMethod%></td>
                             <td> ₹<%= order.PayableAmount%></td>
                             <td><button class="btn-view"> <a href="/admin/ordermanagement/<%= order._id %>">View</a></button></td>
 

@@ -232,7 +232,7 @@
 							<div class="product-entry border">
 								<button class="wishlist-btn position-absolute" data-product-id="<%= product._id %>" onclick="addRemoveWishlist('<%= product._id %>', this)">
    									 <i class="fa fa-heart"></i>
-										</button
+                </button>
 								<a href="/productdetails/<%= product._id %>" class="prod-img">
 									<% if (product.productImage && product.productImage.length > 0) { %>
 									<img src="/uploads/<%= product.productImage[0] %>" class="img-fluid" alt="Free html5 bootstrap 4 template">
@@ -463,6 +463,51 @@ heartIcon.style.color = result.isInWishlist ? 'black' : '#ff6b6b';
 	</script> -->
 	
 	<script>
+
+    
+async function addRemoveWishlist(productId, button) {
+    try {
+        const response = await fetch('/addRemove-wishlist', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ productId }),
+        });
+
+        const result = await response.json();
+
+        if (response.ok) {
+            // Change button color
+			const heartIcon = button.querySelector('.fa-heart');
+
+// Change heart color based on wishlist status
+heartIcon.style.color = result.isInWishlist ? 'black' : '#ff6b6b';
+            // Show SweetAlert instead of alert
+            Swal.fire({
+                icon: 'success',
+                title: result.isInWishlist ? 'Added to Wishlist!' : 'Removed from Wishlist!',
+                text: result.message,
+                showConfirmButton: false,
+                timer: 1500 // Auto close after 1.5 seconds
+            });
+
+        } else {
+            Swal.fire({
+                icon: 'error',
+                title: 'Error!',
+                text: result.message,
+                showConfirmButton: true
+            });
+        }
+    } catch (error) {
+        console.error('Error updating wishlist:', error);
+        Swal.fire({
+            icon: 'error',
+            title: 'Oops...',
+            text: 'An error occurred while updating the wishlist.',
+            showConfirmButton: true
+        });
+    }
+}
 		const filterBox = document.getElementById('filterbox')
 		document.getElementById('filter-btn').addEventListener('click',()=>{
 			if(filterBox.style.display==='none'){

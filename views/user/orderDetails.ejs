@@ -267,10 +267,14 @@ margin: 25px auto;}
             <div class="card">
               <p>  ORDER ID : <%= orderDetails.orderId %></p>
               <div class="card-header">Product Details</div>
-        
-              <% orderDetails.orderedItems.forEach((item)=>{ %>
-              <div class="product-card" style="display: flex;">
-                <img    src="/uploads/<%= item.product.productImage[0]%>" alt="Product Image"  style="height: 60px; width: 50px;" >
+              <% orderDetails.orderedItems.forEach((item) => { %>
+                <div class="product-card" style="display: flex;">
+                  <% if (item.product && item.product.productImage && item.product.productImage.length > 0) { %>
+                    <img src="/uploads/<%= item.product.productImage[0] %>" alt="Product Image" style="height: 60px; width: 50px;">
+                  <% } else { %>
+                    <img src="/uploads/default-image.jpg" alt="No Image" style="height: 60px; width: 50px;">
+                  <% } %>
+
                 <div class="product-details">
                   <h4><%=item.product.productName%></h4>
                   <p>Quantity: <%= item.quantity%></p>
@@ -287,28 +291,54 @@ margin: 25px auto;}
               <!-- Cancel Button -->
               
             </div>
-            <div style="display: flex; justify-content: space-between; padding: 5px;">
-                <h6>Need to cancel the order? </h6>
-            <button id="button-cancel" class="cancel-btn">Cancel Order</button>
-        </div>
+           
 
 
         <div>
-            <div id="reasondiv" class="cancellation-reason-container" style="display: none;">
-                <h3>Reason for Cancellation</h3>
-                <form id="cancel-form" action="/cancel-order?id=<%=orderDetails._id%>" method="POST">
-
-                <input type="text" id="cancellation-reason" placeholder="Enter reason for cancellation" name="cancellationReason" />
-                <input type="hidden" name="orderId" id="orderId" value="<%= orderDetails.orderId%>" />
-
-                <div class="buttons">
-                    <button id="go-back" class="btn btn-secondary">Go Back</button>
-                    <button id="cancel-order" class="btn btn-danger">Cancel Order</button>
-
-                </div>
-            </form>
-
+            <div style="display: flex; justify-content: space-between; padding: 5px;">
+                <h6>Need to cancel or return the order?</h6>
+                <% if (orderDetails.status === 'Cancelled') { %>
+                    <span>Cancellation Initiated</span>
+                <% } else if (orderDetails.status === 'Returned') { %>
+                    <span>Return Initiated</span>
+                <% } else { %>
+                    <button id="button-cancel" class="cancel-btn">Cancel Order</button>
+                    <button id="button-return" class="return-btn">Return Order</button>
+                <% } %>
             </div>
+            
+            <!-- Cancellation Section -->
+            <div>
+                <div id="reasondiv" class="cancellation-reason-container" style="display: none;">
+                    <h3>Reason for Cancellation</h3>
+                    <form id="cancel-form" action="/cancel-order?id=<%= orderDetails._id %>" method="POST">
+                        <input type="text" id="cancellation-reason" placeholder="Enter reason for cancellation" name="cancellationReason" />
+                        <input type="hidden" name="orderId" id="orderId" value="<%= orderDetails.orderId %>" />
+            
+                        <div class="buttons">
+                            <button type="button" id="go-back-cancel" class="btn btn-secondary">Go Back</button>
+                            <button type="submit" id="cancel-order" class="btn btn-danger">Cancel Order</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            
+            <!-- Return Section -->
+            <div>
+                <div id="return-div" class="return-reason-container" style="display: none;">
+                    <h3>Reason for Return</h3>
+                    <form id="return-form" action="/return-order?id=<%= orderDetails._id %>" method="POST">
+                        <input type="text" id="return-reason" placeholder="Enter reason for return" name="returnReason" />
+                        <input type="hidden" name="orderId" id="orderId" value="<%= orderDetails.orderId %>" />
+            
+                        <div class="buttons">
+                            <button type="button" id="go-back-return" class="btn btn-secondary">Go Back</button>
+                            <button type="submit" id="return-order" class="btn btn-warning">Return Order</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            
             
         </div>
 
@@ -326,15 +356,20 @@ margin: 25px auto;}
             </div>
         
             <!-- Shipping Details Section -->
+            <% if (addressDetails) {%>
+                
             <div class="card shipping-card">
               <div class="card-header">Shipping Details</div>
-              <p> Address Type : <%=addressDetails.address[0].addressType%> <br>
-                LandMark : <%= addressDetails.address[0].landMark%> <br>
-                <%= addressDetails.address[0].city%> , <%= addressDetails.address[0].district%> , <%= addressDetails.address[0].state%> - <%= addressDetails.address[0].pincode%></p>
-              <p>Contact Details : <%=addressDetails.address[0].phone%> <br>
-                Alternative Phone number : <%= addressDetails.address[0].altPhone%></p>
+              <p> Address Type : <%=addressDetails.addressType%> <br>
+                LandMark : <%= addressDetails.landMark%> <br>
+                <%= addressDetails.city%> , <%= addressDetails.district%> , <%= addressDetails.state%> - <%= addressDetails.pincode%></p>
+              <p>Contact Details : <%=addressDetails.phone%> <br>
+                Alternative Phone number : <%= addressDetails.altPhone%></p>
             </div>
           </div>
+          <%} else {%>
+            <h6>No Address Available</h6>
+            <%}%>
           
            
 
@@ -368,26 +403,43 @@ margin: 25px auto;}
 <% } %>
 
 <script>
-const buttonCancel = document.getElementById('button-cancel')
-const buttonGoBack = document.getElementById('go-back')
-const buttonCancelOrder = document.getElementById('cancel-order')
-const cancelReason = document.getElementById('reasondiv')
+    const buttonCancel = document.getElementById('button-cancel');
+const buttonReturn = document.getElementById('button-return');
+const cancelReasonDiv = document.getElementById('reasondiv');
+const returnReasonDiv = document.getElementById('return-div');
+const buttonGoBackCancel = document.getElementById('go-back-cancel');
+const buttonGoBackReturn = document.getElementById('go-back-return');
 
+// Show cancellation reason form
+buttonCancel?.addEventListener('click', () => {
+    cancelReasonDiv.style.display = 'block';
+    buttonCancel.style.display = 'none';
+    buttonReturn.style.display = 'none';
+});
 
+// Hide cancellation reason form
+buttonGoBackCancel?.addEventListener('click', () => {
+    cancelReasonDiv.style.display = 'none';
+    buttonCancel.style.display = 'block';
+    buttonReturn.style.display = 'block';
+});
 
-buttonCancel.addEventListener('click',()=>{
-if(cancelReason.style.display==='none'){
-cancelReason.style.display='block';
-buttonCancel.style.display='none'}
-})
-buttonGoBack.addEventListener('click',()=>{
-if(cancelReason.style.display==='block'){
-cancelReason.style.display='none';
-buttonCancel.style.display='block'}
-})
+// Show return reason form
+buttonReturn?.addEventListener('click', () => {
+    returnReasonDiv.style.display = 'block';
+    buttonCancel.style.display = 'none';
+    buttonReturn.style.display = 'none';
+});
 
+// Hide return reason form
+buttonGoBackReturn?.addEventListener('click', () => {
+    returnReasonDiv.style.display = 'none';
+    buttonCancel.style.display = 'block';
+    buttonReturn.style.display = 'block';
+});
 
 </script>
+
 
 
 </body>

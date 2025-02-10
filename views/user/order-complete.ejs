@@ -175,8 +175,9 @@
 						
 						<p><strong>Payable Amount:</strong><%= orderDetails.PayableAmount%></p>
 						
-						<p><strong>Shipping Address:</strong><%=addressDetails.address[0].city%> , <%= addressDetails.address[0].district%> , <%=addressDetails.address[0].landMark%></br>
-						<%= addressDetails.address[0].state%> , <%= addressDetails.address[0].pincode%></p>
+						<p><strong>Shipping Address:</strong><%= addressDetails.name%> <br>
+							<%=addressDetails.city%> , <%= addressDetails.district%> , <%=addressDetails.landMark%></br>
+						<%= addressDetails.state%> , <%= addressDetails.pincode%></p>
 					  </div>
 					  
 					</div>

@@ -8,6 +8,7 @@ const profileController = require('../controllers/user/profileController');
 const productController = require('../controllers/user/productController')
 const cartController = require('../controllers/user/cartController')
 const wishlistController = require('../controllers/user/wishlistController')
+const walletController = require('../controllers/user/walletController')
 
 
  // Import your controller methods
@@ -53,12 +54,13 @@ router.get('/shampoo',userController.getshampooPage)
 router.get('/conditioner',userController.getconditionerPage)
 router.get('/serum',userController.getserumPage)
 
+router.get('/search',productController.searchProducts)
+
+
 router.get('/dashboard',userAuth,profileController.loadUserDashboard)
-router.get('/myorder',userAuth,profileController.loadUserOrder)
-router.get('/myorder/:id',userAuth,profileController.loadOrderDetails)
-router.post('/cancel-order',userAuth,profileController.cancelOrder)
+
 router.get('/myprofile',userAuth,profileController.loadUpdateProfile)
-router.get('/mywallet',userAuth,profileController.loadUserWallet)
+router.get('/mywallet',userAuth,walletController.loadUserWallet)
 router.get('/mywalletmoney',userAuth,profileController.loadWalletAddmoney)
 router.get('/mywallettransactions',userAuth,profileController.loadWalletTransactions)
 router.get('/myaddressupdate',userAuth,profileController.loadUpdateUserAdress)
@@ -67,6 +69,14 @@ router.post('/send-otp', userController.verifyOtp);
 router.get('/shop',productController.loadShopPage);
 router.get('/forgetPassword',userController.loadForgetPassword)
 router.post('/updatePassword',userController.updatePassword)
+router.post('/apply-coupon',userAuth,cartController.applyCoupon)
+
+//order management routes
+router.get('/myorder',userAuth,profileController.loadUserOrder)
+router.get('/myorder/:id',userAuth,profileController.loadOrderDetails)
+router.post('/cancel-order', userAuth, profileController.cancelOrder);
+router.post('/return-order', userAuth, profileController.returnOrder);
+
 
 //address management routes
 
@@ -82,6 +92,9 @@ router.post('/updateAddress',userAuth,userController.updateAddress)
 router.get('/wishlist',wishlistController.loadWishlist)
 router.post('/addRemove-wishlist',wishlistController.addRemoveWishlist)
 router.delete('/removeFromWishlist',wishlistController.removeFromWishlist)
+
+router.post('/createOrder',userController.createOrder)
+router.post('/verifyPayment',userController.verifyPayment)
 
 
 router.get('/auth/google', (req, res, next) => {

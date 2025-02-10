@@ -41,9 +41,9 @@ const orderSchema = new Schema({
         ref:"User",
         required:true
     },
-    address:{
+    addressId:{
         type:Schema.Types.ObjectId,
-        ref:"User",
+        ref:"Address",
         required:true
     },
     invoiceData:{
@@ -52,7 +52,7 @@ const orderSchema = new Schema({
     status:{
         type:String,
         required:true,
-        enum:['Pending','Ordered','Shipped','Delivered','Cancelled','Returned']
+        enum:['Pending','Ordered','Shipped','Delivered','Cancelled','Returned','Paid']
 
     },
     CancellationReason:{
@@ -68,8 +68,35 @@ const orderSchema = new Schema({
         type:Boolean,
         default:false
     },
+    paymentStatus: { 
+        type: String, 
+        enum: ['pending', 'Paid', 'failed'],
+         default: 'pending'
+         },
+         razorpayPaymentStatus: {
+             type: String,
+              enum: ['pending', 'Paid', 'failed',"NA"],
+               default: 'pending' 
+            },
+         razorpayOrderId: {
+             type: String 
+            },
+         razorpayPaymentId: {
+             type: String 
+            },
+         razorpaySignature: {
+             type: String 
+            },
+         returnReason:{
+            type: String,default:null
+        },
+        paymentMethod :{
+            type:String,
+            enum:["COD","Online Payment","Wallet"]
+        }
 
-},{timestamps:true})
+},{
+    timestamps:true})
 
 const Order = mongoose.model("Order",orderSchema)
 module.exports = Order;

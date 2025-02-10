@@ -4,6 +4,10 @@ const adminController = require('../controllers/admin/adminController')
 const customerController = require('../controllers/admin/customerController')
 const categoryController = require('../controllers/admin/categoryController')
 const productController = require('../controllers/admin/productController')
+const couponController = require('../controllers/admin/couponController')
+const offerController = require('../controllers/admin/offerController')
+const orderController = require('../controllers/admin/orderController')
+const dashboardController = require('../controllers/admin/dashboardController')
 const {userAuth, adminAuth} = require('../middleware/auth')
 const multer = require('multer');
 
@@ -28,13 +32,16 @@ const storage = multer.diskStorage({
 router.get('/pageNotFound',adminController.PageNotFound)
 router.get('/login',adminController.loadLogin)
 router.post('/login',adminController.logIn)
-router.get('/dashboard',adminAuth,adminController.loadDashboard)
-router.get('/couponmanagement',adminAuth,adminController.loadCouponManagement)
-router.get('/ordermanagement',adminAuth,adminController.loadOrderManagement)
-router.get('/ordermanagement/:id',adminAuth,adminController.loadOrderDetailsPage)
-router.post('/update-order-status',adminAuth,adminController.updateOrderStatus)
-router.get('/offermanagement',adminAuth,adminController.loadOfferManagement)
 router.get('/logout',adminAuth,adminController.logout)
+
+
+//dashboard management
+router.get('/dashboard',adminAuth,dashboardController.loadDashboard)
+router.get('/sales-report',adminAuth,dashboardController.salesReport)
+// router.get('/sales-report',adminAuth,dashboardController.salesReport)
+// router.get("/sales-report/pdf",adminAuth,dashboardController.salesReportPdf)
+// router.get("/sales-report/excel",adminAuth,dashboardController.salesReportExcel)
+
 
 //user management routes
 router.get('/usermanagement',adminAuth,adminController.loadUserManagement)
@@ -60,6 +67,28 @@ router.get('/unblockProduct',adminAuth,productController.unblockProduct);
 router.get('/editProduct',adminAuth,productController.getEditProduct)
 router.post('/editProduct/:id',adminAuth,uploads.array('images',4),productController.editProduct)
 router.post('/deleteImage',adminAuth,productController.deleteSingleImage)
+//coupon management
+router.get('/couponmanagement',adminAuth,couponController.loadCouponManagement)
+router.post('/addCoupon',adminAuth,couponController.addCoupon)
+router.put('/couponStatus/:id',adminAuth,couponController.couponStatus)
+router.delete('/deleteCoupon/:id',adminAuth,couponController.deleteCoupon)
+router.get('/getCoupon/:id',adminAuth,couponController.getCouponDetails)
+router.post('/editCoupon',adminAuth,couponController.editCoupon)
 
+
+//offer management
+router.get('/offermanagement',adminAuth,offerController.loadOfferManagement)
+router.post('/addOffer',adminAuth,offerController.addOffer)
+router.get('/getItems',adminAuth,offerController.getItems)
+router.get('/getOffer/:id',adminAuth,offerController.getOfferDetails)
+router.post('/editOffer',adminAuth,offerController.updateOffer)
+router.get('/getCategoriesOrProducts',adminAuth,offerController.getCategoriesOrProducts);
+router.delete("/deleteOffer/:id", offerController.deleteOffer);
+
+//order maangement
+router.get('/ordermanagement',adminAuth,orderController.loadOrderManagement)
+router.get('/ordermanagement/:id',adminAuth,orderController.loadOrderDetailsPage)
+router.post('/updateStatus',adminAuth,orderController.updateOrderStatus)
+router.get('/getOrderStatus',adminAuth,orderController.getOrderStatus)
 
 module.exports = router;

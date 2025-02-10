@@ -164,10 +164,35 @@ const Order = require('../../models/orderSchema')
 };
 
 
+const searchProducts= async (req, res) => {
+    try {
+        const searchTerm = req.query.query;  // Get the search term from query parameter
+        if (!searchTerm) {
+            return res.redirect('/shop');  // If no search term, redirect to the shop page
+        }
+
+        // Perform search in the product database
+        const results = await Product.find({
+            $or: [
+                { productName: { $regex: searchTerm, $options: 'i' } },  // Case-insensitive search in product name
+                { description: { $regex: searchTerm, $options: 'i' } },  // Case-insensitive search in description
+            ]
+        });
+
+        // Render the shop page with search results
+        res.render('shopPage', { products: results, searchTerm });  // Pass results and search term to shop page
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ success: false, message: "Search error" });
+    }
+}
+
+
+
  
   
   module.exports={
-    loadShopPage,
+    loadShopPage,searchProducts,
     
   
   }

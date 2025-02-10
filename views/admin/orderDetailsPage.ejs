@@ -214,21 +214,27 @@ margin: 25px auto;}
     </div>
 
     <div>
-        <form id="order-status-form" method="POST" action="/update-order-status">
+        <form id="order-status-form" method="POST" action="/updateStatus">
             <div id="reasondiv" class="cancellation-reason-container" style="display: none;">
                 <h3>Order Status</h3>
+                <input type="hidden" id="order-id" name="orderId" value="<%= orderDetails._id %>"> <!-- Hidden Order ID -->
+                
                 <select id="order-status" name="status" class="form-control">
-                    <option value="Cancelled">Cancelled</option>
-                    <option value="Processing">Processing</option>
+                    <option value="Pending">Pending</option>
+                    <option value="Ordered">Ordered</option>
                     <option value="Shipped">Shipped</option>
                     <option value="Delivered">Delivered</option>
+                    <option value="Cancelled">Cancelled</option>
+                    <option value="Returned">Returned</option>
                 </select>
+        
                 <div class="buttons">
                     <button type="button" id="go-back" class="btn btn-secondary">Go Back</button>
                     <button type="submit" id="update-status" class="btn btn-primary">Update Status</button>
                 </div>
             </div>
         </form>
+        
         
         
     </div>
@@ -245,11 +251,12 @@ margin: 25px auto;}
         <!-- Shipping Details Section -->
         <div class="card shipping-card">
           <div class="card-header">Shipping Details</div>
-          <p> Address Type : <%=addressDetails.address[0].addressType%> <br>
-            LandMark : <%= addressDetails.address[0].landMark%> <br>
-            <%= addressDetails.address[0].city%> , <%= addressDetails.address[0].district%> , <%= addressDetails.address[0].state%> - <%= addressDetails.address[0].pincode%></p>
-          <p>Contact Details : <%=addressDetails.address[0].phone%> <br>
-            Alternative Phone number : <%= addressDetails.address[0].altPhone%></p>
+          <p><%=addressDetails.name%></p>
+          <p> Address Type : <%=addressDetails.addressType%> <br>
+            LandMark : <%= addressDetails.landMark%> <br>
+            <%= addressDetails.city%> , <%= addressDetails.district%> , <%= addressDetails.state%> - <%= addressDetails.pincode%></p>
+          <p>Contact Details : <%=addressDetails.phone%> <br>
+            Alternative Phone number : <%= addressDetails.altPhone%></p>
         </div>
       </div>
       
@@ -284,6 +291,7 @@ margin: 25px auto;}
         </script>
     <% } %>
    
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <script>
 
@@ -306,57 +314,78 @@ buttonGoBack.addEventListener('click', () => {
     }
 });
 
-const buttonUpdateStatus = document.getElementById('update-status');
+document.addEventListener("DOMContentLoaded", async function () {
+    const orderId = document.getElementById("order-id").value;
+    const orderStatusDropdown = document.getElementById("order-status");
+    const updateStatusButton = document.getElementById("update-status");
 
-buttonUpdateStatus.addEventListener('click', () => {
-    const orderStatus = document.getElementById('order-status').value;  // Get selected status
-    const orderId = "<%= orderDetails.orderId %>";  // Get the order ID from your EJS template or other variable
+    try {
+        const response = await fetch(`/admin/getOrderStatus?orderId=${orderId}`);
+        const result = await response.json();
 
-    // Create a data object to send to the backend
-    const data = {
-        orderId: orderId,
-        status: orderStatus
-    };
+        if (result.success) {
+            const currentStatus = result.status; 
+            orderStatusDropdown.value = currentStatus; // Set the current status
 
-    // Make the POST request to update the order status
-    fetch('/update-order-status', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(data)
-    })
-    .then(response => response.json())
-    .then(result => {
+            // Disable dropdown & button if status is "Delivered"
+            if (currentStatus === "Delivered") {
+                orderStatusDropdown.disabled = true;
+                updateStatusButton.disabled = true;
+            }
+        } else {
+            console.error("Failed to fetch order status:", result.message);
+        }
+    } catch (error) {
+        console.error("Error fetching order status:", error);
+    }
+});
+
+document.getElementById("order-status-form").addEventListener("submit", async function (event) {
+    event.preventDefault(); // Prevent default form submission
+
+    const orderId = document.getElementById("order-id").value;
+    const status = document.getElementById("order-status").value;
+
+    try {
+        const response = await fetch("/admin/updateStatus", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ orderId, status })
+        });
+
+        const result = await response.json();
+
         if (result.success) {
             Swal.fire({
-                title: 'Success!',
-                text: result.message,
-                icon: 'success',
-                confirmButtonText: 'OK'
+                icon: "success",
+                title: "Success!",
+                text: "Order status updated successfully!",
+                confirmButtonText: "OK"
+            }).then(() => {
+                location.reload(); // Refresh the page to reflect changes
             });
-            // Optionally hide the reason div
-            cancelReason.style.display = 'none';
-            buttonCancel.style.display = 'block';
         } else {
             Swal.fire({
-                title: 'Error!',
-                text: result.message,
-                icon: 'error',
-                confirmButtonText: 'OK'
+                icon: "error",
+                title: "Failed!",
+                text: "Failed to update order status: " + result.message,
+                confirmButtonText: "OK"
             });
         }
-    })
-    .catch(error => {
-        console.error('Error:', error);
+
+    } catch (error) {
+        console.error("Error updating order status:", error);
         Swal.fire({
-            title: 'Error!',
-            text: 'Something went wrong while updating the status.',
-            icon: 'error',
-            confirmButtonText: 'OK'
+            icon: "error",
+            title: "Error!",
+            text: "An error occurred while updating the order status.",
+            confirmButtonText: "OK"
         });
-    });
+    }
 });
+
 
     </script>
 </body>

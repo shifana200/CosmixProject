@@ -1,0 +1,21 @@
+<h2>Search Results for "<%= query %>"</h2>
+<% if (products.length > 0) { %>
+    <div class="row">
+        <% products.forEach(product => { %>
+            <div class="col-md-3">
+                <div class="card">
+                    <a href="/product/<%= product._id %>">
+                        <img src="<%= product.image %>" class="card-img-top" alt="<%= product.name %>">
+                    </a>
+                    <div class="card-body text-center">
+                        <h5 class="card-title"><%= product.name %></h5>
+                        <p class="card-text">Price: $<%= product.price %></p>
+                        <a href="/product/<%= product._id %>" class="btn btn-primary">View Product</a>
+                    </div>
+                </div>
+            </div>
+        <% }) %>
+    </div>
+<% } else { %>
+    <p class="text-center">No products found.</p>
+<% } %>

@@ -6,7 +6,7 @@ const Category = require('../../models/categorySchema')
 const Address = require('../../models/addressSchema')
 const mongoose = require('mongoose');
 const Order = require('../../models/orderSchema');
-
+const Wallet = require('../../models/walletSchema')
 
 
 
@@ -37,27 +37,28 @@ const loadUserOrder =  async (req, res) => {
     }
 }
 
-const loadOrderDetails = async(req,res) => {
-    try {
-        const orderId = req.params.id;
-        console.log('**************************')
-        console.log(orderId)
+// const loadOrderDetails = async(req,res) => {
+//     try {
+//         const orderId = req.params.id;
+//         console.log('**************************')
+//         console.log(orderId)
 
-        const orderDetails = await Order.findById(orderId).populate('orderedItems.product')
-        const addressDetails = await Address.findOne({ _id: orderDetails.address });
+//         const orderDetails = await Order.findById(orderId)
+//         .populate('orderedItems.product')
+//         .populate('addressId');         
 
 
-        console.log(orderDetails)
-        console.log('**************************')
+//         console.log(orderDetails)
+//         console.log('**************************')
 
-        res.render('orderDetails',{orderDetails , addressDetails})
-    } catch (error) {
-        console.error("Error opening order details")
-       return  res.redirect('/pageNotFound')
+//         res.render('orderDetails',{orderDetails , userAddress: orderDetails.addressId})
+//     } catch (error) {
+//         console.error("Error opening order details")
+//        return  res.redirect('/pageNotFound')
         
-    }
+//     }
 
-}
+// }
 
 const loadUpdateProfile =  async (req, res) => {
     try {
@@ -70,14 +71,6 @@ const loadUpdateProfile =  async (req, res) => {
     }
 }
 
-const loadUserWallet =  async (req, res) => {
-    try {
-        return res.render('userwallet')
-    } catch (error) {
-        console.log("user profile page not loading", error)
-        res.status(500).send('Server error')
-    }
-}
 
 
 const loadWalletAddmoney =  async (req, res) => {
@@ -126,7 +119,11 @@ const addNewAddress = async(req,res) =>{
     try {
         const userId = req.session.user;
         const userData = await User.findOne({_id:userId});
-        const {name,addressType,city,landMark,district,state,pincode,phone,altPhone} = req.body;
+
+        if(!userData){
+            return res.redirect('/signin')
+        }
+        const {name,addressType,city,landMark,district,state,pincode,phone,altPhone,source} = req.body;
         console.log(req.body);
 
         const userAddress = await Address.findOne({userId :userData._id});
@@ -139,11 +136,22 @@ const addNewAddress = async(req,res) =>{
 
            
         }else{
-            userAddress.address.push({name,addressType,city,landMark,district,state,pincode,phone,altPhone,isDefault:false})
+
+            userAddress.address.forEach(address => {
+                address.isDefault = false;
+            });
+            
+            userAddress.address.push({name,addressType,city,landMark,district,state,pincode,phone,altPhone,isDefault:true})
             await userAddress.save();
         }
-        res.redirect('/myaddress')
-        
+
+        if (source === 'checkout') {
+            // Redirect to checkout page or another page
+            return res.redirect('/checkout');  // For example
+        } else {
+            // Redirect to address page or show success message
+            return res.redirect('/myaddress');
+        }
     } catch (error) {
         console.error('Error adding address :',error)
         res.redirect('/pageNotFound')
@@ -250,70 +258,443 @@ const updateProfile = async (req, res) => {
     }
 };
 
-// POST route to handle order cancellation
-const cancelOrder= async (req, res) => {
+// const returnOrder = async (req, res) => {
+//     try {
+//         const { returnReason } = req.body;
+//         const orderId = req.query.id;
+
+//         const order = await Order.findById(orderId);
+//         if (!order) {
+//             return res.render('orderDetails', { success: false, message: 'Order not found' });
+//         }
+
+//         if (order.status === 'Cancelled' || order.status === 'Returned') {
+//             return res.render('orderDetails', { success: false, message: `Order is already ${order.status.toLowerCase()}.` });
+//         }
+
+//         // Update order to returned
+//         order.status = 'Returned';
+//         order.returnReason = returnReason;
+//         await order.save();
+
+//         res.render('orderDetails', { success: true, message: 'Return request initiated successfully', orderDetails: order });
+//     } catch (error) {
+//         console.error(error);
+//         res.render('orderDetails', { success: false, message: 'Server error' });
+//     }
+// };
+
+
+const loadOrderDetails = async (req, res) => {
     try {
-     
+        const orderId = req.params.id;
+        console.log('**************************');
+        console.log(" Order ID:", orderId);
 
-       
+        // Find the order and populate product details
+        const orderDetails = await Order.findById(orderId).populate('orderedItems.product');
 
-        const { cancellationReason} = req.body;
+        if (!orderDetails) {
+            console.log(" Order not found");
+            return res.redirect('/pageNotFound');
+        }
+
+        console.log(" Found Order Details:", orderDetails);
+        console.log(" Order Address ID:", orderDetails.addressId);
+
+        if (!orderDetails.addressId) {
+            console.log(" Order does not contain an address ID");
+            return res.redirect('/pageNotFound');
+        }
+
+        // Fetch the address document where the address ID is inside the array
+        const addressDocument = await Address.findOne(
+            { "address._id": orderDetails.addressId }, 
+            { "address.$": 1 } // Fetch only the matched address
+        );
+
+        if (!addressDocument || !addressDocument.address.length) {
+            console.log(" Address document not found for ID:", orderDetails.addressId);
+            return res.redirect('/pageNotFound');
+        }
+
+        const addressDetails = addressDocument.address[0];
+
+        console.log('✅ Order Details:', orderDetails);
+        console.log('✅ Address Details:', addressDetails);
+        console.log('**************************');
+
+        res.render('orderDetails', { orderDetails, addressDetails });
+
+    } catch (error) {
+        console.error(" Error loading order details:", error);
+        return res.redirect('/pageNotFound');
+    }
+};
+
+// const returnOrder = async (req, res) => {
+//     try {
+//         const { returnReason } = req.body;
+//         const orderId = req.query.id;
+
+//         console.log('**************************');
+//         console.log("Return Order - Order ID:", orderId);
+
+//         const orderDetails = await Order.findById(orderId).populate('orderedItems.product');
+
+//         if (!orderDetails) {
+//             console.log("Order not found");
+//             return res.render('orderDetails', { success: false, message: 'Order not found' });
+//         }
+
+//         console.log("Found Order Details:", orderDetails);
+//         console.log("Order Address ID:", orderDetails.addressId);
+
+//         if (!orderDetails.addressId) {
+//             console.log("Order does not contain an address ID");
+//             return res.render('orderDetails', { success: false, message: 'Order address not found' });
+//         }
+
+//         // Fetch the address document
+//         const addressDocument = await Address.findOne(
+//             { "address._id": orderDetails.addressId },
+//             { "address.$": 1 }
+//         );
+
+//         if (!addressDocument || !addressDocument.address.length) {
+//             console.log("Address document not found for ID:", orderDetails.addressId);
+//             return res.render('orderDetails', { success: false, message: 'Shipping address not found' });
+//         }
+
+//         const addressDetails = addressDocument.address[0];
+
+//         console.log('✅ Address Details:', addressDetails);
+
+//         // Check if the order is already cancelled or returned
+//         if (orderDetails.status === 'Cancelled' || orderDetails.status === 'Returned') {
+//             return res.render('orderDetails', {
+//                 success: false,
+//                 message: `Order is already ${orderDetails.status.toLowerCase()}.`,
+//                 orderDetails,
+//                 addressDetails
+//             });
+//         }
+
+//         // Update order status without modifying stock
+//         orderDetails.status = 'Returned';
+//         orderDetails.returnReason = returnReason;
+//         await orderDetails.save();
+
+//         console.log('✅ Return initiated successfully');
+
+//         // Wallet Refund Logic
+//         if (orderDetails.status === 'Delivered' || orderDetails.paymentMethod === 'Online Payment') {
+//             const user = await User.findById(orderDetails.userId);
+//             if (user) {
+//                 user.wallet += orderDetails.payableAmount;
+//                 await user.save();
+//                 console.log(`💰 Wallet updated! New Balance: ${user.wallet}`);
+//             }
+//         }
+
+//         res.render('orderDetails', {
+//             success: true,
+//             message: 'Return initiated successfully',
+//             orderDetails,
+//             addressDetails
+//         });
+
+//     } catch (error) {
+//         console.error("Error returning order:", error);
+//         res.render('orderDetails', { success: false, message: 'Server error' });
+//     }
+// };
+
+// const cancelOrder = async (req, res) => {
+//     try {
+//         const { cancellationReason } = req.body;
+//         const orderId = req.query.id;
+
+//         console.log('**************************');
+//         console.log("Cancel Order - Order ID:", orderId);
+
+//         const orderDetails = await Order.findById(orderId).populate('orderedItems.product');
+
+//         if (!orderDetails) {
+//             console.log("Order not found");
+//             return res.render('orderDetails', { success: false, message: 'Order not found' });
+//         }
+
+//         console.log("Found Order Details:", orderDetails);
+//         console.log("Order Address ID:", orderDetails.addressId);
+
+//         if (!orderDetails.addressId) {
+//             console.log("Order does not contain an address ID");
+//             return res.render('orderDetails', { success: false, message: 'Order address not found' });
+//         }
+
+//         // Fetch the address document
+//         const addressDocument = await Address.findOne(
+//             { "address._id": orderDetails.addressId },
+//             { "address.$": 1 }
+//         );
+
+//         if (!addressDocument || !addressDocument.address.length) {
+//             console.log("Address document not found for ID:", orderDetails.addressId);
+//             return res.render('orderDetails', { success: false, message: 'Shipping address not found' });
+//         }
+
+//         const addressDetails = addressDocument.address[0];
+
+//         console.log('✅ Address Details:', addressDetails);
+
+//         // Check if the order is already cancelled or returned
+//         if (orderDetails.status === 'Cancelled' || orderDetails.status === 'Returned') {
+//             return res.render('orderDetails', {
+//                 success: false,
+//                 message: `Order is already ${orderDetails.status.toLowerCase()}.`,
+//                 orderDetails,
+//                 addressDetails
+//             });
+//         }
+
+//         // Restore stock if necessary
+//         if (orderDetails.status === 'Ordered') {
+//             for (let item of orderDetails.orderedItems) {
+//                 const product = await Product.findById(item.product);
+//                 if (product) {
+//                     product.quantity += item.quantity;
+//                     await product.save();
+//                 }
+//             }
+//         }
+
+//         // Update order status
+//         orderDetails.status = 'Cancelled';
+//         orderDetails.cancellationReason = cancellationReason;
+//         await orderDetails.save();
+
+//         console.log('✅ Order cancelled successfully');
+
+//         // Wallet Refund Logic
+//         if (orderDetails.status === 'Delivered' || orderDetails.paymentMethod === 'Online Payment') {
+//             const user = await User.findById(orderDetails.userId);
+//             if (user) {
+//                 user.wallet += orderDetails.payableAmount;
+//                 await user.save();
+//                 console.log(`💰 Wallet updated! New Balance: ${user.wallet}`);
+//             }
+//         }
+
+//         res.render('orderDetails', {
+//             success: true,
+//             message: 'Order cancelled successfully',
+//             orderDetails,
+//             addressDetails
+//         });
+
+//     } catch (error) {
+//         console.error("Error cancelling order:", error);
+//         res.render('orderDetails', { success: false, message: 'Server error' });
+//     }
+// };
+
+const returnOrder = async (req, res) => {
+    try {
+        const { returnReason } = req.body;
         const orderId = req.query.id;
 
-        const orderDetails = await Order.findById(orderId).populate('orderedItems.product')
-        const addressDetails = await Address.findOne({ _id: orderDetails.address });
+        console.log('**************************');
+        console.log("Return Order - Order ID:", orderId);
 
-        console.log("---------------")
-        console.log(cancellationReason)
-        console.log(orderId)
+        const orderDetails = await Order.findById(orderId).populate('orderedItems.product');
 
-        // Check if orderId and cancellationReason are provided
-        if (!cancellationReason || !orderId) {
-            return res.render('orderDetails',{ success: false, message: 'Order ID and cancellation reason are required',orderDetails,addressDetails });
+        if (!orderDetails) {
+            console.log("Order not found");
+            return res.render('orderDetails', { success: false, message: 'Order not found' });
         }
 
-        // Find the order by ID
-        const order = await Order.findById(orderId);
-        if (!order) {
-            return res.render('orderDetails',{ success: false, message: 'Order not found' ,orderDetails,addressDetails});
+        console.log("Found Order Details:", orderDetails);
+
+        if (!orderDetails.addressId) {
+            console.log("Order does not contain an address ID");
+            return res.render('orderDetails', { success: false, message: 'Order address not found' });
         }
 
-        // If the order is already cancelled, return an error
-        if (order.status === 'Cancelled') {
-            return res.render('orderDetails',{ success: false, message: 'Order is already cancelled',orderDetails,addressDetails });
+        // Fetch the address document
+        const addressDocument = await Address.findOne(
+            { "address._id": orderDetails.addressId },
+            { "address.$": 1 }
+        );
+
+        if (!addressDocument || !addressDocument.address.length) {
+            console.log("Address document not found for ID:", orderDetails.addressId);
+            return res.render('orderDetails', { success: false, message: 'Shipping address not found' });
         }
 
-        if (order.status === 'Ordered') {
-            for (let item of order.orderedItems) {
-              const product = await Product.findById(item.product)
-              if (product) {
-                product.quantity += item.quantity;  // Restore product quantity when order is cancelled
-                await product.save();  // Save the updated product quantity
-              }
+        const addressDetails = addressDocument.address[0];
+
+        console.log('✅ Address Details:', addressDetails);
+
+        // Check if the order is already cancelled or returned
+        if (orderDetails.status === 'Cancelled' || orderDetails.status === 'Returned') {
+            return res.render('orderDetails', {
+                success: false,
+                message: `Order is already ${orderDetails.status.toLowerCase()}.`,
+                orderDetails,
+                addressDetails
+            });
+        }
+
+        // Update order status
+        orderDetails.status = 'Returned';
+        orderDetails.returnReason = returnReason;
+        await orderDetails.save();
+
+        console.log('✅ Return initiated successfully');
+
+        // Wallet Refund Logic
+        if (orderDetails.status === 'Delivered' || orderDetails.paymentMethod === 'Online Payment') {
+            let userWallet = await Wallet.findOne({ userId: orderDetails.userId });
+
+            const refundTransaction = {
+                amount: orderDetails.PayableAmount,
+                transactionType: 'Return',
+                timestamp: new Date()
+            };
+
+            if (userWallet) {
+                userWallet.walletAmount += orderDetails.PayableAmount;
+                userWallet.transactions.push(refundTransaction);
+                await userWallet.save();
+                console.log(`💰 Wallet updated! New Balance: ${userWallet.walletAmount}`);
+            } else {
+                userWallet = await Wallet.create({
+                    userId: orderDetails.userId,
+                    walletAmount: orderDetails.PayableAmount,
+                    transactions: [refundTransaction]
+                });
+                console.log(`💰 New wallet created! Balance: ${userWallet.walletAmount}`);
             }
-          }
+        }
 
-        // Update the order status to 'Cancelled' and store the cancellation reason
-        const updatedOrder = await Order.updateOne(
-            { _id: orderId },
-            {
-              $set: {
-                status: 'Cancelled',
-                CancellationReason: cancellationReason
-              }
-            }
-          );
+        res.render('orderDetails', {
+            success: true,
+            message: 'Return initiated successfully',
+            orderDetails,
+            addressDetails
+        });
 
-        // Save the updated order
-        await order.save();
-
-        // Send a success response
-        res.render('orderDetails',{ success: true, message: 'Order cancelled successfully',orderDetails,addressDetails });
     } catch (error) {
-        console.error(error);
-        res.render('signIn',{ success: false, message: 'Server error' });
+        console.error("Error returning order:", error);
+        res.render('orderDetails', { success: false, message: 'Server error' });
     }
-}
+};
+
+
+const cancelOrder = async (req, res) => {
+    try {
+        const { cancellationReason } = req.body;
+        const orderId = req.query.id;
+
+        console.log('**************************');
+        console.log("Cancel Order - Order ID:", orderId);
+
+        const orderDetails = await Order.findById(orderId).populate('orderedItems.product');
+
+        if (!orderDetails) {
+            console.log("Order not found");
+            return res.render('orderDetails', { success: false, message: 'Order not found' });
+        }
+
+        console.log("Found Order Details:", orderDetails);
+
+        if (!orderDetails.addressId) {
+            console.log("Order does not contain an address ID");
+            return res.render('orderDetails', { success: false, message: 'Order address not found' });
+        }
+
+        // Fetch the address document
+        const addressDocument = await Address.findOne(
+            { "address._id": orderDetails.addressId },
+            { "address.$": 1 }
+        );
+
+        if (!addressDocument || !addressDocument.address.length) {
+            console.log("Address document not found for ID:", orderDetails.addressId);
+            return res.render('orderDetails', { success: false, message: 'Shipping address not found' });
+        }
+
+        const addressDetails = addressDocument.address[0];
+
+        console.log('✅ Address Details:', addressDetails);
+
+        // Check if the order is already cancelled or returned
+        if (orderDetails.status === 'Cancelled' || orderDetails.status === 'Returned') {
+            return res.render('orderDetails', {
+                success: false,
+                message: `Order is already ${orderDetails.status.toLowerCase()}.`,
+                orderDetails,
+                addressDetails
+            });
+        }
+
+        // Restore stock if necessary
+        if (orderDetails.status === 'Ordered') {
+            for (let item of orderDetails.orderedItems) {
+                const product = await Product.findById(item.product);
+                if (product) {
+                    product.quantity += item.quantity;
+                    await product.save();
+                }
+            }
+        }
+
+        // Update order status
+        orderDetails.status = 'Cancelled';
+        orderDetails.cancellationReason = cancellationReason;
+        await orderDetails.save();
+
+        console.log('✅ Order cancelled successfully');
+
+        // Wallet Refund Logic
+        if (orderDetails.status === 'Delivered' || orderDetails.paymentMethod === 'Online Payment') {
+            let userWallet = await Wallet.findOne({ userId: orderDetails.userId });
+
+            const refundTransaction = {
+                amount: orderDetails.PayableAmount,
+                transactionType: 'Cancellation',
+                timestamp: new Date()
+            };
+
+            if (userWallet) {
+                userWallet.walletAmount += orderDetails.PayableAmount;
+                userWallet.transactions.push(refundTransaction);
+                await userWallet.save();
+                console.log(`💰 Wallet updated! New Balance: ${userWallet.walletAmount}`);
+            } else {
+                userWallet = await Wallet.create({
+                    userId: orderDetails.userId,
+                    walletAmount: orderDetails.PayableAmount,
+                    transactions: [refundTransaction]
+                });
+                console.log(`💰 New wallet created! Balance: ${userWallet.walletAmount}`);
+            }
+        }
+
+        res.render('orderDetails', {
+            success: true,
+            message: 'Order cancelled successfully',
+            orderDetails,
+            addressDetails
+        });
+
+    } catch (error) {
+        console.error("Error cancelling order:", error);
+        res.render('orderDetails', { success: false, message: 'Server error' });
+    }
+};
+
 
 
 
@@ -333,8 +714,8 @@ const cancelOrder= async (req, res) => {
 module.exports = {
     loadUserDashboard,loadUpdateUserAdress,
     loadUserAddress,loadWalletTransactions,loadWalletAddmoney,
-    loadUserWallet,loadUpdateProfile,loadUserOrder,
-    addNewAddress,editAddress,loadEditAddress,updateProfile,deleteAddress,loadOrderDetails,cancelOrder,
+    loadUpdateProfile,loadUserOrder,
+    addNewAddress,editAddress,loadEditAddress,updateProfile,deleteAddress,loadOrderDetails,cancelOrder,returnOrder,
     
     
 }

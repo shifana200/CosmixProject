@@ -7,34 +7,86 @@ const Category = require("../../models/categorySchema");
 const Cart = require('../../models/cartSchema')
 const Address = require('../../models/addressSchema')
 const Order = require('../../models/orderSchema')
+const Coupon = require('../../models/couponSchema')
 
 
 
 const loadCart = async (req, res) => {
-    try {
-  
+  try {
       const userId = req.session.user;
-  
-      if(!userId){
-        return res.redirect('/signin');
+
+      if (!userId) {
+          return res.redirect('/signin');
       }
-  
-  
-  
-  const cart = await Cart.findOne({userId}).populate('items.productId')
-  console.log(cart)
-  
-  if (!cart || cart.items.length === 0) {
-    return res.render('cart', { cart:{items:[]} });
-  }
- 
-  
-       res.render("cart",{cart})
-    } catch (error) {
-      console.log("cart page not loading", error);
+
+      // Fetch the user's cart
+      const cart = await Cart.findOne({ userId }).populate('items.productId');
+
+      if (!cart || cart.items.length === 0) {
+          return res.render('cart', { 
+              cart: { items: [] }, 
+              subtotal: 0, 
+              additionalCharge: 50, 
+              totalAmount: 50, 
+              discount: 0, 
+              appliedCoupon: null,
+              couponError: req.session.couponError || null,
+
+              coupons: [] 
+          });
+      }
+
+      // Calculate subtotal from cart.items using stored totalPrice
+      let subtotal = cart.items.reduce((total, item) => {
+          return total + (item.totalPrice || 0);
+      }, 0);
+
+      // Ensure subtotal is a valid number
+      if (isNaN(subtotal)) subtotal = 0;
+
+      console.log("Subtotal:", subtotal);
+      const coupons = await Coupon.find({
+        isActive: true,
+        startDate: { $lte: new Date() },
+        expiryDate: { $gte: new Date() },
+        minimumPurchase: { $lte: subtotal }
+    });
+
+    const discount = req.session.discount || 0;
+    const appliedCoupon = req.session.appliedCoupon || null;
+    const additionalCharge = 50;
+    const totalAmount = subtotal - discount + additionalCharge;
+
+    // Clear session error after displaying it
+    const couponError = req.session.couponError || null;
+    req.session.couponError = null;
+    
+    
+
+    res.render("cart", { 
+      cart, 
+      subtotal, 
+      additionalCharge, 
+      totalAmount, 
+      discount, 
+      appliedCoupon, 
+      couponError, 
+      coupons 
+  });
+
+  } catch (error) {
+      console.log("Cart page not loading", error);
       res.status(500).send("Server error");
-    }
-  };
+  }
+};
+
+
+
+
+
+
+
+
 
 
   const addCart = async (req, res) => {
@@ -82,6 +134,8 @@ const loadCart = async (req, res) => {
       }
   
       await cart.save();
+      console.log("++++++++++++")
+      console.log(cart)
   
       
       res.redirect("/cart"); 
@@ -170,6 +224,72 @@ const updateQuantity = async (req, res) => {
     }
   }
 
+  const applyCoupon = async (req, res) => {
+    try {
+        const userId = req.session.user;
+        const { couponCode } = req.body;
+
+        if (!userId) {
+            return res.redirect('/signin');
+        }
+
+        const cart = await Cart.findOne({ userId });
+        if (!cart || cart.items.length === 0) {
+            req.session.couponError = "Your cart is empty.";
+            return res.redirect('/cart');
+        }
+
+        // Calculate subtotal
+        let subtotal = cart.items.reduce((total, item) => total + (item.totalPrice || 0), 0);
+
+        // Validate the coupon
+        const coupon = await Coupon.findOne({
+            couponCode: couponCode.trim(),
+            isActive: true,
+            startDate: { $lte: new Date() },
+            expiryDate: { $gte: new Date() },
+            minimumPurchase: { $lte: subtotal }
+        });
+
+        if (!coupon) {
+            req.session.couponError = 'Invalid or expired coupon';
+            return res.redirect('/cart'); // Redirect back to cart with an error
+        }
+
+        let discount = 0;
+        if (coupon.discountType === 'percentage') {
+            discount = (subtotal * coupon.discountValue) / 100;
+        } else if (coupon.discountType === 'fixed') {
+            discount = coupon.discountValue;
+        }
+
+        // Ensure discount does not exceed the subtotal
+        discount = Math.min(discount, subtotal);
+
+        // Calculate total amount
+        const additionalCharge = 50;
+        const totalAmount = subtotal - discount + additionalCharge;
+
+        // Store the discount and applied coupon in session
+        req.session.discount = discount;
+        req.session.totalAmount = totalAmount;
+        req.session.appliedCoupon = couponCode;
+
+        cart.discount = discount;  // Add the discount to the cart document
+        cart.totalPrice = subtotal;  // Update the subtotal in the cart
+        cart.PayableAmount = totalAmount;
+
+        await cart.save();
+
+        return res.redirect('/cart'); // Redirect back to cart with updated values
+
+    } catch (error) {
+        console.error('Error applying coupon:', error);
+        res.status(500).send("Server error");
+    }
+};
+
+
   module.exports={
-    loadCart,addCart,deleteCart,updateQuantity
+    loadCart,addCart,deleteCart,updateQuantity,applyCoupon,
   }

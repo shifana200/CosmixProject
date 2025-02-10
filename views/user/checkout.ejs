@@ -166,6 +166,11 @@
 
 							<div class="address-card">
 								<% if (userAddress.address.length>0) {%>
+									<% 
+									const defaultAddress = userAddress.address.find(address => address.isDefault === true);
+						
+									const addressToDisplay = defaultAddress || userAddress.address[0];
+								 %>
 
 								<div class="address-content"  style="padding: 20px;">
 
@@ -174,19 +179,18 @@
 									<div class="radio-section" style="display: flex; align-items: center; justify-content: space-between; padding: 10px;">
 										<!-- Left side: Radio button and h6 -->
 										<div style="display: flex; align-items: center; gap: 5px;">
-											<input type="radio" name="address" id="address1">
-											<h6 style="background-color: #47abb8; color: #fff; margin: 0; padding: 5px 10px; border-radius: 4px;"><%=userAddress.address[0].addressType%></h6>
+											<h6 style="background-color: #47abb8; color: #fff; margin: 0; padding: 5px 10px; border-radius: 4px;"><%= addressToDisplay.addressType %></h6>
 										</div>
 										
 										
 									</div>
-									
+									<input type="hidden" value="<%=addressToDisplay._id%> " id="selectedAddress">
 							
-									<strong><%=userAddress.address[0].name%></strong>
-									<p>Phone:<%=userAddress.address[0].phone%> <br/>
-									Alt Phone : <%=userAddress.address[0].altPhone%></p>
-									<p><%=userAddress.address[0].city%>,<%=userAddress.address[0].landMark%>,<br/>
-										 <%=userAddress.address[0].district%>, <%=userAddress.address[0].state%> - <strong><%=userAddress.address[0].pincode%></strong></p>
+									<strong><%=addressToDisplay.name%></strong>
+									<p>Phone:<%=addressToDisplay.phone%> <br/>
+									Alt Phone : <%=addressToDisplay.altPhone%></p>
+									<p><%=addressToDisplay.city%>,<%=addressToDisplay.landMark%>,<br/>
+										 <%=addressToDisplay.district%>, <%=addressToDisplay.state%> - <strong><%=addressToDisplay.pincode%></strong></p>
 								</div>
 								<%} else {%>
 									<h6>No Address Available</h6>
@@ -255,6 +259,8 @@
 							<div class="error-message" id="pincodeError"></div>
 						</div>
 						<div style="display: flex; gap: 73px;">
+							<input type="hidden" name="source" value="checkout">
+
 						<button type="submit" class="add-address-btn">Add Address</button>
 						<button type="button" class="add-address-btn" id="cancel">Cancel</button>
 					</div>
@@ -264,7 +270,7 @@
 
 					<div class="col-lg-8" style="background-color: #F5F5F5; display: none;" id="editAddress">
 
-						<form id="addressForm">
+						<form id="addressForm" method="post">
 
 						<% if (userAddress.address.length>0) {%>
 							<% userAddress.address.forEach(address=>{ %>
@@ -288,12 +294,12 @@
 								<strong><%=address.name%></strong>
 								<p>Phone:<%=address.phone%> <br/>
 								Alt Phone : <%=address.altPhone%></p>
-								<p><%=address.city%>,<%=userAddress.address[0].landMark%>,<br/>
+								<p><%=address.city%>,<%=userAddress.address.landMark%>,<br/>
 									 <%=address.district%>, <%=address.state%> - <strong><%=address.pincode%></strong></p>
 							</div>
 							<%})%>
 							<%}%>
-							<button type="button" class="add-address-btn" id="updateAddressBtn">Update Address</button>
+							<button type="submit" class="add-address-btn" id="updateAddressBtn">Update Address</button>
 						<button type="button" class="add-address-btn" id="cancelEdit">Cancel</button>
 
 					</div>
@@ -318,36 +324,35 @@
 											</ul>
 										</li>
 										<li><span>Subtotal</span> <span>₹<%=subtotal%></span></li>
-										<li><span>Shipping</span> <span>₹<%=delivery%></span></li>
-										<li><span>Order Total</span> <span>₹<%=total%><span></li>
+										<li><span>Shipping</span> <span>₹<%=additionalCharge%></span></li>
+                                        <li><span>Discount</span> <span>₹<%=discount%></span></li>
+
+										<li><span>Order Total</span> <span>₹<%=totalAmount.toFixed(2)%><span></li>
 									</ul>
 								</div>
 						   </div>
 
 						   <div class="w-100"></div>
 
-						   <form action="/placeOrder" method="POST">
-							<input type="hidden" name="cartId" value="<%= cart._id %>" />
+							<input type="hidden" id="cartId" name="cartId" value="<%= cart._id %>" />
 
   
   
 						   <div class="col-md-12">
+							<form method="POST" id="order-form">
+
 								<div class="cart-detail">
 									<h2>Payment Method</h2>
 									
 									<ul>
-										<li><label><input type="radio" name="payementMethod" value="Cash" required/>  Cashon Delivey</label></li>
-										<li><label ><input type="radio" name="payementMethod" value="Online" required/>  Online Payement</label></li>
-
-										
+										<li><label><input type="radio" name="paymentMethod" value="COD" required/>  Cashon Delivey</label></li>
+										<li><label ><input type="radio" name="paymentMethod" value="Online" required/>  Online Payement (via Razorpay)</label></li>	
 									</ul>
-									
-									
 								</div>
 							</div>
 							<div class="row">
 								<div class="col-md-12 text-center">
-									<button type="submit" class="btn btn-primary" style="border: none;">Place an order</button>
+									<button type="submit" class="btn btn-primary" id="payButton" style="border: none;">Place an order</button>
 								</div>
 							</div>
 						</form>
@@ -452,7 +457,10 @@ document.getElementById('updateAddressBtn').addEventListener('click', function()
 	</script> -->
 
 	
-	 
+	<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+	<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+
 	 
 	<script>
 		document.addEventListener("DOMContentLoaded", function() {
@@ -502,34 +510,65 @@ document.querySelectorAll('.address-radio').forEach((radio)=>{
 	})
 })
 
-document.getElementById("updateAddressBtn").addEventListener("click", () => {
-    if (!selectedAddressId) {
-        alert("Please select an address.");
+
+
+
+
+document.getElementById("updateAddressBtn").addEventListener("click", async function (event) {
+    event.preventDefault();
+
+    const selectedAddress = document.querySelector('input[name="address"]:checked');
+
+    if (!selectedAddress) {
+        Swal.fire({
+            icon: "warning",
+            title: "No Address Selected",
+            text: "Please select an address before updating.",
+        });
         return;
     }
 
-	fetch("/placeOrder", {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ addressId: selectedAddressId , paymentMethod:"COD" }),
-    })
-        .then((response) => response.json())
-        .then((data) => {
-            if (data.success) {
-                alert("Address updated successfully!");
-                // Optionally close the edit address form
-                editAddressDiv.style.display = "none";
-				addressDiv.style.display = "block"
-            } else {
-                alert("Failed to update address. Please try again.");
-            }
-        })
-        .catch((error) => {
-            console.error("Error:", error);
+    const selectedAddressId = selectedAddress.getAttribute("data-id");
+
+    try {
+        const response = await fetch("/updateAddress", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ selectedAddressId }),
         });
+
+        const result = await response.json();
+
+        if (result.success) {
+            Swal.fire({
+                icon: "success",
+                title: "Success!",
+                text: "Address updated successfully.",
+                timer: 1500,
+                showConfirmButton: false,
+            }).then(() => {
+                // Hide editAddressDiv and show addressDiv
+                editAddressDiv.style.display = "none";
+                addressDiv.style.display = "block";
+				location.reload();
+            });
+        } else {
+            Swal.fire({
+                icon: "error",
+                title: "Update Failed",
+                text: "Failed to update the address. Please try again.",
+            });
+        }
+    } catch (error) {
+        console.error("Error updating address:", error);
+        Swal.fire({
+            icon: "error",
+            title: "Error!",
+            text: "Something went wrong. Please try again later.",
+        });
+    }
 });
+
 
 
   // Event listener for the cancel button
@@ -539,6 +578,372 @@ document.getElementById("updateAddressBtn").addEventListener("click", () => {
   });
 
 		})
+
+
+
+// 		document.getElementById("payButton").addEventListener("click", async function (event) {
+//     event.preventDefault(); // Prevent default form submission
+    
+//     const selectedPaymentMethod = document.querySelector('input[name="paymentMethod"]:checked');
+    
+//     if (!selectedPaymentMethod) {
+//         alert("Please select a payment method.");
+//         return;
+//     }
+
+//     console.log("Selected Payment Method:", selectedPaymentMethod.value);
+
+//     if (selectedPaymentMethod.value === "COD") {
+//         handleCashOnDelivery();
+//     } else if (selectedPaymentMethod.value === "Online") {
+//         handleOnlinePayment();
+//     }
+// });
+
+// // 🟢 Function to Handle Cash on Delivery (COD)
+// function handleCashOnDelivery() {
+//     document.getElementById("order-form").submit(); // Submit form for COD
+// }
+
+// // 🟢 Function to Handle Razorpay Payment
+// async function handleOnlinePayment() {
+//     const totalAmount = 500;
+
+//     try {
+//         const response = await fetch("http://localhost:4000/create-order", {
+//             method: "POST",
+//             headers: { "Content-Type": "application/json" },
+//             body: JSON.stringify({ amount: totalAmount, currency: "INR", receipt: "order_rcptid_11" }),
+//         });
+
+//         const order = await response.json();
+//         console.log("Order Created:", order);
+
+//         const options = {
+//             key: "rzp_test_UPsueP9qLBJXHk", // Replace with your Razorpay key
+//             amount: order.amount,
+//             currency: order.currency,
+//             name: "My E-Commerce",
+//             description: "Test Transaction",
+//             order_id: order.id,
+//             handler: async function (response) {
+//                 console.log("Razorpay Response:", response);
+
+//                 const paymentDetails = {
+//                     razorpay_order_id: response.razorpay_order_id,
+//                     razorpay_payment_id: response.razorpay_payment_id,
+//                     razorpay_signature: response.razorpay_signature,
+//                 };
+
+//                 const verifyResponse = await fetch("http://localhost:4000/verify-payment", {
+//                     method: "POST",
+//                     headers: { "Content-Type": "application/json" },
+//                     body: JSON.stringify(paymentDetails),
+//                 });
+
+//                 const verificationResult = await verifyResponse.json();
+//                 console.log("Payment Verification Result:", verificationResult);
+
+//                 if (verificationResult.success) {
+//                     alert("Payment successful!");
+//                     window.location.href = `/ordercomplete?orderId=${response.razorpay_order_id}`;
+//                 } else {
+//                     alert("Payment verification failed!");
+//                 }
+//             },
+//             theme: { color: "#3399cc" },
+//         };
+
+//         const rzp = new Razorpay(options);
+//         rzp.open();
+//     } catch (error) {
+//         console.error("Error in Online Payment:", error);
+//         alert("Something went wrong with online payment!");
+//     }
+// }
+
+
+
+
+
+// document.getElementById("order-form").addEventListener("submit", function (event) {
+//     event.preventDefault(); // Prevent default form submission
+
+//     const cartId = document.getElementById("cartId").value;
+//     const paymentMethod = document.querySelector('input[name="paymentMethod"]:checked').value;
+// 	const selectedAddress = document.getElementById('selectedAddress').value.trim();
+// 	console.log(selectedAddress)
+// 	console.log(paymentMethod)
+
+//     if (paymentMethod === "COD") {
+//         placeOrder(cartId , selectedAddress);
+//     } else if (paymentMethod === "Online") {
+//         createOrder(cartId);
+//     }
+// });
+
+// const placeOrder = async (cartId , selectedAddress) => {
+//     try {
+//         const response = await fetch("/placeOrder", {
+//             method: "POST",
+//             headers: { "Content-Type": "application/json" },
+//             body: JSON.stringify({ cartId, paymentMethod: "COD" , selectedAddress}),
+//         });
+
+//         const result = await response.json();
+//         if (result.success) {
+//             alert("Order placed successfully with COD!");
+//         } else {
+//             alert("Failed to place order.");
+//         }
+//     } catch (error) {
+//         console.error("Error placing order:", error);
+//     }
+// };
+
+document.getElementById("order-form").addEventListener("submit", function (event) {
+    event.preventDefault(); // Prevent default form submission
+
+    const cartId = document.getElementById("cartId").value;
+    const paymentMethod = document.querySelector('input[name="paymentMethod"]:checked').value;
+    const selectedAddress = document.getElementById('selectedAddress').value.trim();
+
+    console.log("Selected Address:", selectedAddress);
+    console.log("Payment Method:", paymentMethod);
+
+    if (paymentMethod === "COD") {
+        placeOrder(cartId, selectedAddress);
+    } else if (paymentMethod === "Online") {
+        createOrder(cartId,selectedAddress);
+    }
+});
+
+// const placeOrder = async (cartId, selectedAddress) => {
+//     try {
+//         console.log("Sending Order Request...");
+//         const response = await fetch("/placeOrder", {
+//             method: "POST",
+//             headers: { "Content-Type": "application/json" },
+//             body: JSON.stringify({ cartId, paymentMethod: "COD", selectedAddress }),
+//         });
+// 		//console.log("this is in the frontend ---------------")
+
+//        // console.log("Response:", response);
+//         const result = await response.json();
+//        // console.log("Result:", result);
+
+//         if (result.success) {
+//             alert("Order placed successfully with COD!");
+//             window.location.href = `/ordercomplete?orderId=${result.orderId}`;
+//         } else {
+//             alert("Failed to place order: " + result.message);
+//         }
+//     } catch (error) {
+//         console.error("Error placing order:", error);
+//         alert("An error occurred while placing the order.");
+//     }
+// };
+
+const placeOrder = async (cartId, selectedAddress) => {
+    try {
+        console.log("Sending Order Request...");
+        const response = await fetch("/placeOrder", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ cartId, paymentMethod: "COD", selectedAddress }),
+        });
+
+        console.log("Response:", response);
+
+        if (response.ok) {
+            const result = await response.json();
+            console.log("Result:", result);
+
+            if (result.success) {
+                // SweetAlert for success with just the icon and message
+                Swal.fire({
+                    icon: 'success',
+                    text: `Your order ID is: ${result.orderId}`,
+                    showConfirmButton: false, // No button
+                    timer: 1500, // Close after 1.5 seconds
+                }).then(() => {
+                    window.location.href = `/ordercomplete?orderId=${result.orderId}`;
+                });
+            } else {
+                // SweetAlert for failure with just the icon and message
+                Swal.fire({
+                    icon: 'error',
+                    text: result.message,
+                    showConfirmButton: false, // No button
+                    timer: 1500, // Close after 1.5 seconds
+                });
+            }
+        } else {
+            // SweetAlert for server error with just the icon and message
+            const errorText = await response.text();
+            console.error("Server Error:", errorText);
+            Swal.fire({
+                icon: 'error',
+                text: `An error occurred: ${errorText}`,
+                showConfirmButton: false, // No button
+                timer: 1500, // Close after 1.5 seconds
+            });
+        }
+    } catch (error) {
+        console.error("Error placing order:", error);
+        // SweetAlert for catch block errors with just the icon and message
+        Swal.fire({
+            icon: 'error',
+            text: 'An error occurred while placing the order.',
+            showConfirmButton: false, // No button
+            timer: 1500, // Close after 1.5 seconds
+        });
+    }
+};
+
+
+
+
+// const createOrder = async (cartId,selectedAddress) => {
+//     try {
+//         const response = await fetch("/createOrder", {
+//             method: "POST",
+//             headers: { "Content-Type": "application/json" },
+//             body: JSON.stringify({ cartId, selectedAddress, paymentMethod: "Online Payment",receipt:"receipt_" + new Date().getTime(),currency:"INR" }),
+//         });
+
+//         const order = await response.json();
+//         if (!order.id) {
+//             Swal.fire({ icon: 'error', text: "Failed to create Razorpay order", timer: 1500, showConfirmButton: false });
+//             return;
+//         }
+
+//         // Initialize Razorpay Payment
+//         const options = {
+//             key: "rzp_test_UPsueP9qLBJXHk",
+//             amount: order.PayableAmount, // Amount in paise
+//             currency: "INR",
+//             name: "Your Store",
+//             description: "Purchase Order",
+//             order_id: order.id,
+//             handler: async function (response) {
+//                 await verifyPayment(response, cartId);
+//             },
+//         };
+
+//         const rzp = new Razorpay(options);
+//         rzp.open();
+//     } catch (error) {
+//         console.error("Error creating Razorpay order:", error);
+//     }
+// };
+
+// const verifyPayment = async (paymentData, cartId) => {
+//     try {
+//         const response = await fetch("/verifyPayment", {
+//             method: "POST",
+//             headers: { "Content-Type": "application/json" },
+//             body: JSON.stringify({ paymentData, cartId }),
+//         });
+
+//         const result = await response.json();
+//         if (result.success) {
+//             Swal.fire({
+//                 icon: "success",
+//                 text: "Payment successful! Redirecting...",
+//                 showConfirmButton: false,
+//                 timer: 1500
+//             }).then(() => {
+//                 window.location.href = `/ordercomplete?orderId=${result.orderId}`;
+//             });
+//         } else {
+//             Swal.fire({
+//                 icon: "error",
+//                 text: "Payment verification failed.",
+//                 showConfirmButton: false,
+//                 timer: 1500
+//             });
+//         }
+//     } catch (error) {
+//         console.error("Error verifying payment:", error);
+//         Swal.fire({
+//             icon: "error",
+//             text: "An error occurred while verifying the payment.",
+//             showConfirmButton: false,
+//             timer: 1500
+//         });
+//     }
+// };
+
+const createOrder = async (cartId, selectedAddress) => {
+    try {
+        const response = await fetch("/createOrder", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ cartId, selectedAddress, paymentMethod: "Online Payment" }),
+        });
+
+        const order = await response.json();
+        console.log("Order Response:", order); // Debugging
+
+        if (!order.id) {
+            Swal.fire({ icon: 'error', text: "Failed to create Razorpay order", timer: 1500, showConfirmButton: false });
+            return;
+        }
+
+        // Initialize Razorpay Payment
+        const options = {
+            key: "rzp_test_UPsueP9qLBJXHk", // Your Razorpay Key ID
+            amount: order.amount, // Amount in paise
+            currency: "INR",
+            name: "Your Store",
+            description: "Purchase Order",
+            order_id: order.id, // Razorpay Order ID
+            handler: async function (response) {
+                console.log("Payment Response:", response); // Debugging
+                await verifyPayment(response, cartId);
+            },
+        };
+
+        const rzp = new Razorpay(options);
+        rzp.open();
+    } catch (error) {
+        console.error("Error creating Razorpay order:", error);
+    }
+};
+
+const verifyPayment = async (paymentData, cartId) => {
+    try {
+        const response = await fetch("/verifyPayment", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ paymentData, cartId }),
+        });
+
+        const result = await response.json();
+        console.log("Verify Payment Response:", result); // Debugging
+
+        if (result.success) {
+            Swal.fire({
+                icon: "success",
+                text: "Payment successful! Redirecting...",
+                showConfirmButton: false,
+                timer: 1500
+            }).then(() => {
+                window.location.href = `/ordercomplete?orderId=${result.orderId}`;
+            });
+        } else {
+            Swal.fire({ icon: "error", text: "Payment verification failed.", showConfirmButton: false, timer: 1500 });
+        }
+    } catch (error) {
+        console.error("Error verifying payment:", error);
+        Swal.fire({ icon: "error", text: "An error occurred while verifying the payment.", showConfirmButton: false, timer: 1500 });
+    }
+};
+
+
+
+
 	</script>
 
 

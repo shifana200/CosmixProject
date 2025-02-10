@@ -90,15 +90,6 @@ const logIn = async (req, res) => {
   
 
 
-const loadDashboard = async(req,res)=>{
-     if(req.session.admin){
-        try {
-            res.render('dashboard')
-        } catch (error) {
-            res.redirect('/pageNotFound')
-        }
-    }
- }
 
 //  const loadUserManagement = async(req,res)=>{
 //     if(req.session.admin){
@@ -154,15 +145,7 @@ const loadUserManagement = async (req, res) => {
     }
 };
 
-const loadCouponManagement = async(req,res)=>{
-    if(req.session.admin){
-       try {
-           res.render('couponmanagement')
-       } catch (error) {
-           res.redirect('/pageNotFound')
-       }
-   }
-}
+
 
 // const loadCategoryManagement = async(req,res)=>{
 //      if(req.session.admin){
@@ -174,32 +157,10 @@ const loadCouponManagement = async(req,res)=>{
 //    }
 // }
 
-const loadOrderManagement = async(req,res)=>{
-    if(req.session.admin){
-    try {
-        const orders = await Order.find().populate('userId')
-
-        // console.log(orders)
-
-        res.render('ordermanagement',{orders})
-        
-    } catch (error) {
-        console.error("error loading page ",error)
-        res.redirect('/pageNotFound')
-        
-    }}
-}
 
 
-const loadOfferManagement = async(req,res)=>{
-     if(req.session.admin){
-       try {
-           res.render('offermanagement')
-       } catch (error) {
-           res.redirect('/pageNotFound')
-       }
-   }
-}
+
+
 
 const logout = async(req,res)=>{
 
@@ -220,58 +181,60 @@ const logout = async(req,res)=>{
     }
 }
 
-const loadOrderDetailsPage = async(req,res) => {
-    try {
-        const orderId = req.params.id;
-        console.log('**************************')
-        console.log(orderId)
+// const loadOrderDetailsPage = async (req, res) => {
+//     try {
+//         const orderId = req.params.id;
+//         console.log('**************************');
+//         console.log("Order ID:", orderId);
 
-        const orderDetails = await Order.findById(orderId).populate('orderedItems.product')
-        const addressDetails = await Address.findOne({ _id: orderDetails.address });
+//         const orderDetails = await Order.findById(orderId).populate('orderedItems.product');
 
+//         if (!orderDetails) {
+//             console.log("Order not found");
+//             return res.redirect('/pageNotFound');
+//         }
 
-        console.log(orderDetails)
-        console.log('**************************')
+//         // Fetch the address document using orderDetails.addressId
+//         const addressDocument = await Address.findById(orderDetails.addressId);
 
-        res.render('orderDetailsPage',{orderDetails , addressDetails})
-    } catch (error) {
-        console.error("Error opening order details")
-       return  res.redirect('/pageNotFound')
-        
-    }
+//         if (!addressDocument) {
+//             console.log("Address document not found");
+//             return res.redirect('/pageNotFound');
+//         }
 
-}
+//         // Extract the specific address from the address array
+//         const addressDetails = addressDocument.address.find(addr => addr._id.toString() === orderDetails.addressId.toString());
 
-const updateOrderStatus= (req, res) => {
-    const { status, orderId } = req.body;
+//         if (!addressDetails) {
+//             console.log("Address not found inside the address document");
+//             return res.redirect('/pageNotFound');
+//         }
 
-    console.log("----------------------------")
-    
+//         console.log('Order Details:', orderDetails);
+//         console.log('Address Details:', addressDetails);
+//         console.log('**************************');
 
-    // Update the order status in your database (make sure to handle DB logic accordingly)
-    Order.updateOne({ orderId: orderId }, { status: status }, (err, result) => {
-        if (err) {
-            return res.status(500).json({ success: false, message: 'Failed to update status' });
-        }
+//         res.render('orderDetailsPage', { orderDetails, addressDetails });
 
-        res.status(200).json({ success: true, message: 'Order status updated successfully' });
-    });
-}
+//     } catch (error) {
+//         console.error("Error opening order details:", error);
+//         return res.redirect('/pageNotFound');
+//     }
+// };
+
 
 
 
 module.exports = {
     loadLogin,
     logIn,
-    loadDashboard,
+    
     PageNotFound,
     loadUserManagement,
     loadProductManagement,
-    loadCouponManagement,
-    
-    loadOrderManagement,
-    loadOfferManagement,
-    logout,loadOrderDetailsPage,
-updateOrderStatus,
 
+    
+
+
+    logout,
 }
