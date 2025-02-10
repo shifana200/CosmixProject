@@ -67,9 +67,16 @@ router.get('/myaddressupdate',userAuth,profileController.loadUpdateUserAdress)
 router.post('/resend-otp', userController.resendOtp);
 router.post('/send-otp', userController.verifyOtp);
 router.get('/shop',productController.loadShopPage);
-router.get('/forgetPassword',userController.loadForgetPassword)
-router.post('/updatePassword',userController.updatePassword)
+
 router.post('/apply-coupon',userAuth,cartController.applyCoupon)
+
+
+router.get("/forgot-password", userController.loadForgetPassword);
+router.post("/forgot-password", userController.sendOtp);
+router.get("/verify-otp", userController.loadVerifyOtp);
+router.post("/verify-otp", userController.passwordVerifyOtp);
+router.get("/reset-password", userController.loadResetPassword);
+router.post("/reset-password", userController.updatePassword);
 
 //order management routes
 router.get('/myorder',userAuth,profileController.loadUserOrder)
