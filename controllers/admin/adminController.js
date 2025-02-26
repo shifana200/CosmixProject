@@ -222,6 +222,95 @@ const logout = async(req,res)=>{
 //     }
 // };
 
+const approveOrderRequest = async (req, res) => {
+  try {
+      const { orderId, approvalStatus } = req.body;
+
+      const orderDetails = await Order.findById(orderId);
+
+      if (!orderDetails) {
+          return res.status(404).json({ success: false, message: 'Order not found' });
+      }
+
+      if (approvalStatus === 'approve') {
+          if (orderDetails.status === 'Cancellation Pending') {
+              orderDetails.status = 'Cancelled';
+
+              // Restore stock if necessary
+              for (let item of orderDetails.orderedItems) {
+                  const product = await Product.findById(item.product);
+                  if (product) {
+                      product.quantity += item.quantity;
+                      await product.save();
+                  }
+              }
+
+              // Wallet Refund Logic
+              if (orderDetails.paymentMethod === 'Online Payment') {
+                  let userWallet = await Wallet.findOne({ userId: orderDetails.userId });
+
+                  const refundTransaction = {
+                      amount: orderDetails.PayableAmount,
+                      transactionType: 'Cancellation',
+                      timestamp: new Date()
+                  };
+
+                  if (userWallet) {
+                      userWallet.walletAmount += orderDetails.PayableAmount;
+                      userWallet.transactions.push(refundTransaction);
+                      await userWallet.save();
+                  } else {
+                      userWallet = await Wallet.create({
+                          userId: orderDetails.userId,
+                          walletAmount: orderDetails.PayableAmount,
+                          transactions: [refundTransaction]
+                      });
+                  }
+              }
+          } else if (orderDetails.status === 'Return Pending') {
+              orderDetails.status = 'Returned';
+
+              // Wallet Refund Logic
+              if (orderDetails.paymentMethod === 'Online Payment') {
+                  let userWallet = await Wallet.findOne({ userId: orderDetails.userId });
+
+                  const refundTransaction = {
+                      amount: orderDetails.PayableAmount,
+                      transactionType: 'Return',
+                      timestamp: new Date()
+                  };
+
+                  if (userWallet) {
+                      userWallet.walletAmount += orderDetails.PayableAmount;
+                      userWallet.transactions.push(refundTransaction);
+                      await userWallet.save();
+                  } else {
+                      userWallet = await Wallet.create({
+                          userId: orderDetails.userId,
+                          walletAmount: orderDetails.PayableAmount,
+                          transactions: [refundTransaction]
+                      });
+                  }
+              }
+          }
+      } else {
+          // If the admin rejects the request, revert to its original status
+          if (orderDetails.status === 'Cancellation Pending') {
+              orderDetails.status = 'Ordered';
+          } else if (orderDetails.status === 'Return Pending') {
+              orderDetails.status = 'Delivered';
+          }
+      }
+
+      await orderDetails.save();
+
+      res.json({ success: true, message: `Order ${orderDetails.status} successfully` });
+
+  } catch (error) {
+      console.error("Error approving request:", error);
+      res.status(500).json({ success: false, message: 'Server error' });
+  }
+};
 
 
 
@@ -233,7 +322,7 @@ module.exports = {
     loadUserManagement,
     loadProductManagement,
 
-    
+    approveOrderRequest,
 
 
     logout,

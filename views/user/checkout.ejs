@@ -345,8 +345,20 @@
 									<h2>Payment Method</h2>
 									
 									<ul>
-										<li><label><input type="radio" name="paymentMethod" value="COD" required/>  Cashon Delivey</label></li>
-										<li><label ><input type="radio" name="paymentMethod" value="Online" required/>  Online Payement (via Razorpay)</label></li>	
+										<li> <label>
+                                            <input type="radio" name="paymentMethod" value="COD" required 
+                                                <%= totalAmount > 1000 ? 'disabled' : '' %> />
+                                            Cash on Delivery
+                                        </label></li>
+										<li>
+                                            <label ><input type="radio" name="paymentMethod" value="Online" required/>  Online Payement (via Razorpay)</label>
+                                        </li>
+                                        <li>
+                                            <label>
+                                                <input type="radio" name="paymentMethod" value="Wallet" required />  
+                                                Pay via Wallet
+                                            </label>
+                                            </li>	
 									</ul>
 								</div>
 							</div>
@@ -581,127 +593,8 @@ document.getElementById("updateAddressBtn").addEventListener("click", async func
 
 
 
-// 		document.getElementById("payButton").addEventListener("click", async function (event) {
-//     event.preventDefault(); // Prevent default form submission
-    
-//     const selectedPaymentMethod = document.querySelector('input[name="paymentMethod"]:checked');
-    
-//     if (!selectedPaymentMethod) {
-//         alert("Please select a payment method.");
-//         return;
-//     }
 
-//     console.log("Selected Payment Method:", selectedPaymentMethod.value);
-
-//     if (selectedPaymentMethod.value === "COD") {
-//         handleCashOnDelivery();
-//     } else if (selectedPaymentMethod.value === "Online") {
-//         handleOnlinePayment();
-//     }
-// });
-
-// // 🟢 Function to Handle Cash on Delivery (COD)
-// function handleCashOnDelivery() {
-//     document.getElementById("order-form").submit(); // Submit form for COD
-// }
-
-// // 🟢 Function to Handle Razorpay Payment
-// async function handleOnlinePayment() {
-//     const totalAmount = 500;
-
-//     try {
-//         const response = await fetch("http://localhost:4000/create-order", {
-//             method: "POST",
-//             headers: { "Content-Type": "application/json" },
-//             body: JSON.stringify({ amount: totalAmount, currency: "INR", receipt: "order_rcptid_11" }),
-//         });
-
-//         const order = await response.json();
-//         console.log("Order Created:", order);
-
-//         const options = {
-//             key: "rzp_test_UPsueP9qLBJXHk", // Replace with your Razorpay key
-//             amount: order.amount,
-//             currency: order.currency,
-//             name: "My E-Commerce",
-//             description: "Test Transaction",
-//             order_id: order.id,
-//             handler: async function (response) {
-//                 console.log("Razorpay Response:", response);
-
-//                 const paymentDetails = {
-//                     razorpay_order_id: response.razorpay_order_id,
-//                     razorpay_payment_id: response.razorpay_payment_id,
-//                     razorpay_signature: response.razorpay_signature,
-//                 };
-
-//                 const verifyResponse = await fetch("http://localhost:4000/verify-payment", {
-//                     method: "POST",
-//                     headers: { "Content-Type": "application/json" },
-//                     body: JSON.stringify(paymentDetails),
-//                 });
-
-//                 const verificationResult = await verifyResponse.json();
-//                 console.log("Payment Verification Result:", verificationResult);
-
-//                 if (verificationResult.success) {
-//                     alert("Payment successful!");
-//                     window.location.href = `/ordercomplete?orderId=${response.razorpay_order_id}`;
-//                 } else {
-//                     alert("Payment verification failed!");
-//                 }
-//             },
-//             theme: { color: "#3399cc" },
-//         };
-
-//         const rzp = new Razorpay(options);
-//         rzp.open();
-//     } catch (error) {
-//         console.error("Error in Online Payment:", error);
-//         alert("Something went wrong with online payment!");
-//     }
-// }
-
-
-
-
-
-// document.getElementById("order-form").addEventListener("submit", function (event) {
-//     event.preventDefault(); // Prevent default form submission
-
-//     const cartId = document.getElementById("cartId").value;
-//     const paymentMethod = document.querySelector('input[name="paymentMethod"]:checked').value;
-// 	const selectedAddress = document.getElementById('selectedAddress').value.trim();
-// 	console.log(selectedAddress)
-// 	console.log(paymentMethod)
-
-//     if (paymentMethod === "COD") {
-//         placeOrder(cartId , selectedAddress);
-//     } else if (paymentMethod === "Online") {
-//         createOrder(cartId);
-//     }
-// });
-
-// const placeOrder = async (cartId , selectedAddress) => {
-//     try {
-//         const response = await fetch("/placeOrder", {
-//             method: "POST",
-//             headers: { "Content-Type": "application/json" },
-//             body: JSON.stringify({ cartId, paymentMethod: "COD" , selectedAddress}),
-//         });
-
-//         const result = await response.json();
-//         if (result.success) {
-//             alert("Order placed successfully with COD!");
-//         } else {
-//             alert("Failed to place order.");
-//         }
-//     } catch (error) {
-//         console.error("Error placing order:", error);
-//     }
-// };
-
-document.getElementById("order-form").addEventListener("submit", function (event) {
+document.getElementById("order-form").addEventListener("submit",async function (event) {
     event.preventDefault(); // Prevent default form submission
 
     const cartId = document.getElementById("cartId").value;
@@ -715,34 +608,11 @@ document.getElementById("order-form").addEventListener("submit", function (event
         placeOrder(cartId, selectedAddress);
     } else if (paymentMethod === "Online") {
         createOrder(cartId,selectedAddress);
+    }else if (paymentMethod === "Wallet") {
+        processWalletPayment(cartId, selectedAddress);
     }
 });
 
-// const placeOrder = async (cartId, selectedAddress) => {
-//     try {
-//         console.log("Sending Order Request...");
-//         const response = await fetch("/placeOrder", {
-//             method: "POST",
-//             headers: { "Content-Type": "application/json" },
-//             body: JSON.stringify({ cartId, paymentMethod: "COD", selectedAddress }),
-//         });
-// 		//console.log("this is in the frontend ---------------")
-
-//        // console.log("Response:", response);
-//         const result = await response.json();
-//        // console.log("Result:", result);
-
-//         if (result.success) {
-//             alert("Order placed successfully with COD!");
-//             window.location.href = `/ordercomplete?orderId=${result.orderId}`;
-//         } else {
-//             alert("Failed to place order: " + result.message);
-//         }
-//     } catch (error) {
-//         console.error("Error placing order:", error);
-//         alert("An error occurred while placing the order.");
-//     }
-// };
 
 const placeOrder = async (cartId, selectedAddress) => {
     try {
@@ -803,78 +673,6 @@ const placeOrder = async (cartId, selectedAddress) => {
 
 
 
-
-// const createOrder = async (cartId,selectedAddress) => {
-//     try {
-//         const response = await fetch("/createOrder", {
-//             method: "POST",
-//             headers: { "Content-Type": "application/json" },
-//             body: JSON.stringify({ cartId, selectedAddress, paymentMethod: "Online Payment",receipt:"receipt_" + new Date().getTime(),currency:"INR" }),
-//         });
-
-//         const order = await response.json();
-//         if (!order.id) {
-//             Swal.fire({ icon: 'error', text: "Failed to create Razorpay order", timer: 1500, showConfirmButton: false });
-//             return;
-//         }
-
-//         // Initialize Razorpay Payment
-//         const options = {
-//             key: "rzp_test_UPsueP9qLBJXHk",
-//             amount: order.PayableAmount, // Amount in paise
-//             currency: "INR",
-//             name: "Your Store",
-//             description: "Purchase Order",
-//             order_id: order.id,
-//             handler: async function (response) {
-//                 await verifyPayment(response, cartId);
-//             },
-//         };
-
-//         const rzp = new Razorpay(options);
-//         rzp.open();
-//     } catch (error) {
-//         console.error("Error creating Razorpay order:", error);
-//     }
-// };
-
-// const verifyPayment = async (paymentData, cartId) => {
-//     try {
-//         const response = await fetch("/verifyPayment", {
-//             method: "POST",
-//             headers: { "Content-Type": "application/json" },
-//             body: JSON.stringify({ paymentData, cartId }),
-//         });
-
-//         const result = await response.json();
-//         if (result.success) {
-//             Swal.fire({
-//                 icon: "success",
-//                 text: "Payment successful! Redirecting...",
-//                 showConfirmButton: false,
-//                 timer: 1500
-//             }).then(() => {
-//                 window.location.href = `/ordercomplete?orderId=${result.orderId}`;
-//             });
-//         } else {
-//             Swal.fire({
-//                 icon: "error",
-//                 text: "Payment verification failed.",
-//                 showConfirmButton: false,
-//                 timer: 1500
-//             });
-//         }
-//     } catch (error) {
-//         console.error("Error verifying payment:", error);
-//         Swal.fire({
-//             icon: "error",
-//             text: "An error occurred while verifying the payment.",
-//             showConfirmButton: false,
-//             timer: 1500
-//         });
-//     }
-// };
-
 const createOrder = async (cartId, selectedAddress) => {
     try {
         const response = await fetch("/createOrder", {
@@ -912,6 +710,7 @@ const createOrder = async (cartId, selectedAddress) => {
     }
 };
 
+
 const verifyPayment = async (paymentData, cartId) => {
     try {
         const response = await fetch("/verifyPayment", {
@@ -933,7 +732,10 @@ const verifyPayment = async (paymentData, cartId) => {
                 window.location.href = `/ordercomplete?orderId=${result.orderId}`;
             });
         } else {
-            Swal.fire({ icon: "error", text: "Payment verification failed.", showConfirmButton: false, timer: 1500 });
+            Swal.fire({ icon: "error", text: "Payment verification failed.", showConfirmButton: false, timer: 1500 })
+            .then(()=>{
+                window.location.href = "/failedPayement"
+            })
         }
     } catch (error) {
         console.error("Error verifying payment:", error);
@@ -941,6 +743,38 @@ const verifyPayment = async (paymentData, cartId) => {
     }
 };
 
+
+const processWalletPayment = async (cartId, selectedAddress) => {
+    try {
+        const response = await fetch("/payWithWallet", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ cartId, selectedAddress }),
+        });
+
+        const result = await response.json();
+        if (result.success) {
+            Swal.fire({
+                icon: "success",
+                text: `Wallet Payment Successful! Your order ID is: ${result.orderId}`,
+                showConfirmButton: false,
+                timer: 1500
+            }).then(() => {
+                window.location.href = `/ordercomplete?orderId=${result.orderId}`;
+            });
+        } else {
+            Swal.fire({
+                icon: "error",
+                text: result.message,
+                showConfirmButton: false,
+                timer: 1500
+            });
+        }
+    } catch (error) {
+        console.error("Error processing wallet payment:", error);
+        Swal.fire({ icon: "error", text: "An error occurred while processing wallet payment.", showConfirmButton: false, timer: 1500 });
+    }
+};
 
 
 

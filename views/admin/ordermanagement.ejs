@@ -141,6 +141,34 @@
         .form-container .create-btn:hover {
             background-color: #0056b3;
         }
+
+        .pagination {
+  justify-content: center;
+        text-align: center;
+        margin-top: 20px;
+        margin-bottom: 20px;
+    }
+
+    .pagination a {
+        display: inline-block;
+        padding: 8px 16px;
+        margin: 0 5px;
+        border: 1px solid #ddd;
+        text-decoration: none;
+        color: black;
+        border-radius: 5px;
+    }
+
+    .pagination a.active {
+        background-color: #84cbcb;
+        color: white;
+        border: 1px solid #84cbcb;
+    }
+
+    .pagination a:hover {
+        background-color: #6ad3d3;
+    }
+
     </style>
 </head>
 <body>
@@ -159,9 +187,9 @@
             <div class="table-container">
                 <!-- <input type="text" placeholder="Search products" style="width: 100%; margin-bottom: 10px; padding: 8px; border-radius: 4px; border: 1px solid #ccc;"> -->
                 <div style="display: flex; gap: 10px; margin-bottom: 10px;">
-                  <input type="text" placeholder="Search products" 
+                  <input id="searchInput" type="text" placeholder="Search by orderId,username ,status" 
                       style="flex: 1; padding: 8px; border-radius: 4px; border: 1px solid #ccc;">
-                  <button style="background-color: blue; color: white; padding: 8px 12px; border: none; border-radius: 4px; cursor: pointer;">
+                  <button id="searchBtn"  style="background-color: blue; color: white; padding: 8px 12px; border: none; border-radius: 4px; cursor: pointer;">
                       Search
                   </button>
               </div>
@@ -197,8 +225,58 @@
                             
                     </tbody>
                 </table>
+
+                <!-- pagination -->
+                <div class="pagination">
+                    <% if (currentPage > 1) { %>
+                        <a href="?page=<%= currentPage - 1 %>" class="prev">&laquo;</a>
+                    <% } %>
+                
+                    <% for (let i = 1; i <= totalPages; i++) { %>
+                        <a href="?page=<%= i %>" class="<%= i === currentPage ? 'active' : '' %>"><%= i %></a>
+                    <% } %>
+                
+                    <% if (currentPage < totalPages) { %>
+                        <a href="?page=<%= currentPage + 1 %>" class="next">&raquo;</a>
+                    <% } %>
+                </div>
+
+
             </div>
         </div>
     </div>
+    <script>
+document.getElementById("searchBtn").addEventListener("click", function () {
+    const query = document.getElementById("searchInput").value.trim();
+
+    fetch(`/admin/searchOrders?query=${query}`)
+        .then(response => response.json())
+        .then(orders => {
+            const tableBody = document.querySelector("tbody");
+            tableBody.innerHTML = ""; // Clear existing rows
+
+            if (orders.length === 0) {
+                tableBody.innerHTML = "<tr><td colspan='6'>No orders found</td></tr>";
+                return;
+            }
+
+            orders.forEach(order => {
+                const row = document.createElement("tr");
+                row.innerHTML = `
+                    <td>${order.orderId}</td>
+                    <td>${order.userId ? order.userId.name : 'N/A'}</td>
+                    <td>${order.status}</td>
+                    <td>${order.paymentMethod}</td>
+                    <td>₹${order.PayableAmount}</td>
+                    <td><button class="btn-view"><a href="/admin/ordermanagement/${order._id}">View</a></button></td>
+                `;
+                tableBody.appendChild(row);
+            });
+        })
+        .catch(error => console.error("Error fetching orders:", error));
+});
+
+
+     </script>
 </body>
 </html>

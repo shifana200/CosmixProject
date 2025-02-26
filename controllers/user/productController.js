@@ -13,64 +13,14 @@ const Cart = require('../../models/cartSchema')
 const Address = require('../../models/addressSchema')
 const Order = require('../../models/orderSchema')
 
-  
-  // const loadShopPage = async (req, res) => {
-  //   try {
-  //     const { category } = req.query;
-  //     console.log("___________________________________________")
-  //     console.log(category)
-      
-  //     const page = parseInt(req.query.page) || 1; 
-  //     const limit = 12;
-  //     const skip = (page - 1) * limit;
-  
-  //     const listedCategories = await Category.find({ isListed: true });
-  
-  //     if (listedCategories.length === 0) {
-  //       console.log("No listed categories found. Rendering shop page with no products.");
-  //       return res.render('shopPage', { products: [], currentPage: page, totalPages: 0 });
-  //     }
-  
-      
-  //     let categoryFilter = {};
-  //     if (category) {
-  //       const categoryDoc = await Category.findOne({ name: category });
-  //       if (categoryDoc) {
-  //         categoryFilter = { category: categoryDoc._id }; // Use category's _id
-  //       }
-  //     }
-
-  //     console.log(categoryFilter)
-  
-  //     // Count total products for pagination
-  //     const totalProducts = await Product.countDocuments({
-  //       isBlocked: false,
-  //       ...categoryFilter, // Apply category filter
-  //       category: { $in: listedCategories.map(cat => cat._id) },
-  //     });
-  
-  //     // Fetch filtered products with pagination
-  //     const products = await Product.find({
-  //       isBlocked: false,
-  //       ...categoryFilter,
-  //       category: { $in: listedCategories.map(cat => cat._id) },
-  //     }).skip(skip).limit(limit);
-  
-  //     const totalPages = Math.ceil(totalProducts / limit); // Calculate total pages
-  
-  //     console.log("Filtered products:", products);
-  
-  //     // Pass currentPage to the template
-  //     res.render('shopPage', { products, currentPage: page, totalPages, category });
-  //   } catch (error) {
-  //     console.error("Error loading shop page:", error.message);
-  //     res.render('shopPage', { products: [], currentPage: 1, totalPages: 0 });
-  //   }
-  // };
+ 
 
   const loadShopPage = async (req, res) => {
     try {
-        const { category, price ,newArrival  , sort} = req.query; // Extract category & price from query params
+        const { category, price ,newArrival  , sort , page =1} = req.query; // Extract category & price from query params
+        const limit = 12; // 12 products per page
+        const skip = (page - 1) * limit;
+
         let categoryFilter = {}; // Category filter
         let priceFilter = {}; // Price filter
         let sortOption = {}; // Sorting option
@@ -148,15 +98,25 @@ const Order = require('../../models/orderSchema')
         console.log("Final Price Filter:", priceFilter);
         console.log("Sort Option:", sortOption);
 
+        const totalProducts = await Product.countDocuments({
+            isBlocked: false,
+            ...categoryFilter,
+            ...priceFilter,
+        });
+
         // 3️⃣ Fetch Products with Filters
         const products = await Product.find({
             isBlocked: false,
             ...categoryFilter,  // Apply category filter
             ...priceFilter      // Apply price filter
-        }).collation({ locale: 'en', strength: 1 }).sort(sortOption); // Apply sorting
+        }).collation({ locale: 'en', strength: 1 }).sort(sortOption).skip(skip) 
+        .limit(limit); // Apply sorting
 
         console.log("Products Found:", products.length);
-        res.render('shopPage', { products });
+        const totalPages = Math.ceil(totalProducts / limit);
+
+        res.render('shopPage', { products , currentPage: parseInt(page),
+            totalPages,});
     } catch (error) {
         console.error("Error in loadShopPage:", error);
         res.status(500).json({ message: "Server Error" });
@@ -166,17 +126,18 @@ const Order = require('../../models/orderSchema')
 
 const searchProducts= async (req, res) => {
     try {
-        const searchTerm = req.query.query;  // Get the search term from query parameter
+        const searchTerm = req.query.query;
+         const limit = 12; // 12 products per page
+        const skip = (page - 1) * limit;  // Get the search term from query parameter
         if (!searchTerm) {
             return res.redirect('/shop');  // If no search term, redirect to the shop page
         }
 
         // Perform search in the product database
         const results = await Product.find({
-            $or: [
-                { productName: { $regex: searchTerm, $options: 'i' } },  // Case-insensitive search in product name
-                { description: { $regex: searchTerm, $options: 'i' } },  // Case-insensitive search in description
-            ]
+        
+                 productName: { $regex: searchTerm, $options: 'i' }   // Case-insensitive search in product name
+            
         });
 
         // Render the shop page with search results

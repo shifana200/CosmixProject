@@ -20,52 +20,70 @@
     }
 
     /* Styling for the login box */
+    
     .login-box {
-      background-color: #84CBCB; /* Set the background color to #84CBCB */
-      padding: 40px;
-      border-radius: 10px;
-      box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.2);
-      width: 300px;
-      text-align: center;
-    }
+            width: 320px;
+            margin: auto;
+            padding: 20px;
+            text-align: center;
+            border: 1px solid #ccc;
+            border-radius: 10px;
+            box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1);
+            font-family: Arial, sans-serif;
+            background-color: #84CBCB;
+        }
 
-    h2 {
-      margin-bottom: 20px;
-      font-size: 24px;
-      color: white; /* Set the text color to white */
-    }
+        /* Style for form elements */
+        .input-field, .password-field {
+            width: 100%;
+            padding: 10px;
+            font-size: 16px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            outline: none;
+            margin-bottom: 15px;
+        }
 
-    /* Styling for the input fields */
-    .input-field {
-      width: 100%;
-      padding: 10px;
-      margin: 10px 0;
-      border: 1px solid #ccc;
-      border-radius: 5px;
-      font-size: 16px;
-    }
+        /* Style for password container */
+        .password-container {
+            position: relative;
+            width: 100%;
+        }
 
-    .input-field:focus {
-      border-color: #4CAF50;
-      outline: none;
-    }
+        /* Style for toggle button */
+        .toggle-password {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            cursor: pointer;
+            outline: none;
+            padding: 5px;
+        }
 
-    /* Styling for the submit button */
-    .submit-btn {
-      background-color: #4CAF50;
-      color: white;
-      border: none;
-      padding: 10px 20px;
-      width: 100%;
-      font-size: 16px;
-      cursor: pointer;
-      border-radius: 5px;
-      margin-top: 10px;
-    }
+        /* Style for eye icon */
+        .toggle-password img {
+            width: 22px;
+            height: 22px;
+        }
 
-    .submit-btn:hover {
-      background-color: #45a049;
-    }
+        /* Style for submit button */
+        .submit-btn {
+            width: 100%;
+            padding: 10px;
+            font-size: 16px;
+            background-color: #19b335;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .submit-btn:hover {
+            background-color: #359f2f;
+        }
   </style>
 </head>
 <body>
@@ -74,11 +92,19 @@
   <div class="login-box">
     <h2>Admin Login</h2>
     <form action="/admin/login" method="POST">
-      <input type="email" name="email" class="input-field" placeholder="Email Address" >
-      <input type="password" name="password" class="input-field" placeholder="Password" >
-      <button type="submit" class="submit-btn">Login</button>
+        <input type="email" name="email" class="input-field" placeholder="Email Address" required>
+
+        <label for="password" class="form-label"></label>
+        <div class="password-container">
+            <input type="password" class="password-field" name="password" id="password" placeholder="Enter your password" required>
+            <button type="button" class="toggle-password" id="togglePassword">
+                <img id="eyeIcon" src="https://cdn-icons-png.flaticon.com/512/565/565655.png" alt="Show">
+            </button>
+        </div>
+
+        <button type="submit" class="submit-btn">Login</button>
     </form>
-  </div>
+</div>
 
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
@@ -101,6 +127,19 @@
       }
     });
   }
+
+  document.getElementById("togglePassword").addEventListener("click", function () {
+            let passwordField = document.getElementById("password");
+            let eyeIcon = document.getElementById("eyeIcon");
+
+            if (passwordField.type === "password") {
+                passwordField.type = "text";
+                eyeIcon.src = "https://cdn-icons-png.flaticon.com/512/159/159604.png"; // Eye open icon
+            } else {
+                passwordField.type = "password";
+                eyeIcon.src = "https://cdn-icons-png.flaticon.com/512/565/565655.png"; // Eye closed icon
+            }
+        });
 </script>
 
 

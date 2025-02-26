@@ -38,6 +38,8 @@ const addProducts = async(req,res)=>{
     try {
         
         const products = req.body;
+        console.log('99999999999')
+        console.log(req.body)
         
         
         const productExists = await Product.findOne({
@@ -87,6 +89,65 @@ const addProducts = async(req,res)=>{
 
 
 
+// const addProducts = async (req, res) => {
+//     try {
+
+//         console.log("-------------------------------------------------------------------")
+//       const products = req.body;
+
+//       console.log('Received product data:', products);
+//       console.log('Received files:', req.files);
+  
+//       const productExists = await Product.findOne({ productName: products.productName });
+//       if (productExists) {
+//         return res.status(400).json({ error: 'Product already exists' });
+//       }
+  
+//       const images = [];
+//       if (req.files && req.files.length > 0) {
+//         for (let i = 0; i < req.files.length; i++) {
+//           const originalImagePath = req.files[i].path;
+//           const resizedImagePath = path.join('public', 'uploads', 'product-images', req.files[i].filename);
+//           try {
+//             await sharp(originalImagePath).resize({ width: 440, height: 440 }).toFile(resizedImagePath);
+//             images.push(req.files[i].filename);
+//           } catch (resizeError) {
+//             console.error('Error resizing image:', resizeError);
+//             return res.status(500).json({ error: 'Error resizing image' });
+//           }
+//         }
+//       }
+  
+//       const categoryId = await Category.findOne({ name: products.category });
+//       if (!categoryId) {
+//         return res.status(400).json({ error: 'Invalid category name' });
+//       }
+  
+//       const newProduct = new Product({
+//         productName: products.productName,
+//         description: products.description,
+//         details: products.details,
+//         category: categoryId._id,
+//         regularPrice: products.regularPrice,
+//         salePrice: products.salePrice,
+//         createdOn: new Date(),
+//         quantity: products.quantity,
+//         productImage: images,
+//         status: 'Available',
+//       });
+  
+//       await newProduct.save();
+//       return res.redirect('/admin/productmanagement');
+//     } catch (error) {
+//       console.error('Error saving product:', error);
+//       return res.status(500).json({ error: 'Internal server error' });
+//     }
+//   };
+  
+
+
+
+
 
 const blockProduct = async(req,res)=>{
     try {
@@ -114,7 +175,7 @@ const unblockProduct = async (req,res)=>{
 const getProducts = async (req, res) => {
     try {
         const page = parseInt(req.query.page) || 1; // Default to page 1 if no page is provided
-        const limit = parseInt(req.query.limit) || 5; // Default to 10 items per page if no limit is provided
+        const limit = parseInt(req.query.limit) || 7; // Default to 10 items per page if no limit is provided
         const skip = (page - 1) * limit;
 
         // Query the products for the current page
@@ -219,6 +280,9 @@ const editProduct = async(req,res)=>{
 }
 
 
+
+
+
 const deleteSingleImage = async(req,res)=>{
     try {
         
@@ -239,6 +303,28 @@ const deleteSingleImage = async(req,res)=>{
     }
 }
 
+const searchProducts =  async (req, res) => {
+    try {
+        const query = req.query.query;
+        if (!query) {
+            return res.json([]); // Return an empty array if no query is provided
+        }
+
+        // Perform a search in MongoDB for product name or category
+        const products = await Product.find({
+            $or: [
+                { productName: { $regex: query, $options: "i" } },  // Case-insensitive search
+                { "category.name": { $regex: query, $options: "i" } }
+            ]
+        }).populate("category"); // Ensure category is populated
+
+        res.json(products);
+    } catch (error) {
+        console.error("Error searching products:", error);
+        res.status(500).json({ error: "Internal Server Error" });
+    }
+}
+
 module.exports ={
     getaddProduct,
     addProducts, 
@@ -248,6 +334,7 @@ module.exports ={
     getEditProduct,
     editProduct,
     deleteSingleImage,
+    searchProducts,
    
 
 }

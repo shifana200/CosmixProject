@@ -1,5 +1,13 @@
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
+<style>
+    .sidebar ul li a.active {
+  background-color: #84CBCB;
+  color: white;
+  border-radius: 4px;
+  padding: 8px 12px;
+}
 
+</style>
 <div class="sidebar">
     <ul>
         <li><a href="http://localhost:4000/dashboard" ><i class="fas fa-tachometer-alt"></i>  Dashboard</a></li>
@@ -11,4 +19,16 @@
         
     </ul>
 </div>
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+  const currentPath = window.location.href; // Get full URL
+  const sidebarLinks = document.querySelectorAll(".sidebar ul li a");
 
+  sidebarLinks.forEach(link => {
+    if (link.href === currentPath) {
+      link.classList.add("active");
+    }
+  });
+});
+
+</script>

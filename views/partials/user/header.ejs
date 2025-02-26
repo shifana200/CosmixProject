@@ -1,3 +1,11 @@
+<style>
+    .menu-1 ul li a.active {
+  color: #84CBCB; 
+  font-weight: bold; /* Optional: Make it stand out */
+}
+
+</style>
+
 <nav class="colorlib-nav" role="navigation">
     <div class="top-menu">
         <div class="container">
@@ -23,8 +31,7 @@
                         <li><a href="http://localhost:4000">Home</a></li>
                         <li><a href="http://localhost:4000/shop">SHOP</a></li>
 
-                        <!-- <li><a href="http://localhost:4000/skincare">SKIN</a></li> -->
-                        <!-- <li><a href="http://localhost:4000/haircare">HAIR</a></li> -->
+          
                         <li><a href="http://localhost:4000/about">ABOUT</a></li>
                         <li><a href="http://localhost:4000/contact">CONTACT</a></li>
 
@@ -92,5 +99,17 @@
         // Call the function to update the auth button when the page loads
         updateAuthButton();
     });
+
+    document.addEventListener("DOMContentLoaded", function () {
+  const currentPath = window.location.href; // Get the full URL
+  const menuLinks = document.querySelectorAll(".menu-1 ul li a");
+
+  menuLinks.forEach(link => {
+    if (link.href === currentPath) {
+      link.classList.add("active");
+    }
+  });
+});
+
 </script>
 

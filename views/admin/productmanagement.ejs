@@ -353,6 +353,54 @@ function confirmAction(url, message) {
   });
 }
 
+document.querySelector(".btn-search").addEventListener("click", function () {
+    const searchInput = document.querySelector("input[type='text']").value.trim();
+
+    fetch(`http://localhost:4000/admin/searchProducts?query=${encodeURIComponent(searchInput)}`)
+        .then(response => {
+            if (!response.ok) {
+                throw new Error("Network response was not ok");
+            }
+            return response.json();
+        })
+        .then(data => {
+            const tbody = document.querySelector("tbody");
+            tbody.innerHTML = ""; // Clear existing table data
+
+            if (data.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="7">No products found</td></tr>`;
+                return;
+            }
+
+            data.forEach(product => {
+                const row = document.createElement("tr");
+                row.innerHTML = `
+                    <td>${product.productName}</td>
+                    <td>${product.category ? product.category.name : "No Category"}</td>
+                    <td>
+                        ${product.productImage && product.productImage.length > 0 
+                            ? `<img src="/uploads/${product.productImage[0]}" alt="Product Image" style="width: 50px; height: auto;">`
+                            : "<p>No Image</p>"
+                        }
+                    </td>
+                    <td>${product.regularPrice}</td>
+                    <td>${product.salePrice}</td>
+                    <td>
+                        <button class="${product.isBlocked ? "btn-unblock" : "btn-block"}" 
+                            onclick="confirmAction('/admin/${product.isBlocked ? "unblockProduct" : "blockProduct"}?id=${product._id}', 
+                            'Are you sure you want to ${product.isBlocked ? "list" : "unlist"} this product?')">
+                            ${product.isBlocked ? "List" : "Unlist"}
+                        </button>
+                    </td>
+                    <td><button class="btn-update"><a href="/admin/editProduct?id=${product._id}">Update</a></button></td>
+                `;
+                tbody.appendChild(row);
+            });
+        })
+        .catch(error => console.error("Error fetching products:", error));
+});
+
+
     </script>
 </body>
 </html>

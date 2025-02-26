@@ -39,19 +39,19 @@ async (accessToken,refreshToken,profile,done)=>{
 ))
 
 
-passport.serializeUser((user,done)=>{
-    done (null,{id: user._id , email :user.email, googleId: user.googleId})
-
+passport.serializeUser((user, done) => {
+    done(null, user._id); // Pass only the user._id
 });
 
-passport.deserializeUser((id,done)=>{
-    User.findById(id)
-    .then(user=>{
-        done(null,user)
-    })
-    .catch(err =>{
-        done(err,null)
-    })
-})
+
+passport.deserializeUser((id, done) => {
+    User.findById(id) // Use the ObjectId directly to find the user
+        .then(user => {
+            done(null, user);
+        })
+        .catch(err => {
+            done(err, null);
+        });
+});
 
 module.exports = passport;

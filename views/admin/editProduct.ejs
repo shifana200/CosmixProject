@@ -1,4 +1,4 @@
-
+<html>
 <%- include("../../views/partials/admin/header") %>
 <head>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -218,6 +218,8 @@
    }
 </style>
 
+<body>
+    
 
  
 
@@ -298,6 +300,8 @@
         <div class="row mb-4" style="overflow: hidden;">
             <!-- Choose File Options -->
 
+            <input type="hidden" id="existingImages" value="<%= product.productImage.length %>">
+
              <!-- image 1 -->
             <div class="col-md-3">
                 <img src="/uploads/product-images/<%=product.productImage[0]%>" alt="" id="imgView1"         onclick="deleteCurrentImage('<%=product.productImage[0]%>', '<%=product._id%>')"
@@ -355,7 +359,7 @@
 
         <!-- Submit Button -->
         <div class="text-center">
-            <button class="btn btn-md rounded font-sm hover-up"  type="button" onclick="validateAndSubmit()">Update</button>
+            <button class="btn btn-md rounded font-sm hover-up"  type="button" onclick="validateAndSubmit()" >Update</button>
         </div>
     </form>
 </section>
@@ -391,7 +395,8 @@ function deleteSingleImage(imageId, productId) {
 
 
 
- function validateAndSubmit() {
+ 
+function validateAndSubmit() {
  if (validateForm()) {
     document.forms[0].submit();
  }
@@ -573,7 +578,6 @@ function updateProduct(productId) {
  fetch('/admin/updateProduct', {
      method: 'POST',
      headers: {
-         'Content-Type': 'application/json', // Make sure the content is in JSON format
      },
      body: formData, // Send the form data, including images
     })
@@ -603,8 +607,9 @@ function updateProduct(productId) {
             const saleprice = document.getElementsByName('salePrice')[0].value;
             
             const category = document.getElementsByName('category')[0].value;
-            const images = document.getElementById('input1')
             const quantity=document.getElementsByName('quantity')
+            const existingImages = document.getElementById("existingImages").value; // Get the existing images count
+            const images = document.getElementById('input1'); // New image upload input
  imageDatas = document.getElementById("imageDatas")?.value;
             let isValid = true;    
             if (name.trim() === "") {
@@ -635,16 +640,19 @@ function updateProduct(productId) {
                 isValid = false;
             }
            
-          
-            if (!imageDatas && images.files.length === 0) {
-                displayErrorMessage("images-error",'Please select an image.');
-                isValid = false;
-            }
+           
+
+// Only require an image if there are NO existing images and NO new images
+if (parseInt(existingImages) === 0 && images.files.length === 0) {
+    displayErrorMessage("images-error", "Please select at least one image.");
+    isValid = false;
+}
+
             return isValid;
         }
        
         function displayErrorMessage(elementId, message) {
-            var errorElement = document.querySelector(error-message);
+            var errorElement = document.querySelector(".error-message");
             errorElement.innerText = message;
             errorElement.style.display = "block";
         }
@@ -664,3 +672,7 @@ function updateProduct(productId) {
       
         
     </script>
+
+
+</body>
+</html>

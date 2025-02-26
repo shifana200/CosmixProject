@@ -52,13 +52,30 @@ const orderSchema = new Schema({
     status:{
         type:String,
         required:true,
-        enum:['Pending','Ordered','Shipped','Delivered','Cancelled','Returned','Paid']
+        enum:['Pending','Ordered','Shipped','Delivered','Cancelled','Returned','Return Pending' ,'Cancellation Pending','Request Rejected']
 
     },
     CancellationReason:{
         type:String,
         default:"None"
     },
+    returnReason: {
+        type: String,
+        default: null
+    },
+    returnProcessed: {
+        type: Boolean,
+        default: false  // To track if return has been processed
+    },
+    refundStatus: {
+        type: String,
+        enum: ['Not Initiated', 'Processing', 'Completed', 'Failed'],
+        default: 'Not Initiated'
+    }, refundedAmount: {
+        type: Number,
+        default: 0  // To track the refunded amount in case of return or cancellation
+    },
+
     createdOn:{
         type:Date,
         default:Date.now,
@@ -87,9 +104,7 @@ const orderSchema = new Schema({
          razorpaySignature: {
              type: String 
             },
-         returnReason:{
-            type: String,default:null
-        },
+        
         paymentMethod :{
             type:String,
             enum:["COD","Online Payment","Wallet"]

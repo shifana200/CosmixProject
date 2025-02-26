@@ -3,21 +3,39 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link href="https://fonts.googleapis.com/css?family=Montserrat:300,400,500,600,700" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css?family=Rokkitt:100,300,400,700" rel="stylesheet">
-    <link rel="stylesheet" href="css/animate.css">
-    <link rel="stylesheet" href="css/icomoon.css">
-    <link rel="stylesheet" href="css/ionicons.min.css">
-    <link rel="stylesheet" href="css/bootstrap.min.css">
-    <link rel="stylesheet" href="css/magnific-popup.css">
-    <link rel="stylesheet" href="css/flexslider.css">
-    <link rel="stylesheet" href="css/owl.carousel.min.css">
-    <link rel="stylesheet" href="css/owl.theme.default.min.css">
-    <link rel="stylesheet" href="css/bootstrap-datepicker.css">
-    <link rel="stylesheet" href="fonts/flaticon/font/flaticon.css">
-    <link rel="stylesheet" href="/css/style.css">
-    <title>Order Details</title>
 
+    
+	<link href="https://fonts.googleapis.com/css?family=Montserrat:300,400,500,600,700" rel="stylesheet">
+	<link href="https://fonts.googleapis.com/css?family=Rokkitt:100,300,400,700" rel="stylesheet">
+	
+	<!-- Animate.css -->
+	<link rel="stylesheet" href="css/animate.css">
+	<!-- Icomoon Icon Fonts-->
+	<link rel="stylesheet" href="css/icomoon.css">
+	<!-- Ion Icon Fonts-->
+	<link rel="stylesheet" href="css/ionicons.min.css">
+	<!-- Bootstrap  -->
+	<link rel="stylesheet" href="css/bootstrap.min.css">
+
+	<!-- Magnific Popup -->
+	<link rel="stylesheet" href="css/magnific-popup.css">
+
+	<!-- Flexslider  -->
+	<link rel="stylesheet" href="css/flexslider.css">
+
+	<!-- Owl Carousel -->
+	<link rel="stylesheet" href="css/owl.carousel.min.css">
+	<link rel="stylesheet" href="css/owl.theme.default.min.css">
+	
+	<!-- Date Picker -->
+	<link rel="stylesheet" href="css/bootstrap-datepicker.css">
+	<!-- Flaticons  -->
+	<link rel="stylesheet" href="fonts/flaticon/font/flaticon.css">
+
+	<!-- Theme style  -->
+	<link rel="stylesheet" href="/css/style.css">
+
+    <title>Dashboard Page</title>
     <style>
         /* General Reset */
         * {
@@ -42,7 +60,7 @@
         }
 
         .sidebar {
-            width: 200px;
+            width: 220px;
             background-color: #ffffff;
             border-right: 1px solid #ddd;
             padding: 20px;
@@ -68,315 +86,673 @@
 
         .sidebar a.active, .sidebar a:hover {
             background-color: #84CBCB;
-            color: rgb(255, 255, 255);
-        }
-
-       
-        /* Responsive Design */
-        @media (max-width: 768px) {
-            .sidebar {
-                width: 100%;
-                margin-bottom: 20px;
-            }
-
-            .content {
-                padding: 15px;
-            }
-
-            .product-card {
-                flex-direction: column;
-                align-items: center;
-                text-align: center;
-                padding-bottom: 10px;
-            }
-
-            .product-card img {
-                margin-bottom: 10px;
-                height: 50px;
-                width: 50px;
-            }
-
-         .cancel-btn{
-            background-color: black;
-         }
-
-            .footer-container {
-                flex-direction: column;
-                align-items: center;
-                text-align: center;
-            }
-
-            .menu-1 {
-                display: block;
-            }
-
-            .menu-1 ul {
-                padding: 10px;
-            }
-
-            .menu-1 li {
-                display: block;
-                margin: 5px 0;
-            }
-
-            .icon-user {
-                font-size: 20px;
-            }
-        }
-
-        /* General Styles */
-       
-
-        .colorlib-nav {
-            background-color: #84CBCB;
             color: white;
         }
 
-        .top-menu .container {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+        /* Main Content */
+        .content {
+            flex: 1;
+            padding: 20px;
+            background-color: #ffffff;
         }
 
-        #colorlib-logo a {
-            color: white;
-            text-decoration: none;
-            font-size: 24px;
+        .content h2 {
+            margin-bottom: 15px;
+        }
+
+        .content p {
+            color: #555;
+            line-height: 1.6;
+        }
+
+        .dashboard-header {
             font-weight: bold;
+            margin-bottom: 10px;
         }
-
-        .menu-1 {
-            display: flex;
-            justify-content: flex-end;
-        }
-
-        .menu-1 ul {
-            list-style: none;
-            margin: 0;
-            padding: 0;
-        }
-
-        .menu-1 li {
-            display: inline;
-        }
-
-        .menu-1 li a {
-            color: white;
-            text-decoration: none;
-            font-size: 18px;
-            padding: 10px 20px;
-            transition: background-color 0.3s;
-        }
-
-        .menu-1 li a:hover {
-            background-color: #333;
-            border-radius: 5px;
-        }
-
-        .cart {
-            display: flex;
-            align-items: center;
-        }
-        #button-cancel{
-            background-color: rgb(218, 14, 14);
-            color: white;
-            border: none;
-            padding: 5px;
-            border-radius: 2px;
-        }
-        .card-header{
-            font-size: 20px;
-        }
-
-        .cancellation-reason-container {
-    padding: 20px;
-    border: 1px solid #ddd;
-    background-color: #f9f9f9;
-    width: 100%;
-    margin: 25px auto;
-    border-radius: 8px;
-    
+        .user-details-form {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
 }
 
-.cancellation-reason-container h3 {
-    text-align: center;
-    font-size: 1.5em;
-    margin-bottom: 15px;
+label {
+  font-weight: bold;
+  margin: 10px 0 5px;
 }
 
-.cancellation-reason-container input {
-    width: 100%;
-    padding: 10px;
-    margin-bottom: 15px;
-    border-radius: 4px;
-    border: 1px solid #ccc;
+input, textarea, select {
+  width: 100%;
+  padding: 8px;
+  margin-bottom: 15px;
+  border: 1px solid #cccccc;
+  border-radius: 4px;
+  box-sizing: border-box;
 }
 
-.buttons {
+textarea {
+  resize: vertical;
+  height: 80px;
+}
+
+.gender-container {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 15px;
+}
+
+.gender-label {
+  font-size: 16px;
+  font-weight: 400;
+  margin-bottom: 10px;
+}
+
+
+.gender-options {
     display: flex;
-    justify-content: space-between;
+    align-items: center; /* Aligns the radio buttons and labels vertically */
+    gap: 20px; /* Adds spacing between Male and Female options */
 }
 
-.buttons button {
-    padding: 10px 15px;
-    border: none;
-    border-radius: 4px;
+.gender-option {
+    display: flex;
+    align-items: center; /* Ensures the radio button and label are vertically aligned */
+}
+
+.gender-options input {
+    margin-right: 5px; /* Adds space between radio button and label */
     cursor: pointer;
 }
 
-.buttons .btn-danger {
-    background-color: #f44336;
+.gender-options label{
+    margin-top: -9px;
+}
+
+
+
+
+
+
+.submit-btn {
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  padding: 10px 15px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+        /* Footer */
+        .footer {
+            background-color: #84CBCB;
+            padding: 20px;
+            color: #333;
+        }
+
+        .footer-container {
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            color: white;
+        }
+
+        .footer-column {
+            margin-bottom: 10px;
+        }
+
+        .footer h4 {
+            margin-bottom: 10px;
+            font-size: 16px;
+            color: #fff;
+        }
+
+        .footer ul {
+            list-style: none;
+        }
+
+        .footer ul li {
+            margin-bottom: 5px;
+        }
+
+        .footer ul li a {
+            text-decoration: none;
+            color: #ffffff;
+            transition: color 0.3s;
+        }
+
+        .footer ul li a:hover {
+            color: #0056b3;
+        }
+
+        .newsletter {
+            display: flex;
+            margin-top: 10px;
+        }
+
+        .newsletter input {
+            padding: 10px;
+            flex: 1;
+            border: none;
+            border-radius: 4px 0 0 4px;
+        }
+
+        .newsletter button {
+            padding: 10px 15px;
+            background-color: black;
+            color: white;
+            border: none;
+            border-radius: 0 4px 4px 0;
+            cursor: pointer;
+        }
+
+        .newsletter button:hover {
+            opacity: 0.8;
+        }
+
+
+        .dashboard-header h1{
+            color: #52cbcb;
+        }
+
+        .dashboard-header li{
+            list-style: none;
+            padding: 20px 0px;
+            color: black;
+        }
+
+        .dashboard-header button{
+            padding: 8px 20px;
+
+            color: rgb(255, 255, 255);
+            background-color: #84CBCB;
+            border: none;
+        }
+        .edit-btn {
+            background-color: #4CAF50;
+  color: white;
+  border: none;
+  padding: 10px 15px;
+  border-radius: 4px;
+  cursor: pointer;
+
+}
+
+
+/* Order Header (Full-Width) */
+.order-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    background: #122436;
+    color: white;
+    padding: 15px 20px;
+    font-size: 16px;
+}
+
+.order-header p {
+    margin: 0;
     color: white;
 }
 
-.buttons .btn-secondary {
-    background-color: #757575;
+.left {
+    text-align: left;
+}
+
+.right {
+    text-align: right;
+}
+
+
+
+/* Products Section */
+.products-section {
+    background: white;
+    padding: 20px;
+    margin-top: 15px;
+    border-radius: 8px;
+    box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.products-section h2 {
+    color: #444;
+    margin-bottom: 10px;
+}
+
+/* Product Cards */
+.product-card {
+    display: flex;
+    align-items: center;
+    background: #ffffff;
+    padding: 10px;
+    border-radius: 8px;
+    margin-bottom: 10px;
+    box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.product-card img {
+    width: 80px;
+    height: 80px;
+    border-radius: 5px;
+    margin-right: 15px;
+}
+
+.product-info {
+    flex-grow: 1;
+}
+
+.product-info h4 {
+    margin: 0;
+    color: #333;
+}
+
+.product-info p {
+    margin: 3px 0;
+    color: #666;
+    font-size: 14px;
+}
+
+/* Address & Payment Info - Two Columns */
+.details-section {
+    display: flex;
+    gap: 15px;
+    margin-top: 15px;
+}
+
+.shipping-info, .payment-details {
+    flex: 1;
+    background: white;
+    padding: 15px;
+    border-radius: 8px;
+    box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.shipping-info h2, .payment-details h2 {
+    color: #444;
+    margin-bottom: 10px;
+}
+
+.shipping-info p, .payment-details p {
+    font-size: 14px;
+    color: #555;
+}
+
+/* Highlight total price */
+.payment-details h3 {
+    color: #e74c3c;
+    margin-top: 10px;
+}
+    
+.order-actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 15px;
+    padding: 10px 20px;
+}
+
+.order-text {
+    font-size: 16px;
+    color: white;
+    margin: 0;
+}
+
+.button-group {
+    display: flex;
+    gap: 10px;
+}
+
+.cancel-btn, .return-btn {
+    padding: 7px 10px;
+    border: none;
+    color: white;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 14px;
+    width: auto;
+    min-width: 120px;
+}
+
+.cancel-btn {
+    background: red;
+}
+
+.return-btn {
+    background: green; /* Changed to green */
+}
+
+.cancel-btn:hover {
+    background: #c0392b;
+}
+
+.return-btn:hover {
+    background: #27ae60;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .order-actions {
+        flex-direction: column;
+        text-align: center;
+    }
+
+    .button-group {
+        margin-top: 10px;
+    }
+
+    .cancel-btn, .return-btn {
+        width: 100%;
+    }
+}
+.order-tracker {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    max-width: 800px;
+    margin: 20px auto;
+}
+
+.status {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    color: #aaa;
+    font-size: 14px;
+    font-weight: bold;
+    text-align: center;
+    position: relative;
+    flex: 1;
+}
+
+.status .icon {
+    font-size: 24px;
+    background: #ddd;
+    padding: 10px;
+    border-radius: 50%;
+    margin-bottom: 5px;
+    transition: 0.3s;
+}
+
+.line {
+    flex: 1;
+    height: 3px;
+    background: #ddd;
+}
+
+.status.active .icon {
+    background: #2ecc71; /* Green for active */
     color: white;
 }
 
-.card-price-card{
-margin: 25px auto;}
+.status.active p {
+    color: #2ecc71;
+}
+
+/* Responsive Design */
+@media (max-width: 600px) {
+    .order-tracker {
+        flex-direction: column;
+    }
+
+    .line {
+        width: 3px;
+        height: 30px;
+    }
+}
+
+.status-button-container {
+    display: flex;
+    justify-content: flex-end; /* Aligns the button to the right */
+    margin-top: 15px;
+}
+
+.view-status-btn {
+    background: #84CBCB; /* Blue color */
+    color: white;
+    border: none;
+    padding: 7px 10px;
+    border-radius: 5px;
+    font-size: 12px;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.view-status-btn:hover {
+    background: #84CBCB;
+}
+
+.input-error {
+    border: 1px solid red;
+    background-color: #ffe6e6;
+}
+
+.errorMessage {
+    color: red;
+    font-size: 14px;
+    margin-top: 5px;
+}
+
+.order-tracker {
+
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+    .status {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        color: gray; /* Default color */
+    }
+    .line {
+        width: 30px;
+        height: 3px;
+        background-color: gray; /* Default color */
+    }
+    .active {
+        color: green !important;
+    }
+    .active-line {
+        background-color: green !important;
+    }
 
     </style>
-
-
 </head>
 <body>
-  
- 
-
-<%- include("../../views/partials/user/userheader.ejs")%>
+    <%- include("../../views/partials/user/userheader.ejs")%>
 
 
-
-
-
-
-
-
-    
+    <!-- Container with Sidebar and Main Content -->
     <div class="container">
         <!-- Sidebar -->
-    <%- include("../../views/partials/user/usersidebar.ejs")%>
-      
+        <%- include("../../views/partials/user/usersidebar.ejs")%>
+
+
         <!-- Main Content -->
-        <div class="container1" style="width: 100%; padding-left: 20px;">
-            <h1>Order Details</h1>
         
-            <!-- Product Details Section -->
-            <div class="card">
-              <p>  ORDER ID : <%= orderDetails.orderId %></p>
-              <div class="card-header">Product Details</div>
-              <% orderDetails.orderedItems.forEach((item) => { %>
-                <div class="product-card" style="display: flex;">
-                  <% if (item.product && item.product.productImage && item.product.productImage.length > 0) { %>
-                    <img src="/uploads/<%= item.product.productImage[0] %>" alt="Product Image" style="height: 60px; width: 50px;">
-                  <% } else { %>
-                    <img src="/uploads/default-image.jpg" alt="No Image" style="height: 60px; width: 50px;">
-                  <% } %>
-
-                <div class="product-details">
-                  <h4><%=item.product.productName%></h4>
-                  <p>Quantity: <%= item.quantity%></p>
-                  <p>Price: ₹ <%= item.price%></p>
-                  <p>Total Price: ₹ <%= item.quantity * item.price%></p>
-
-
-                </div>
-              </div>
-              <%})%>
-        
-             
-        
-              <!-- Cancel Button -->
-              
-            </div>
-           
-
-
-        <div>
-            <div style="display: flex; justify-content: space-between; padding: 5px;">
-                <h6>Need to cancel or return the order?</h6>
-                <% if (orderDetails.status === 'Cancelled') { %>
-                    <span>Cancellation Initiated</span>
-                <% } else if (orderDetails.status === 'Returned') { %>
-                    <span>Return Initiated</span>
-                <% } else { %>
-                    <button id="button-cancel" class="cancel-btn">Cancel Order</button>
-                    <button id="button-return" class="return-btn">Return Order</button>
-                <% } %>
-            </div>
-            
-            <!-- Cancellation Section -->
-            <div>
-                <div id="reasondiv" class="cancellation-reason-container" style="display: none;">
-                    <h3>Reason for Cancellation</h3>
-                    <form id="cancel-form" action="/cancel-order?id=<%= orderDetails._id %>" method="POST">
-                        <input type="text" id="cancellation-reason" placeholder="Enter reason for cancellation" name="cancellationReason" />
-                        <input type="hidden" name="orderId" id="orderId" value="<%= orderDetails.orderId %>" />
-            
-                        <div class="buttons">
-                            <button type="button" id="go-back-cancel" class="btn btn-secondary">Go Back</button>
-                            <button type="submit" id="cancel-order" class="btn btn-danger">Cancel Order</button>
-                        </div>
-                    </form>
-                </div>
-            </div>
-            
-            <!-- Return Section -->
-            <div>
-                <div id="return-div" class="return-reason-container" style="display: none;">
-                    <h3>Reason for Return</h3>
-                    <form id="return-form" action="/return-order?id=<%= orderDetails._id %>" method="POST">
-                        <input type="text" id="return-reason" placeholder="Enter reason for return" name="returnReason" />
-                        <input type="hidden" name="orderId" id="orderId" value="<%= orderDetails.orderId %>" />
-            
-                        <div class="buttons">
-                            <button type="button" id="go-back-return" class="btn btn-secondary">Go Back</button>
-                            <button type="submit" id="return-order" class="btn btn-warning">Return Order</button>
-                        </div>
-                    </form>
-                </div>
-            </div>
-            
-            
-        </div>
-
-        
-            <!-- Price Details Section -->
-            <div class="card-price-card">
-              <div class="card-header">Price Details</div>
-              <p>Total Amount: ₹ <%= orderDetails.totalPrice%></p>
-              <p>Discount: ₹ <%= orderDetails.totalPrice * 3 /100 %></p>
-
-              <p>Shipping Charge: ₹ 50</p>
-              <p>GST: ₹15</p>
-
-              <p>Payable Amount: ₹ <%= orderDetails.PayableAmount + 15 - orderDetails.totalPrice *3/100%></p>
-            </div>
-        
-            <!-- Shipping Details Section -->
-            <% if (addressDetails) {%>
-                
-            <div class="card shipping-card">
-              <div class="card-header">Shipping Details</div>
-              <p> Address Type : <%=addressDetails.addressType%> <br>
-                LandMark : <%= addressDetails.landMark%> <br>
-                <%= addressDetails.city%> , <%= addressDetails.district%> , <%= addressDetails.state%> - <%= addressDetails.pincode%></p>
-              <p>Contact Details : <%=addressDetails.phone%> <br>
-                Alternative Phone number : <%= addressDetails.altPhone%></p>
-            </div>
-          </div>
-          <%} else {%>
-            <h6>No Address Available</h6>
-            <%}%>
           
            
+        <div class="content">
 
             
+            <div class="order-header">
+                <p class="left"><strong>Order ID:</strong> <%= orderDetails.orderId %></p>
+                <p class="right"><strong>Payment Method:</strong> <%= orderDetails.paymentMethod %></p>
+            </div>
+            
+            
+
+    <!-- Products Section -->
+    <div class="products-section">
+        <h4>Product Details</h4>
+
+        <% orderDetails.orderedItems.forEach((item) => { %>
+
+        <div class="product-card">
+            <% if (item.product && item.product.productImage && item.product.productImage.length > 0) { %>
+                <img src="/uploads/<%= item.product.productImage[0] %>" alt="Product Image" style="height: 60px; width: 50px;">
+              <% } else { %>
+                <img src="/uploads/default-image.jpg" alt="No Image" style="height: 60px; width: 50px;">
+              <% } %>
+             <div class="product-info">
+                <h5><%=item.product.productName%></h5>
+                <p>Price: ₹ <%= item.price%></p>
+
+                <p>Quantity: <%= item.quantity%></p>
+                <p>Total Price: ₹ <%= item.quantity * item.price%></p>
+
+            </div>
+            
+        </div>
+        <%})%>
+
+
+        <div class="status-button-container">
+            <button class="view-status-btn" id="statusBtn">View Status</button>
         </div>
     </div>
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <div class="order-tracker" id="viewStatus" style="display: none;">
+        <div class="status" data-status="Ordered">
+            <i class="icon fa fa-shopping-cart"></i>
+            <p>Ordered</p>
+        </div>
+        <div class="line"></div>
+        <div class="status" data-status="Shipped">
+            <i class="icon fa fa-truck"></i>
+            <p>Shipped</p>
+        </div>
+        <div class="line"></div>
+        <div class="status" data-status="Delivered">
+            <i class="icon fa fa-box"></i>
+            <p>Delivered</p>
+        </div>
+        <div class="line"></div>
+        <div class="status" id="finalStatus">
+            <i class="icon fa fa-times-circle"></i>
+            <p id="finalStatusText">Cancelled</p>
+        </div>
+    </div>
+
+    <div class="order-actions">
+        <% if (orderDetails.status === 'Cancelled' || orderDetails.status === 'Returned') { %>
+            <p style="color: red;">Your order is <%= orderDetails.status%></p>
+            <% } else {%>
+
+        <p class="order-text">Do you need to cancel or return the order?</p>
+        <%}%>
+
+        <div class="button-group">
+            <% if (orderDetails.status === 'Cancellation Pending') { %>
+                <span>Cancellation Initiated</span>
+            <% } else if (orderDetails.status === 'Return Pending') { %>
+                <span>Return Initiated</span>
+            <% } else { %>
+
+                <% if (orderDetails.status === "Ordered" || orderDetails.status === "Shipped")  { %>
+                    <button id="button-cancel" class="cancel-btn">Cancel Order</button>
+                <% } %>
+
+                
+                <% 
+                    const orderCreatedAt = new Date(orderDetails.createdAt);
+                    const returnDeadline = new Date(orderCreatedAt);
+                    returnDeadline.setDate(returnDeadline.getDate() + 7);
+                    const isReturnExpired = new Date() > returnDeadline;
+                    %>
+                
+                <% if (orderDetails.status === "Delivered"  && !isReturnExpired) { %>
+                    <button id="button-return" class="return-btn">Return Order</button>
+                    <% } else if (isReturnExpired) { %>
+                        <p>Return period expired</p>
+                    <% } %>              
+            <% } %>
+        </div>
+    </div>
+    <div>
+        <!-- cancel div -->
+        <div id="reasondiv" class="cancellation-reason-container" style="display: none;">
+            <h3>Reason for Cancellation</h3>
+            <form id="cancel-form" action="/cancel-order?id=<%= orderDetails._id %>" method="POST">
+                <input type="text" id="cancellation-reason" placeholder="Enter reason for cancellation" name="cancellationReason" />
+                <input type="hidden" name="orderId" id="orderId" value="<%= orderDetails.orderId %>" />
+                <div class="errorMessage" id="cancel-errorMessage" style="color: red; font-size: 14px; display: none;">
+                    Enter a valid reason.
+                </div>
+    
+                <div class="buttons">
+                    <button type="button" id="go-back-cancel" class="btn btn-secondary">Go Back</button>
+                    <button type="submit" id="cancel-order" class="btn btn-danger">Cancel Order</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    <!-- return div -->
+
+    <div>
+        <div id="return-div" class="return-reason-container" style="display: none;">
+            <h3>Reason for Return</h3>
+            <form id="return-form" action="/return-order?id=<%= orderDetails._id %>" method="POST">
+                <input type="text" id="return-reason" placeholder="Enter reason for return" name="returnReason" />
+                <input type="hidden" name="orderId" id="orderId" value="<%= orderDetails.orderId %>" />
+                <div class="errorMessage" id="return-errorMessage" style="color: red; font-size: 14px; display: none;">
+                    Enter a valid reason.
+                </div>    
+                <div class="buttons">
+                    <button type="button" id="go-back-return" class="btn btn-secondary">Go Back</button>
+                    <button type="submit" id="return-order" class="btn btn-warning">Return Order</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+
+    <% if (addressDetails) {%>
+
+    <!-- Address & Payment Info -->
+    <div class="details-section">
+        <div class="shipping-info">
+            <h2>Shipping Address</h2>
+            <p><strong>Name:</strong></p>
+            <p><strong>Address:</strong><%= addressDetails.city%> , <%= addressDetails.district%> , <%= addressDetails.state%> - <%= addressDetails.pincode%></p>
+            <p><strong>Address Type:</strong><%=addressDetails.addressType%></p>
+
+            <p><strong>Contact:</strong> <%=addressDetails.phone%></p>
+            <p><strong> Alternative Contact:</strong> <%=addressDetails.altPhone%></p>
+
+        </div>
+        <%} else {%>
+            <h6>No Address Available</h6>
+            <%}%>
+
+        <div class="payment-details">
+            <h2>Payment Details</h2>
+            <p>Subtotal: ₹ <%= orderDetails.totalPrice%></p>
+            <p>Discount: ₹ <%= orderDetails.totalPrice * orderDetails.discount /100 %></p>
+            <p>Shipping Charge: ₹50</p>
+            <p>Order Status : <%= orderDetails.status%></p>
+            <p>Payment Status : <%= orderDetails.paymentStatus%></p>
+
+            <h4>Payable Amount: ₹<%=orderDetails.PayableAmount%></h4>
+            <% if (orderDetails.paymentMethod === 'Online Payment' && orderDetails.paymentStatus === 'pending') { %>
+                <div class="payment-actions">
+                        <input type="hidden" name="orderId" value="<%= orderDetails.orderId %>">
+                        <button onclick="handlePayment('<%= orderDetails.orderId %>')">Complete Payment</button>
+                    </div>
+            <% } %>
+            
+
+        </div>
+    </div>
+
+    <!-- Order Actions -->
+   
+    
+
+
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 <% if (typeof success !== 'undefined' && typeof message !== 'undefined') { %>
     <script>
@@ -401,6 +777,8 @@ margin: 25px auto;}
         }
     </script>
 <% } %>
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+
 
 <script>
     const buttonCancel = document.getElementById('button-cancel');
@@ -438,9 +816,164 @@ buttonGoBackReturn?.addEventListener('click', () => {
     buttonReturn.style.display = 'block';
 });
 
+
+const statusButton = document.getElementById('statusBtn');
+const statusDiv = document.getElementById('viewStatus');
+
+statusButton.addEventListener('click', () => {
+    if (statusDiv.style.display === 'none' || statusDiv.style.display === '') {
+        statusDiv.style.display = 'flex';
+        statusButton.textContent = 'Cancel'; // Change button text to Cancel
+    } else {
+        statusDiv.style.display = 'none';
+        statusButton.textContent = 'View Status'; // Change button text back to View Status
+    }
+});
+
+document.getElementById('return-form').addEventListener('submit', function (event) {
+    const reasonInput = document.getElementById('return-reason');
+    const errorMessage = document.getElementById('return-errorMessage');
+
+    // Trim input value to remove extra spaces
+    const reasonText = reasonInput.value.trim();
+
+    if (reasonText.length < 5) {
+        event.preventDefault(); // Prevent form submission
+        errorMessage.style.display = 'block'; // Show error message
+        reasonInput.classList.add('input-error'); // Add error styling
+    } else {
+        errorMessage.style.display = 'none'; // Hide error if valid
+        reasonInput.classList.remove('input-error'); // Remove error styling
+    }
+});
+
+document.getElementById('cancel-form').addEventListener('submit', function (event) {
+    const reasonInput = document.getElementById('cancellation-reason');
+    const errorMessage = document.getElementById('cancel-errorMessage');
+
+    // Trim input value to remove extra spaces
+    const reasonText = reasonInput.value.trim();
+
+    if (reasonText.length < 5) {
+        event.preventDefault(); // Prevent form submission
+        errorMessage.style.display = 'block'; // Show error message
+        reasonInput.classList.add('input-error'); // Add error styling
+    } else {
+        errorMessage.style.display = 'none'; // Hide error if valid
+        reasonInput.classList.remove('input-error'); // Remove error styling
+    }
+});
+document.addEventListener("DOMContentLoaded", function () {
+        const orderStatus = "<%= orderDetails.status %>"; // Get the order status dynamically from backend
+        const statusElements = document.querySelectorAll(".status");
+        const lines = document.querySelectorAll(".line");
+        let statusReached = false;
+
+        statusElements.forEach((element, index) => {
+            const statusName = element.getAttribute("data-status");
+
+            if (statusName === orderStatus) {
+                statusReached = true;
+                element.classList.add("active");
+                if (index > 0) lines[index - 1].classList.add("active-line");
+            }
+
+            if (!statusReached) {
+                element.classList.add("active");
+                if (index > 0) lines[index - 1].classList.add("active-line");
+            }
+        });
+
+        // Handle "Cancelled" or "Returned" case separately
+        const finalStatusDiv = document.getElementById("finalStatus");
+        const finalStatusText = document.getElementById("finalStatusText");
+
+        if (orderStatus === "Cancelled" || orderStatus === "Returned") {
+            finalStatusDiv.classList.add("active"); // Make it green
+            finalStatusText.textContent = orderStatus;
+        }
+    });
+
+    async function handlePayment(orderId) {
+    try {
+        const response = await fetch("http://localhost:4000/getOrderDetails", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ orderId }),
+        });
+
+        const orderData = await response.json();
+
+        if (!response.ok || !orderData.id) {
+            throw new Error(orderData.message || "Failed to fetch order details");
+        }
+
+        // Initialize Razorpay checkout
+        const options = {
+            key: "rzp_test_UPsueP9qLBJXHk",
+            amount: orderData.amount,
+            currency: "INR",
+            name: "Comsix",
+            description: "Order Payment",
+            order_id: orderData.id,
+            handler: async function (response) {
+                const verifyResponse = await fetch("http://localhost:4000/verifyPayment", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        paymentData: response,
+                        orderId: orderId,  // Use orderId instead of cartId
+                    }),
+                });
+
+                const verifyResult = await verifyResponse.json();
+
+                if (verifyResult.success) {
+                    await Swal.fire({
+                        icon: "success",
+                        title: "Payment Successful!",
+                        text: "Your payment has been processed successfully.",
+                        confirmButtonColor: "#3085d6",
+                        confirmButtonText: "OK",
+                    });
+                    window.location.reload();
+                } else {
+                    await Swal.fire({
+                        icon: "error",
+                        title: "Payment Failed!",
+                        text: "Payment verification failed. Please try again.",
+                        confirmButtonColor: "#d33",
+                        confirmButtonText: "Retry",
+                    });
+                }
+            },
+            prefill: {
+                name: name || "Customer Name",
+                email: email || "customer@example.com",
+                contact: contact || "9999999999",
+            },
+            theme: {
+                color: "#3399cc",
+            },
+        };
+
+        const razorpay = new Razorpay(options);
+        razorpay.open();
+    } catch (error) {
+        console.error("Payment error:", error);
+        Swal.fire({
+            icon: "error",
+            title: "Insufficient stock",
+            text: error.message || "Something went wrong. Please try again!",
+            confirmButtonColor: "#d33",
+            confirmButtonText: "OK",
+        });
+    }
+}
+
+
+
 </script>
-
-
-
+    
 </body>
 </html>

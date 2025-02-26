@@ -237,25 +237,32 @@
 								<!-- Left: Coupon Section -->
 								<div class="col-md-4">
 									
-			<form action="/apply-coupon" method="POST">
-						<div class="row form-group">
-					<div class="col-sm-9">
-						<select name="couponCode" class="form-control">
-							<option value="">Select a Coupon</option>
-							<% coupons.forEach(coupon => { %>
-								<option value="<%= coupon.couponCode %>">
-									<%= coupon.couponCode %> - 
-									<%= coupon.discountType === 'percentage' ? coupon.discountValue + '%' : '₹' + coupon.discountValue %> off
-								</option>
-							<% }) %>
-						</select>
-					</div>
-					<div class="col-sm-3">
-						<input type="submit" value="Apply Coupon" class="btn btn-primary">
-					</div>
-				</div>
-							</form>
-								</div>
+									<form action="/apply-coupon" method="POST">
+										<div class="row form-group">
+										  <div class="col-sm-9">
+											<!-- Select dropdown to choose a coupon -->
+											<select name="couponCode" class="form-control" id="couponDropdown" onchange="updateCouponText()">
+											  <option value="<%=cart.appliedCoupon%>">Select a Coupon</option>
+											  <% coupons.forEach(coupon => { %>
+												<option value="<%= coupon.couponCode %>" data-discount="<%= coupon.discountType === 'percentage' ? coupon.discountValue + '%' : '₹' + coupon.discountValue %>">
+												  <%= coupon.couponCode %> - 
+												  <%= coupon.discountType === 'percentage' ? coupon.discountValue + '%' : '₹' + coupon.discountValue %> off
+												</option>
+											  <% }) %>
+											</select>
+										  </div>
+										  <div class="col-sm-3" style="display: flex;">
+											<!-- Apply Coupon button -->
+											<input type="submit" value="Apply Coupon" class="btn btn-primary" style="margin-left: 10px;">
+											
+										  </div>
+										</div>
+									  </form>
+									  <form action="/apply-coupon" method="POST" style="margin-top: 10px;">
+										<input type="hidden" name="removeCoupon" value="true">
+										<button type="submit" class="btn btn-danger">Remove Coupon</button>
+									</form>
+										  </div>
 								
 								<!-- Center: Total/Subtotal Section -->
 								<div class="col-md-4 text-center">
@@ -296,110 +303,7 @@
 		<a href="#" class="js-gotop"><i class="ion-ios-arrow-up"></i></a>
 	</div>
 
-<!-- <script>
-	document.addEventListener('DOMContentLoaded', function () {
-    function calculateSubtotal() {
-        let subtotal = 0;
-        document.querySelectorAll('.totalPrice').forEach(function (totalPriceElement) {
-            subtotal += parseFloat(totalPriceElement.textContent.trim());
-        });
-        const subtotalElement = document.querySelector('.subtotal');
-        subtotalElement.textContent = subtotal.toFixed(2);
 
-        const additionalCharge = 50;
-        const total = subtotal + additionalCharge;
-
-        const totalElement = document.querySelector('.totalAmount');
-        totalElement.textContent = total.toFixed(2);
-    }
-
-    async function updateQuantityInDatabase(productId, quantity) {
-        try {
-            const response = await fetch('/updateQuantity', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ productId:productId, quantity: quantity }),
-            });
-            if (!response.ok) {
-                throw new Error('Failed to update quantity in database');
-            }
-            console.log('Quantity updated successfully');
-        } catch (error) {
-            console.error(error.message);
-        }
-    }
-
-    document.querySelectorAll('.quantity-left-minus').forEach(function (button) {
-        button.addEventListener('click', function () {
-            const product = button.closest('.quantity-update');
-            const productId = product.querySelector('input#productId').value;
-            const quantityInput = product.querySelector('.quantity');
-            const availableStock = parseInt(product.querySelector('.availableStock').value);
-            const errorMessage = product.querySelector('.error-message');
-            const errorMessage1 = product.querySelector('.error-message1');
-            const totalPriceElement = product.querySelector('.totalPrice');
-            const priceElement = product.querySelector('.price');
-
-            const price = parseFloat(priceElement.textContent.trim());
-            let quantity = parseInt(quantityInput.value);
-
-            if (quantity > 1) {
-                quantity -= 1;
-                quantityInput.value = quantity;
-                errorMessage.style.display = 'none';
-                errorMessage1.style.display = 'none';
-
-                const totalPrice = quantity * price;
-                totalPriceElement.textContent = totalPrice.toFixed(2);
-
-                calculateSubtotal();
-                updateQuantityInDatabase(productId, quantity);
-            }
-        });
-    });
-
-    document.querySelectorAll('.quantity-right-plus').forEach(function (button) {
-        button.addEventListener('click', function () {
-            const product = button.closest('.quantity-update');
-            const productId = product.querySelector('input#productId').value;
-            const quantityInput = product.querySelector('.quantity');
-            const availableStock = parseInt(product.querySelector('.availableStock').value);
-            const errorMessage = product.querySelector('.error-message');
-            const errorMessage1 = product.querySelector('.error-message1');
-            const totalPriceElement = product.querySelector('.totalPrice');
-            const priceElement = product.querySelector('.price');
-
-            const price = parseFloat(priceElement.textContent.trim());
-            let quantity = parseInt(quantityInput.value);
-
-            if (quantity < availableStock && quantity < 3) {
-                quantity += 1;
-                quantityInput.value = quantity;
-                errorMessage.style.display = 'none';
-                errorMessage1.style.display = 'none';
-
-                const totalPrice = quantity * price;
-                totalPriceElement.textContent = totalPrice.toFixed(2);
-
-                calculateSubtotal();
-                updateQuantityInDatabase(productId, quantity);
-            } else {
-                if (quantity >= availableStock) {
-                    errorMessage.style.display = 'block';
-                }
-                if (quantity >= 3) {
-                    errorMessage1.style.display = 'block';
-                }
-            }
-        });
-    });
-
-    calculateSubtotal();
-});
-
-</script> -->
 	
 
 <script>
@@ -443,6 +347,8 @@
         document.querySelectorAll('.quantity-right-plus').forEach(function (button) {
             button.addEventListener('click', function () {
                 const product = button.closest('.quantity-update');
+				const errorMessage = product.querySelector('.error-message');
+				const errorMessage1 = product.querySelector('.error-message1');
                 const productId = product.querySelector('input#productId').value;
                 const quantityInput = product.querySelector('.quantity');
                 const availableStock = parseInt(product.querySelector('.availableStock').value);
@@ -451,11 +357,40 @@
                 if (quantity < availableStock && quantity < 3) {
                     quantity += 1;
                     quantityInput.value = quantity;
+					errorMessage.style.display = 'none';
+                errorMessage1.style.display = 'none';
+
+
                     updateQuantityInDatabase(productId, quantity);
+                }else{
+					if (quantity >= availableStock) {
+                    errorMessage.style.display = 'block';
                 }
+				else if (quantity >= 3) {
+                    errorMessage1.style.display = 'block';
+                }
+
+				}
             });
         });
     });
+
+// Update the selected option's text when a coupon is selected
+function updateCouponText() {
+  var couponDropdown = document.getElementById('couponDropdown');
+  var selectedOption = couponDropdown.selectedOptions[0];
+
+  // If a valid coupon is selected
+  if (selectedOption.value !== "") {
+    // Get the coupon's discount text from the 'data-discount' attribute
+    var discountDetails = selectedOption.getAttribute('data-discount');
+
+    // Update the displayed text in the selected option
+    selectedOption.textContent = selectedOption.value + ' - ' + discountDetails;
+  }
+}
+
+
 </script>
 
 	

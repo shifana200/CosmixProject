@@ -46,7 +46,7 @@ app.use(session({
 app.use(passport.initialize());
 app.use(passport.session());
 app.use(passport.authenticate('session'));
-app.use(upload.none());
+// app.use(upload.none());
 
 
 app.set('views',[path.join(__dirname, 'views/user'),path.join(__dirname, 'views/admin')]);

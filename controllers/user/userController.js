@@ -17,6 +17,8 @@ const Referral = require('../../models/referralSchema')
 const Coupon = require('../../models/couponSchema')
 const sendOTP = require("../../utils/sendEmail");
 const Wallet = require('../../models/walletSchema')
+const Razorpay = require("razorpay");
+
 
 
 const pageNotFound = async (req, res) => {
@@ -122,36 +124,31 @@ const loadOtpPage = (req, res) => {
 
 const verifyRegister = async (req, res) => {
   try {
-    const { name, email, password, phone } = req.body;
+    const { name, email, password, phone, referralCode } = req.body;
 
+    // Check if the user already exists
     const existingUser = await User.findOne({ email });
     if (existingUser) {
-      res.render("signUp", { error: "User already exists" });
-    } else {
-      const otp = generateOtp();
-      const otpExpiration = Date.now() + 5 * 60 * 1000; // 5 minutes
-      req.session.otpExpiration = otpExpiration;
-
-      req.session.loggedIn = true;
-      req.session.userOtp = otp;
-      req.session.userData = { name, email, password, phone };
-
-      // Save the session data
-      req.session.save((err) => {
-        if (err) {
-          console.error("Error saving session:", err);
-          return res.status(500).send("Internal Server Error");
-        }
-      });
-
-      const emailSent = sendVerificationEmail(email, otp);
-      if (!emailSent) {
-        return res.json("email-error");
-      }
-
-      console.log("OTP Sent", otp);
-      res.redirect("/verify");
+      return res.render("signUp", { error: "User already exists" });
     }
+
+    // Temporarily store user data in session before verification
+    req.session.userData = { name, email, password, phone, referralCode };
+
+    // Generate OTP and set session variables
+    const otp = generateOtp();
+    req.session.userOtp = otp;
+    req.session.otpExpiration = Date.now() + 5 * 60 * 1000; // 5-minute expiry
+
+    // Send OTP email
+    const emailSent = sendVerificationEmail(email, otp);
+    if (!emailSent) {
+      return res.json("email-error");
+    }
+
+    console.log("OTP Sent:", otp);
+
+    return res.redirect("/verify");
   } catch (error) {
     console.error("Signup Error", error);
     res.status(500).send("Internal Server Error");
@@ -159,16 +156,83 @@ const verifyRegister = async (req, res) => {
 };
 
 
+
+
+
+// const verifyOtp = async (req, res) => {
+//   try {
+//     const otpArray = req.body.otp;
+//     const otp = Array.isArray(otpArray) ? otpArray.join("") : otpArray;
+
+//     const user = req.session.userData;  // Make sure user data is loaded from session
+//     if (!user) {
+//       console.error("No user data found in session.");
+//       req.session.errorMessage =
+//         "Session expired or invalid. Please try again.";
+//       return res.render("verify-otp", { message: req.session.errorMessage });
+//     }
+
+//     if (Date.now() > req.session.otpExpiration) {
+//       console.error("OTP has expired");
+//       req.session.errorMessage = "OTP has expired. Please request a new one.";
+//       return res.render("verify-otp", { message: req.session.errorMessage });
+//     }
+
+//     if (otp === req.session.userOtp) {
+//       console.log("OTP matched:", otp);
+
+//       const passwordHash = await securePassword(user.password);
+
+//       const saveUserData = new User({
+//         name: user.name,
+//         email: user.email,
+//         phone: user.phone,
+//         password: passwordHash,
+//         otp,
+//         otpExpiration: new Date(Date.now() + 5 * 60 * 1000),
+//       });
+
+//       await saveUserData.save();
+
+//       // Clear session OTP data after successful verification
+//       req.session.userOtp = null;
+//       req.session.otpExpiration = null;
+
+//       // Store the logged-in user in the session
+//       req.session.user = saveUserData;
+
+//       req.session.errorMessage = "OTP verified successfully!";
+
+//       const products = await Product.find().catch((err) => {
+//         console.error("Error fetching products:", err);
+//         return [];
+//       });
+
+//       return res.render("home", { products, user: saveUserData });
+//     } else {
+//       console.error("Invalid OTP");
+//       req.session.errorMessage = "Invalid OTP. Please try again.";
+//       return res.status(400).render("verify-otp", { message: req.session.errorMessage });
+//     }
+//   } catch (error) {
+//     console.error("Error Verifying OTP:", error);
+//     req.session.errorMessage =
+//       "An unexpected error occurred. Please try again.";
+//     return res
+//       .status(500)
+//       .render("verify-otp", { message: req.session.errorMessage });
+//   }
+// };
+
 const verifyOtp = async (req, res) => {
   try {
     const otpArray = req.body.otp;
     const otp = Array.isArray(otpArray) ? otpArray.join("") : otpArray;
 
-    const user = req.session.userData;  // Make sure user data is loaded from session
+    const user = req.session.userData; // Load user data from session
     if (!user) {
       console.error("No user data found in session.");
-      req.session.errorMessage =
-        "Session expired or invalid. Please try again.";
+      req.session.errorMessage = "Session expired or invalid. Please try again.";
       return res.render("verify-otp", { message: req.session.errorMessage });
     }
 
@@ -181,9 +245,11 @@ const verifyOtp = async (req, res) => {
     if (otp === req.session.userOtp) {
       console.log("OTP matched:", otp);
 
+      // Hash the password before saving
       const passwordHash = await securePassword(user.password);
 
-      const saveUserData = new User({
+      // Save verified user to DB
+      const newUser = new User({
         name: user.name,
         email: user.email,
         phone: user.phone,
@@ -192,23 +258,66 @@ const verifyOtp = async (req, res) => {
         otpExpiration: new Date(Date.now() + 5 * 60 * 1000),
       });
 
-      await saveUserData.save();
+      await newUser.save();
 
       // Clear session OTP data after successful verification
       req.session.userOtp = null;
       req.session.otpExpiration = null;
 
-      // Store the logged-in user in the session
-      req.session.user = saveUserData;
+      // Store user in session
+      req.session.user = newUser;
+      req.session.userData = null; // Clear temporary session data
+
+      // Handle referral wallet bonus **after OTP verification**
+      if (user.referralCode) {
+        const referrer = await User.findOne({ referralCode: user.referralCode });
+
+        if (referrer) {
+          // Add ₹50 to new user's wallet
+          let userWallet = await Wallet.findOne({ userId: newUser._id });
+          if (!userWallet) {
+            userWallet = new Wallet({
+              userId: newUser._id,
+              walletAmount: 50,
+              transactions: [{ amount: 50, transactionType: "Referral", timestamp: new Date() }],
+            });
+          } else {
+            userWallet.walletAmount += 50;
+            userWallet.transactions.push({ amount: 50, transactionType: "Referral", timestamp: new Date() });
+          }
+          await userWallet.save();
+          console.log(`₹50 added to ${newUser.name}'s wallet for referral.`);
+
+          // Add ₹50 to referrer's wallet
+          let referrerWallet = await Wallet.findOne({ userId: referrer._id });
+          if (!referrerWallet) {
+            referrerWallet = new Wallet({
+              userId: referrer._id,
+              walletAmount: 50,
+              transactions: [{ amount: 50, transactionType: "Referral", timestamp: new Date() }],
+            });
+          } else {
+            referrerWallet.walletAmount += 50;
+            referrerWallet.transactions.push({ amount: 50, transactionType: "Referral", timestamp: new Date() });
+          }
+          await referrerWallet.save();
+          console.log(`₹50 added to ${referrer.name}'s wallet for referral.`);
+
+          // Save referrer in the new user's record
+          newUser.referredBy = referrer._id;
+          await newUser.save();
+        }
+      }
 
       req.session.errorMessage = "OTP verified successfully!";
 
+      // Fetch products for rendering the home page
       const products = await Product.find().catch((err) => {
         console.error("Error fetching products:", err);
         return [];
       });
 
-      return res.render("home", { products, user: saveUserData });
+      return res.render("home", { products, user: newUser });
     } else {
       console.error("Invalid OTP");
       req.session.errorMessage = "Invalid OTP. Please try again.";
@@ -216,13 +325,13 @@ const verifyOtp = async (req, res) => {
     }
   } catch (error) {
     console.error("Error Verifying OTP:", error);
-    req.session.errorMessage =
-      "An unexpected error occurred. Please try again.";
-    return res
-      .status(500)
-      .render("verify-otp", { message: req.session.errorMessage });
+    req.session.errorMessage = "An unexpected error occurred. Please try again.";
+    return res.status(500).render("verify-otp", { message: req.session.errorMessage });
   }
 };
+
+
+
 
 const resendOtp = async (req, res) => {
   try {
@@ -263,90 +372,7 @@ const resendOtp = async (req, res) => {
 
 
 
-// const registerUser = async (req, res) => {
-//   try {
-//     const { name, email, password, phone ,referralCode} = req.body;
 
-//     if (!name || !email || !password || !phone) {
-//       return res.status(400).send("All fields are required");
-//     }
-
-//     const existingUser = await User.findOne({ email });
-//     if (existingUser) {
-//       return res.status(400).send("Email is already registered");
-//     }
-
-//     const otp = crypto.randomInt(100000, 999999).toString();
-//     const hashedPassword = await hashPassword(password);
-
-//     const newUser = new User({
-//       name,
-//       email,
-//       phone,
-//       password: hashedPassword,
-//       otp,
-//       otpExpiration: Date.now() + 5 * 60 * 1000,
-//     });
-
-//     await newUser.save(); // ✅ Save the user before using its ID for the wallet
-
-//     // ✅ Handle referral bonus
-//     if (referralCode) {
-//       const referrer = await User.findOne({ referralCode });
-
-//       if (referrer) {
-//         // ✅ Update referrer and new user's wallet
-//         await Wallet.findOneAndUpdate(
-//           { userId: referrer._id },
-//           {
-//             $inc: { walletAmount: 50 },
-//             $push: { transactions: { amount: 50, transactionType: "Referral" } }
-//           },
-//           { upsert: true, new: true }
-//         );
-
-//         await Wallet.findOneAndUpdate(
-//           { userId: newUser._id },
-//           {
-//             $inc: { walletAmount: 50 },
-//             $push: { transactions: { amount: 50, transactionType: "Referral" } }
-//           },
-//           { upsert: true, new: true }
-//         );
-//       }
-//     } else {
-//       // ✅ If no referral code, ensure new user still gets a wallet
-//       await Wallet.findOneAndUpdate(
-//         { userId: newUser._id },
-//         { walletAmount: 0, transactions: [] },
-//         { upsert: true, new: true }
-//       );
-//     }
-
-
-//     // Generate and store referral code
-   
-// ;
-
-//     req.session.userData = { name, email, password, phone };
-//     req.session.userOtp = otp;
-//     req.session.otpExpiration = Date.now() + 5 * 60 * 1000;
-
-//     await sendOTP(email, otp);
-
-//     req.session.save((err) => {
-//       if (err) {
-//         console.error("Error saving session:", err);
-//         return res.status(500).send("Internal Server Error");
-//       }
-//     });
-
-//     res.redirect("/verify");
-//   } catch (err) {
-//     console.error("Error during registration:", err);
-//     res.status(500).send("Internal Server Error");
-//   }
-// };
 
 // const registerUser = async (req, res) => {
 //   try {
@@ -434,123 +460,127 @@ const resendOtp = async (req, res) => {
 // };
 
 
-const registerUser = async (req, res) => {
-  try {
-    const { name, email, password, phone, referralCode } = req.body;
+// const verifyRegister = async (req, res) => {
+//   try {
+//     const { name, email, password, phone, referralCode } = req.body;
+//     console.log("00000000000000000000000000")
+//     console.log(referralCode)
 
-    if (!name || !email || !password || !phone) {
-      return res.status(400).send("All fields are required");
-    }
+//     if (!name || !email || !password || !phone) {
+//       return res.status(400).send("All fields are required");
+//     }
 
-    // 🔍 Check if the user already exists
-    const existingUser = await User.findOne({ email }).exec();
-    if (existingUser) {
-      return res.status(400).send("Email is already registered");
-    }
+//     // Check if the user already exists
+//     const existingUser = await User.findOne({ email }).exec();
+//     if (existingUser) {
+//       return res.status(400).send("Email is already registered");
+//     }
 
-    const otp = crypto.randomInt(100000, 999999).toString();
-    const hashedPassword = await hashPassword(password);
+//     const otp = crypto.randomInt(100000, 999999).toString();
+//     const hashedPassword = await hashPassword(password);
 
-    // 🔍 Validate Referral Code
-    let referrer = null;
-    if (referralCode) {
-      referrer = await User.findOne({ referralCode :referralCode }).exec();
-      if (!referrer) {
-        console.log("❌ Invalid referral code entered:", referralCode);
-        return res.status(400).send("Invalid referral code");
-      }
-    }
+//     // Validate Referral Code (check if referrer exists)
+//     let referrer = null;
+//     if (referralCode) {
+//       referrer = await User.findOne({ referralCode: referralCode }).exec();
+//       if (!referrer) {
+//         console.log("❌ Invalid referral code entered:", referralCode);
+//         return res.status(400).send("Invalid referral code");
+//       }
+//     }
 
-    // ✅ Create new user
-    const newUser = new User({
-      name,
-      email,
-      phone,
-      password: hashedPassword,
-      otp,
-      otpExpiration: Date.now() + 5 * 60 * 1000,
-      referredBy: referrer ? referrer._id : null, // Store referrer's ID
-    });
+//     // Create new user
+//     const newUser = new User({
+//       name,
+//       email,
+//       phone,
+//       password: hashedPassword,
+//       otp,
+//       otpExpiration: Date.now() + 5 * 60 * 1000,
+//       referredBy: referrer ? referrer._id : null, // Store referrer's ID
+//     });
 
-    await newUser.save();
-    console.log("✅ New user registered:", newUser.name);
+//     await newUser.save();
+//     console.log("✅ New user registered:", newUser.name);
 
-    // ✅ Check if the user already has a wallet
-    let userWallet = await Wallet.findOne({ userId: newUser._id });
+//     // Check if the user already has a wallet
+//     let userWallet = await Wallet.findOne({ userId: newUser._id });
 
-    if (!userWallet) {
-      // 🆕 Create new wallet and save it
-      userWallet = new Wallet({
-        userId: newUser._id,
-        walletAmount: 0,
-        transactions: [],
-      });
-      await userWallet.save();
-      console.log(`💰 Wallet created for ${newUser.name}`);
-    } else {
-      console.log(`ℹ️ Wallet already exists for ${newUser.name}`);
-    }
+//     if (!userWallet) {
+//       // Create a new wallet if it doesn't exist
+//       userWallet = new Wallet({
+//         userId: newUser._id,
+//         walletAmount: 0,
+//         transactions: [],
+//       });
+//       await userWallet.save();
+//       console.log(`💰 Wallet created for ${newUser.name}`);
+//     } else {
+//       console.log(`ℹ️ Wallet already exists for ${newUser.name}`);
+//     }
 
-    // ✅ Handle Referral Bonus
-    if (referrer) {
-      console.log("🎉 Processing referral bonus...");
+//     // Handle Referral Bonus if referral code is valid
+//     if (referrer) {
+//       console.log("🎉 Processing referral bonus...");
 
-      // ✅ Find or create referrer's wallet
-      let referrerWallet = await Wallet.findOne({ userId: referrer._id });
-      if (!referrerWallet) {
-        referrerWallet = new Wallet({
-          userId: referrer._id,
-          walletAmount: 0,
-          transactions: [],
-        });
-      }
+//       // Find or create referrer's wallet
+//       let referrerWallet = await Wallet.findOne({ userId: referrer._id });
+//       if (!referrerWallet) {
+//         referrerWallet = new Wallet({
+//           userId: referrer._id,
+//           walletAmount: 0,
+//           transactions: [],
+//         });
+//       }
 
-      // 🔄 Update referrer's wallet balance and save
-      const referrerTransaction = {
-        amount: 50,
-        transactionType: "Referral",
-        timestamp: new Date(),
-      };
+//       // Update referrer's wallet balance and save
+//       const referrerTransaction = {
+//         amount: 50,
+//         transactionType: "Referral Bonus",
+//         timestamp: new Date(),
+//       };
 
-      referrerWallet.walletAmount += 50;
-      referrerWallet.transactions.push(referrerTransaction);
-      await referrerWallet.save();
-      console.log(`✅ ₹50 added to ${referrer.name}'s wallet`);
+//       referrerWallet.walletAmount += 50;
+//       referrerWallet.transactions.push(referrerTransaction);
+//       await referrerWallet.save();
+//       console.log(`✅ ₹50 added to ${referrer.name}'s wallet`);
 
-      // 🔄 Update new user's wallet balance and save
-      const userTransaction = {
-        amount: 50,
-        transactionType: "Referral",
-        timestamp: new Date(),
-      };
+//       // Update new user's wallet balance and save
+//       const userTransaction = {
+//         amount: 50,
+//         transactionType: "Referral Bonus",
+//         timestamp: new Date(),
+//       };
 
-      userWallet.walletAmount += 50;
-      userWallet.transactions.push(userTransaction);
-      await userWallet.save();
-      console.log(`✅ ₹50 added to ${newUser.name}'s wallet`);
-    }
+//       userWallet.walletAmount += 50;
+//       userWallet.transactions.push(userTransaction);
+//       await userWallet.save();
+//       console.log(`✅ ₹50 added to ${newUser.name}'s wallet`);
+//     }
 
-    // ✅ Save OTP & Session
-    req.session.userData = { name, email, password, phone };
-    req.session.userOtp = otp;
-    req.session.otpExpiration = Date.now() + 5 * 60 * 1000;
+//     // Send OTP and Save session
+//     req.session.userData = { name, email, password, phone };
+//     req.session.userOtp = otp;
+//     req.session.otpExpiration = Date.now() + 5 * 60 * 1000;
 
-    await sendOTP(email, otp);
-    console.log("📩 OTP sent to:", email);
+//     await sendOTP(email, otp);
+//     console.log("📩 OTP sent to:", email);
 
-    req.session.save((err) => {
-      if (err) {
-        console.error("❌ Error saving session:", err);
-        return res.status(500).send("Internal Server Error");
-      }
-      res.redirect("/verify");
-    });
+//     req.session.save((err) => {
+//       if (err) {
+//         console.error("❌ Error saving session:", err);
+//         return res.status(500).send("Internal Server Error");
+//       }
+//       res.redirect("/verify");
+//     });
 
-  } catch (err) {
-    console.error("❌ Error during registration:", err);
-    res.status(500).send("Internal Server Error");
-  }
-};
+//   } catch (err) {
+//     console.error("❌ Error during registration:", err);
+//     res.status(500).send("Internal Server Error");
+//   }
+// };
+
+
 
 
 
@@ -670,22 +700,61 @@ const loadContact = async (req, res) => {
   }
 };
 
+// const loadProductDetails = async (req, res) => {
+//   const id = req.params.id;
+//   console.log(id)
+
+//   try {
+//     const product = await Product.findOne({
+//       _id: id
+//     });
+   
+//     if (!product) {
+//       return res.status(404).send("Product not found");
+//     }
+
+//     const relatedProducts = await Product.find({
+//       category: product.category,
+//       _id: { $ne: product }, // Exclude the current product
+//     }).limit(4);
+
+//     res.render("product-detail", { product, relatedProducts });
+//   } catch (err) {
+//     console.error(err);
+//     res.status(500).send("Server Error");
+//   }
+// };
+
 const loadProductDetails = async (req, res) => {
   const id = req.params.id;
-  console.log(id)
+  console.log(id);
 
   try {
-    const product = await Product.findOne({
-      _id: id
-    });
-   
+    const product = await Product.findById(id).populate('offer'); // Populate offer to get the offer details
+
     if (!product) {
       return res.status(404).send("Product not found");
     }
 
+    // Check if there is an active offer for the product
+    if (product.offer && product.offer.status === 'Active' && product.offer.startDate <= new Date() && product.offer.endDate >= new Date()) {
+      // Calculate the offer price
+      if (product.offer.discountType === 'Percentage') {
+        product.offerPrice = product.regularPrice - (product.regularPrice * (product.offer.discountValue / 100));
+      } else if (product.offer.discountType === 'Fixed Amount') {
+        product.offerPrice = product.regularPrice - product.offer.discountValue;
+      }
+    } else {
+      // If no offer is applied, use the regular sale price
+      product.offerPrice = product.salePrice;
+    }
+
+    // Save the calculated offerPrice to the product
+    await product.save();
+
     const relatedProducts = await Product.find({
       category: product.category,
-      _id: { $ne: product }, // Exclude the current product
+      _id: { $ne: product._id }, // Exclude the current product
     }).limit(4);
 
     res.render("product-detail", { product, relatedProducts });
@@ -694,6 +763,9 @@ const loadProductDetails = async (req, res) => {
     res.status(500).send("Server Error");
   }
 };
+
+
+
 
 const loadBanPage = async (req, res) => {
   try {
@@ -1231,6 +1303,7 @@ const placeOrder = async (req, res) => {
           discount: discount, // Store discount in the Order document
           addressId: addressData._id, // ✅ Only store the ObjectId
           paymentMethod: paymentMethod,
+          paymentStatus: 'pending',
           status: 'Ordered',
           razorpayPaymentStatus: "NA",
           placedAt: new Date(),
@@ -1363,7 +1436,7 @@ const createOrder = async (req, res) => {
           discount: discount, // Store discount in the Order document
           addressId: addressData._id,
           paymentMethod: paymentMethod || "Online Payment",
-          status: 'Ordered', // Change from "pending" to "Ordered"
+          status: 'Pending', // Change from "pending" to "Ordered"
           paymentStatus: 'pending',
           razorpayPaymentStatus: 'pending',
           placedAt: new Date(),
@@ -1371,6 +1444,9 @@ const createOrder = async (req, res) => {
 
       await newOrder.save();
       console.log("New Order Saved:", newOrder);
+  
+    await Cart.findByIdAndDelete(cartId);
+
 
       res.json(order);
   } catch (error) {
@@ -1388,6 +1464,16 @@ const verifyPayment = async (req, res) => {
       const order = await Order.findOne({ razorpayOrderId: paymentData.razorpay_order_id });
       if (!order) return res.status(400).json({ success: false, message: "Order not found!" });
 
+      for (const item of order.orderedItems) {
+        if (item.product.quantity < item.quantity) {
+            return res.status(400).json({ 
+                success: false, 
+                message: `Payment failed: ${item.product.name} is out of stock.`,
+                redirect: "/failedPayment"
+            });
+        }
+    }
+
 
       console.log("000000000000000")
       console.log(process.env.RAZORPAY_SECRET_KEY)
@@ -1397,28 +1483,173 @@ const verifyPayment = async (req, res) => {
       const generatedSignature = hmac.digest("hex");
 
       if (generatedSignature === paymentData.razorpay_signature) {
-          order.status = "Paid";
+          order.status = "Ordered";
           order.paymentStatus = "Paid";
           order.razorpayPaymentStatus = "Paid";
           order.paymentId = paymentData.razorpay_payment_id;
           await order.save();
+
+          for (const item of order.orderedItems) {
+            const product = await Product.findById(item.product);
+            if (product) {
+                product.quantity -= item.quantity;
+                await product.save();
+            }
+        }
 
           // Delete Cart **AFTER SUCCESSFUL PAYMENT**
           await Cart.findByIdAndDelete(cartId);
 
           res.json({ success: true, message: "Payment verified and order placed!", orderId: order.orderId });
       } else {
-        order.status = "pending";
+        order.status = "Pending";
         order.paymentStatus = "pending";
         order.razorpayPaymentStatus = "pending";
 
-        await order.save();
 
-       res.status(400).json({ success: false, message: "Payment verification failed." });
+        await order.save();
+        await Cart.findByIdAndDelete(cartId);
+
+
+       res.status(400).json({ success: false, message: "Payment verification failed.",redirect:"/failedPayment" });
+       
       }
   } catch (error) {
       console.error("Error in verifyPayment:", error);
       res.status(500).json({ success: false, message: "Error verifying payment." });
+  }
+};
+
+const payWithWallet = async (req, res) => {
+  try {
+      const userId = req.session.user._id;
+      if (!userId) return res.redirect('/signin');
+
+      const { cartId, selectedAddress } = req.body;
+
+      // Fetch User Wallet
+      const wallet = await Wallet.findOne({ userId });
+      if (!wallet) {
+          return res.status(400).json({ success: false, message: "Wallet not found" });
+      }
+
+      // Fetch Cart
+      const cart = await Cart.findOne({ _id: cartId, userId }).populate('items.productId');
+      if (!cart) return res.status(400).json({ success: false, message: "Invalid cart ID" });
+
+      // Calculate Payable Amount
+      const discount = cart.discount || 0;
+      const subtotal = cart.items.reduce((acc, item) => acc + item.totalPrice, 0);
+      const additionalCharge = 50;
+      const payableAmount = subtotal + additionalCharge - discount;
+
+      // Check Wallet Balance
+      if (wallet.walletAmount < payableAmount) {
+          return res.status(400).json({ success: false, message: "Insufficient wallet balance" });
+      }
+
+      // Deduct from Wallet
+      wallet.walletAmount -= payableAmount;
+
+      // Add Wallet Transaction
+      wallet.transactions.push({
+          amount: -payableAmount, // Negative for debit
+          transactionType: "Wallet Payment",
+      });
+
+      await wallet.save();
+
+      // Validate Address
+      const userAddressDoc = await Address.findOne({ userId });
+      if (!userAddressDoc) return res.status(400).json({ success: false, message: "No address found for user" });
+
+      const addressData = userAddressDoc.address.find(addr => addr._id.toString() === selectedAddress.trim());
+      if (!addressData) return res.status(400).json({ success: false, message: "Invalid selected address" });
+
+      // Create Order
+      const orderData = {
+          orderId: 'ORD' + new Date().getTime(),
+          userId: userId,
+          orderedItems: cart.items.map(item => ({
+              product: item.productId,
+              price: item.price,
+              quantity: item.quantity,
+              totalPrice: item.totalPrice,
+          })),
+          totalPrice: subtotal,
+          PayableAmount: payableAmount,
+          discount: discount,
+          addressId: addressData._id,
+          paymentMethod: "Wallet",
+          paymentStatus: "Paid",
+          status: "Ordered",
+          placedAt: new Date(),
+      };
+
+      const newOrder = await Order.create(orderData);
+
+      // Reduce Stock Quantity
+      for (let item of cart.items) {
+          const product = await Product.findById(item.productId);
+          if (product) {
+              product.quantity -= item.quantity;
+              await product.save();
+          }
+      }
+
+      // Remove Cart after order
+      await Cart.findByIdAndDelete(cart._id);
+
+      res.status(200).json({
+          success: true,
+          orderId: newOrder.orderId
+      });
+
+  } catch (error) {
+      console.error("Error in payWithWallet:", error);
+      res.status(500).json({ success: false, message: "Failed to process wallet payment.", error: error.message });
+  }
+};
+
+
+
+
+
+
+const getOrderDetails = async (req, res) => {
+  try {
+      const { orderId } = req.body;
+      const order = await Order.findOne({ orderId, paymentStatus: "pending" })
+      .populate("orderedItems.product")
+            .populate("userId"); 
+
+      if (!order) {
+          return res.status(404).json({ success: false, message: "Order not found or already paid" });
+      }
+
+      for (const item of order.orderedItems) {
+        if (item.product.quantity < item.quantity) {
+            return res.status(400).json({ 
+                success: false, 
+                message: `Insufficient stock for ${item.product.productName}. Available: ${item.product.quantity}, Ordered: ${item.quantity}` 
+            });
+        }
+    }
+
+      res.json({
+          id: order.razorpayOrderId,
+          amount: order.PayableAmount * 100,
+          user:{
+            name:order.userId.name,
+            email:order.userId.email,
+            contact:order.userId.phone
+          }
+      });
+
+      
+  } catch (error) {
+      console.error("Error fetching order details:", error);
+      res.status(500).json({ success: false, message: "Server error" });
   }
 };
 
@@ -1441,7 +1672,7 @@ const sendOtp = async (req, res) => {
     const user = await User.findOne({ email });
 
     if (!user) {
-      return res.json({ success: false, message: "User not found" });
+      return res.status(400).send("User not found")
     }
 
     const otp = crypto.randomInt(100000, 999999).toString();
@@ -1551,14 +1782,19 @@ const updatePassword = async (req, res) => {
 
 
 module.exports = {
-  loadHomepage, loadSignIn,
-  loadSignUp, loadOtpPage, loginUser,
-  loadSkincare, loadHaircare,
-  loadAbout, loadContact,
+  loadHomepage,
+   loadSignIn,
+  loadSignUp, 
+  loadOtpPage,
+   loginUser,
+  loadSkincare,
+   loadHaircare,
+  loadAbout,
+   loadContact,
   loadProductDetails, loadOrderComplete,
   loadOrderCheckout,
   pageNotFound,
-  registerUser,
+  
   verifyOtp,
   verifyRegister,
   loadBanPage,
@@ -1583,4 +1819,5 @@ module.exports = {
   passwordVerifyOtp,
   loadResetPassword,
   updatePassword,
+  getOrderDetails,payWithWallet,
 };

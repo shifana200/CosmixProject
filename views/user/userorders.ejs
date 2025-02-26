@@ -138,6 +138,10 @@ table {
 
 .order-summary {
   margin-top: 15px;
+  justify-content: space-between;
+  display: flex;
+
+
 }
 
 .order-summary p {
@@ -146,18 +150,14 @@ table {
 
 .cancel-order-btn {
   display: inline;
-  
-  padding: 10px;
-  background-color: rgb(30, 184, 184);
-  color: white;
+  padding: 5px;
+  background-color: rgb(14, 165, 196);
   border: none;
   border-radius: 5px;
   cursor: pointer;
 }
 
-.cancel-order-btn:hover {
-  background-color: rgb(24, 107, 120);
-}
+
 
 .ordered-status {
   color: green; /* Green color for ordered status */
@@ -166,6 +166,43 @@ table {
 .cancelled-status {
   color: red; /* Red color for cancelled status */
 }
+
+.invoiceBtn{
+  
+  padding: 8px;
+  background-color: green;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+
+}
+
+.pagination {
+  justify-content: center;
+        text-align: center;
+        margin-top: 20px;
+        margin-bottom: 20px;
+    }
+
+    .pagination a {
+        display: inline-block;
+        padding: 8px 16px;
+        margin: 0 5px;
+        border: 1px solid #ddd;
+        text-decoration: none;
+        color: #84cbcb;
+        border-radius: 5px;
+    }
+
+    .pagination a.active {
+        background-color: #84cbcb;
+        color: white;
+        border: 1px solid #84cbcb;
+    }
+
+    .pagination a:hover {
+        background-color: #6ad3d3;
+    }
 
     </style>
 </head>
@@ -187,7 +224,7 @@ table {
             <% orderDetails.forEach((order)=>{ %>
           <div class="order-card">
             <div style="display: flex; justify-content: space-between;">
-              <p><%= order.orderId%></p>
+              <h6 style=""><%= order.orderId%></h6>
               <p class="<%= order.status === 'Ordered' ? 'ordered-status' : 'cancelled-status' %>">
                 <%= order.status %>
               </p>
@@ -195,62 +232,84 @@ table {
 
             
             <!-- Product Details Table -->
-            <table border="1" cellpadding="10" cellspacing="0" style="width:100%; border-collapse: collapse;">
-              <thead>
-                <tr>
-                  <th>Product Name</th>
-                  <th>Quantity</th>
-                  <th>Price</th>
-                </tr>
-              </thead>
-              <tbody>
-                <%order.orderedItems.forEach((item)=>{%>
-                <tr>
-                  <td><%= item.product.productName%></td>
-                  <td><%= item.quantity%></td>
-                  <td>₹ <%=item.price%></td>
-                </tr>
-                <%})%>
-                <!-- Add more products as needed -->
-              </tbody>
-            </table>
-        
+            <div style="display: flex; flex-direction: column; gap: 15px;">
+              <% order.orderedItems.forEach((item) => { %>
+              <div style="display: flex; align-items: center; gap: 15px; border: 1px solid #ddd; padding: 10px; border-radius: 5px;">
+                <% if (item.product && item.product.productImage && item.product.productImage.length > 0) { %>
+                  <img src="/uploads/<%= item.product.productImage[0] %>" alt="Product Image" style="height: 60px; width: 50px;">
+                <% } else { %>
+                  <img src="/uploads/default-image.jpg" alt="No Image" style="height: 60px; width: 50px;">
+                <% } %>             
+                  <div>
+                      <h6 style="margin: 0;"><%= item.product.productName %></h6>
+                      <p style="margin: 5px 0; font-size: 12px;">Quantity: <%= item.quantity %></p>
+                      <p style="margin: 5px 0; font-size: 12px;">Price: ₹<%= item.price %></p>
+                  </div>
+              </div>
+              <% }) %>
+          </div>
+          
+          
             <!-- Order Summary -->
             <div class="order-summary">
-              <p><strong>Total Amount:</strong>₹ <%= order.totalPrice%></p>
-              <p><strong>Shipping Charge:</strong>₹ 50</p>
+              <div>
               <p><strong>Payable Amount:</strong>₹ <%= order.PayableAmount%></p>
+              <p><strong>Payment Method:</strong> <%= order.paymentMethod%></p>
+            </div>
+            <div>
+
+              <button class="cancel-order-btn" style="color: white;">
+                <a href="/myorder/<%= order._id %>" style="color: white;">View Details</a></button>
+                <% if (order.paymentStatus === "Paid" && (order.paymentMethod !== "COD" || order.status === "Delivered")) { %>
+                  <button  onclick="downloadInvoice('<%= order._id %>')" class="btn btn-primary invoiceBtn">Download Invoice</button>
+              <% } %>                  
+              
+            </div>
+
             </div>
             
             <!-- Cancel Order Button -->
-            <button class="cancel-order-btn">
-              <a href="/myorder/<%= order._id %>">View Details</a></button>
+           
           </div>
+       
           <%})%>
+        
+        
+          <!-- pagination -->
+          <div class="pagination">
+            <% if (currentPage > 1) { %>
+                <a href="?page=<%= currentPage - 1 %>">&laquo;</a>
+            <% } %>
+            <% for (let i = 1; i <= totalPages; i++) { %>
+                <a href="?page=<%= i %>" class="<%= currentPage === i ? 'active' : '' %>"><%= i %></a>
+            <% } %>
+            <% if (currentPage < totalPages) { %>
+                <a href="?page=<%= currentPage + 1 %>">&raquo;</a>
+            <% } %>
+        </div>
+      
+
           <%} else {%>
             <h6>No Orders</h6>
             <%}%>
         
           <!-- Add more orders here -->
+       
         </div>
-        
         
           
            
 
             
         </div>
+        
     </div>
 
+<script>
+  function downloadInvoice(orderId) {
+    window.location.href = `/generate-invoice/${orderId}`;
+}
+</script>
 
-    <!-- Footer -->
-    <!-- <%- include("../../views/partials/user/userfooter.ejs")%> -->
-
-    <!-- <script>
-        const redirectButton = document.getElementById('editButton')
-        redirectButton.addEventListener('click',()=>{
-            window.location.href= 'http://localhost:4000/myprofile'
-        })
-    </script> -->
 </body>
 </html>

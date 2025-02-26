@@ -7,6 +7,9 @@
     <title>Admin Dashboard</title>
     <!-- Bootstrap -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+
     <style>
         /* General Styles */
         * {
@@ -235,7 +238,7 @@
                 </div>
                 <div class="col-md-4">
                     <div class="stats-card">
-                        <h3><%=revenueAmount %></h3>
+                        <h3><%=revenueAmount.toFixed(2) %></h3>
                         <p>Overall Revenue</p>
                     </div>
                 </div>
@@ -285,9 +288,118 @@
                     <button onclick="downloadExcel()">Download Excel</button>
                 </div>
             </div>
+            <!-- chart -->
+            <h4>Top Selling Products</h4>
+
+<div style="height: 400px; display: flex; gap: 50px;">
+<div>
+<!-- Filter Controls -->
+<div>
+  <label for="filter">Filter by: </label>
+  <select id="filter">
+    <option value="daily">Daily</option>
+    <option value="monthly">Monthly</option>
+    <option value="yearly">Yearly</option>
+  </select>
+
+  <label for="chartType">Chart Type: </label>
+  <select id="chartType">
+    <option value="line">Line</option>
+    <option value="bar">Bar</option>
+    <option value="pie">Pie</option>
+  </select>
+</div>
+
+<!-- Chart Display -->
+ 
+<canvas id="topSellingChart" width="200px" height="800px"></canvas>
+
+</div>
+<div style="height: 400px;">
+    <h4>Top Selling Products</h4>
+  
+    <!-- Filter Controls -->
+    <div>
+      <label for="filter">Filter by: </label>
+      <select id="filter">
+        <option value="daily">Daily</option>
+        <option value="monthly">Monthly</option>
+        <option value="yearly">Yearly</option>
+      </select>
+  
+      
+    </div>
+  
+    <!-- Table for Top Selling Products -->
+    <table id="topSellingProductsTable"  cellpadding="5" cellspacing="10" style="border: 1;">
+      <thead>
+        <tr style="background-color: #f2f2f2; text-align: left;">
+            <th style="padding: 8px; border: 1px solid #ddd;">Product Name</th>
+            <th style="padding: 8px; border: 1px solid #ddd;">Total Sold</th>
+          </tr>
+      </thead>
+      <tbody>
+        <!-- Data will be populated here -->
+      </tbody>
+    </table>
+  </div>
+
+</div>
             
+
+             <!--end  -->
+
+
+             <div style="height: 400px; margin-top: 150px; display: flex;">
+                <div>
+                    <h4>Top Categories</h4>
+                <label for="filter">Filter by: </label>
+
+                <select id="filter">
+                    <option value="daily">Daily</option>
+                    <option value="monthly">Monthly</option>
+                    <option value="yearly">Yearly</option>
+                  </select>
+                  
+                  <label for="chartType">Chart Type: </label>
+
+                  <select id="chartType">
+                    <option value="line">Line</option>
+                    <option value="bar">Bar</option>
+                    <option value="pie">Pie</option>
+                  </select>
+                  
+                  <canvas id="topCategoriesChart" width="600" height="400"></canvas>
+                </div>
+                <div style="height: 400px; margin-top: 100px;">
+                    <h4>Top Categories</h4>
+                  
+                    <label for="filter">Filter by: </label>
+                    <select id="filter">
+                      <option value="daily">Daily</option>
+                      <option value="monthly">Monthly</option>
+                      <option value="yearly">Yearly</option>
+                    </select>
+                  
+                   
+                  
+                    <!-- Table for Top Selling Categories -->
+                    <table id="topSellingCategoriesTable" cellpadding="5" cellspacing="0" style="border-collapse: collapse; width: 100%; margin: 20px 0;">
+                        <thead>
+                            <tr style="background-color: #f2f2f2; text-align: left;">
+                                <th style="padding: 8px; border: 1px solid #ddd;">Category Name</th>
+                                <th style="padding: 8px; border: 1px solid #ddd;">Total Sold</th>
+                              </tr>
+                      </thead>
+                      <tbody>
+                        <!-- Data will be populated here -->
+                      </tbody>
+                    </table>
+                  </div>
+             </div>
             
         </div>
+        
         
     </div>
 
@@ -296,6 +408,9 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.23/jspdf.plugin.autotable.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+
 
  <script>
     async function fetchSalesReport() {
@@ -375,6 +490,186 @@ function downloadExcel() {
     XLSX.utils.book_append_sheet(wb, ws, "Sales Report");
     XLSX.writeFile(wb, "Sales_Report.xlsx");
 }
+
+// product graph 
+
+const topSellingChartCanvas = document.getElementById('topSellingChart');
+let topSellingChart;
+
+async function updateTopSellingChart() {
+  const filter = document.getElementById('filter').value;
+  const chartType = document.getElementById('chartType').value;
+
+  const response = await fetch(`/admin/top-selling-products?filter=${filter}`);
+  const data = await response.json();
+  console.log(data);
+
+  const productNames = data.map(item => item.productName);
+  const totalSold = data.map(item => item.totalSold);
+
+  if (topSellingChart) {
+    topSellingChart.destroy();
+  }
+
+  topSellingChart = new Chart(topSellingChartCanvas, {
+    type: chartType, // Dynamic chart type
+    data: {
+      labels: productNames, // Product names
+      datasets: [{
+        label: 'Total Sold',
+        data: totalSold, // Quantities sold
+        borderColor: 'rgba(75, 192, 192, 1)',
+        backgroundColor: chartType === 'pie' ? 'rgba(75, 192, 192, 0.2)' : 'rgba(75, 192, 192, 0.2)',
+        fill: chartType !== 'line' // Only fill for bar and pie charts
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false, // Allow resizing
+      scales: chartType === 'line' ? {
+        y: { beginAtZero: true }
+      } : undefined,
+      plugins: {
+        legend: {
+          display: false // Hide legend if needed
+        }
+      },
+      scales: {
+        x: {
+          ticks: {
+            display: false // Hide x-axis labels
+          }
+        }
+      }
+    }
+  });
+}
+
+// Event listeners to update chart based on filter or chart type change
+document.addEventListener('DOMContentLoaded', () => {
+  updateTopSellingChart();
+});
+
+document.getElementById('filter').addEventListener('change', updateTopSellingChart);
+document.getElementById('chartType').addEventListener('change', updateTopSellingChart);
+
+
+// Category chart 
+
+const topCategoriesChartCanvas = document.getElementById('topCategoriesChart');
+let topCategoriesChart;
+
+async function updateTopCategoriesChart() {
+  const filter = document.getElementById('filter').value;
+  const chartType = document.getElementById('chartType').value;
+
+  const response = await fetch(`/admin/top-selling-categories?filter=${filter}`);
+  const data = await response.json();
+  
+  console.log(data);
+
+  const categoryNames = data.map(item => item.categoryName);
+  const totalSold = data.map(item => item.totalSold);
+
+  if (topCategoriesChart) {
+    topCategoriesChart.destroy();
+  }
+
+  topCategoriesChart = new Chart(topCategoriesChartCanvas, {
+    type: chartType, // Dynamic chart type
+    data: {
+      labels: categoryNames, // Category names
+      datasets: [{
+        label: 'Total Sold',
+        data: totalSold, // Quantities sold
+        borderColor: 'rgba(75, 192, 192, 1)',
+        backgroundColor: chartType === 'pie' ? 'rgba(75, 192, 192, 0.2)' : 'rgba(75, 192, 192, 0.2)',
+        fill: chartType !== 'line' // Only fill for bar and pie charts
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false, // Allow resizing
+      scales: chartType === 'line' ? {
+        y: { beginAtZero: true }
+      } : undefined
+    }
+  });
+}
+
+// Event listeners to update chart based on filter or chart type change
+document.addEventListener('DOMContentLoaded', () => {
+  updateTopCategoriesChart();
+});
+
+document.getElementById('filter').addEventListener('change', updateTopCategoriesChart);
+document.getElementById('chartType').addEventListener('change', updateTopCategoriesChart);
+
+
+//product table 
+
+// Product Table update
+async function updateTopSellingProductsTable() {
+  const filter = document.getElementById('filter').value;
+
+  const response = await fetch(`/admin/top-selling-products?filter=${filter}`);
+  const data = await response.json();
+  console.log("Top Selling Products Data:");
+  console.log(data);
+
+  const productNames = data.map(item => item.productName);
+  const totalSold = data.map(item => item.totalSold);
+
+  const tableBody = document.getElementById('topSellingProductsTable').getElementsByTagName('tbody')[0];
+  
+  tableBody.innerHTML = ''; // Clear any existing rows
+
+  productNames.forEach((productName, index) => {
+    const row = tableBody.insertRow();
+    const cell1 = row.insertCell(0);
+    const cell2 = row.insertCell(1);
+    cell1.textContent = productName;
+    cell2.textContent = totalSold[index];
+  });
+}
+
+// Category Table update
+async function updateTopCategoriesTable() {
+  const filter = document.getElementById('filter').value;
+
+  const response = await fetch(`/admin/top-selling-categories?filter=${filter}`);
+  const data = await response.json();
+  console.log("Top Selling Categories Data:");
+  console.log(data);
+
+  const categoryNames = data.map(item => item.categoryName);
+  const totalSold = data.map(item => item.totalSold);
+
+  const tableBody = document.getElementById('topSellingCategoriesTable').getElementsByTagName('tbody')[0];
+  
+  tableBody.innerHTML = ''; // Clear any existing rows
+
+  categoryNames.forEach((categoryName, index) => {
+    const row = tableBody.insertRow();
+    const cell1 = row.insertCell(0);
+    const cell2 = row.insertCell(1);
+    cell1.textContent = categoryName;
+    cell2.textContent = totalSold[index];
+  });
+}
+
+// Event listeners to update tables when the filter is changed
+document.getElementById('filter').addEventListener('change', () => {
+  updateTopSellingProductsTable();
+  updateTopCategoriesTable();
+});
+
+// Initial load to populate the tables
+document.addEventListener('DOMContentLoaded', () => {
+  updateTopSellingProductsTable();
+  updateTopCategoriesTable();
+});
+
 
  </script>
 </body>

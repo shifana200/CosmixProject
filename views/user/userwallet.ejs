@@ -318,6 +318,43 @@ textarea {
     .debit {
         color: red; /* Red for deducted balance */
     }
+    
+    .pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 20px;
+    gap: 10px;
+}
+
+.pagination-btn, .page-info {
+    text-decoration: none;
+    font-weight: bold;
+    background-color: #84CBCB;
+    color: white;
+    padding: 10px;
+    border-radius: 20%;  /* Makes it round */
+    width: 30px;
+    height: 30px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 18px;
+    border: 2px solid #84CBCB;
+    transition: background 0.3s, transform 0.2s;
+}
+
+.pagination-btn:hover {
+    background-color: #84CBCB;
+    transform: scale(1.1);
+}
+
+.page-info {
+    background-color: #84CBCB;
+    color: white;
+    border: 2px solid #84CBCB;
+}
+
 
 
 
@@ -340,7 +377,7 @@ textarea {
                     
                     <!-- Wallet Balance Section -->
                     <div class="wallet-balance-box">
-                        Wallet Balance: ₹ <%= walletAmount %>
+                        Wallet Balance: ₹ <%= walletAmount.toFixed(2)%>
                     </div>
                     
                     <!-- Referral Code -->
@@ -363,14 +400,36 @@ textarea {
                             <% } else { %>
                                 <% transactions.forEach(transaction => { %>
                                     <tr>
-                                        <td>  <%= transaction.amount > 0 ? `+ ₹ ${transaction.amount}` : `- ₹ ${Math.abs(transaction.amount)}` %></td>
-                                        <td><%= transaction.transactionType %></td>
+                                        <td style="color: <%= transaction.amount > 0 ? 'green' : 'red' %>;">
+                                            <%= transaction.amount > 0 ? `+ ₹ ${transaction.amount}` : `- ₹ ${Math.abs(transaction.amount)}` %>
+                                        </td>
+                                         <td><%= transaction.transactionType %></td>
                                         <td><%= new Date(transaction.timestamp).toLocaleString() %></td>
                                     </tr>
                                 <% }) %>
                             <% } %>
                         </tbody>
                     </table>
+                    
+                    <!-- Pagination Controls -->
+<!-- Pagination Controls -->
+<div class="pagination">
+    <% if (currentPage > 1) { %>
+        <a href="/mywallet?page=<%= currentPage - 1 %>" class="pagination-btn">
+            &#9665; 
+        </a>
+    <% } %>
+
+    <span class="page-info"><%= currentPage %></span>
+
+    <% if (currentPage < totalPages) { %>
+        <a href="/mywallet?page=<%= currentPage + 1 %>" class="pagination-btn">
+             &#9655;
+        </a>
+    <% } %>
+</div>
+
+
                     
                 </div>
             </div>

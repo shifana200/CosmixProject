@@ -23,12 +23,28 @@ const loadUserWallet = async (req, res) => {
 
         if (!wallet) {
             // If wallet doesn't exist, send default values
-            return res.render('userwallet', { walletAmount: 0, transactions: [] ,user});
+            return res.render('userwallet', { walletAmount: 0, transactions: [] ,user, currentPage: 1, totalPages: 1});
         }
+
+        const page = parseInt(req.query.page) || 1; // Default to page 1
+        const limit = 5; // Transactions per page
+        const skip = (page - 1) * limit; 
+
+
+        const sortedTransactions = wallet.transactions.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+
+        const totalTransactions = sortedTransactions.length; // Total transactions count
+        const totalPages = Math.ceil(totalTransactions / limit); // Calculate total pages
+
+
+        // Paginate the transactions array (as MongoDB isn't handling it directly)
+        const paginatedTransactions = sortedTransactions.slice(skip, skip + limit);
 
         res.render('userwallet', {
             walletAmount: wallet.walletAmount,
-            transactions: wallet.transactions,user
+            transactions: paginatedTransactions,
+            user, currentPage: page,
+            totalPages
         });
 
     } catch (error) {

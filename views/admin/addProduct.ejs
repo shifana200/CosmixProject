@@ -294,7 +294,7 @@
             <div class="col-md-3">
                 <img src="" alt="" id="imgView1">
 
-                <input class="form-control" type="file" name="images" id="input1" accept="image/png, image/jpeg, image/ image/webp" onchange="viewImage1(event), viewImage(event, 1)">
+                <input class="form-control" type="file" name="images" id="input1" accept="image/png, image/jpeg,image/webp" onchange="viewImage(event, 1)">
                 <div id="input1-error" class="error-message"></div>
 
                 <div class="image-cropper d-flex align-items-center" style="display:none; width: 200px; height: 200px; margin-bottom: 20px; overflow: hidden;">
@@ -307,7 +307,7 @@
             <div class="col-md-3">
                 <img src="" alt="" id="imgView2">
 
-                <input class="form-control" type="file" name="images" id="input2" accept="image/png, image/jpeg, image/webp" onchange="viewImage(event, 2)">
+                <input class="form-control" type="file" name="images" id="input2" accept="image/png, image/jpeg, image/webp" onchange="viewImage(event,2)">
                 <div id="input2-error" class="error-message"></div>
 
                 <div class="image-cropper d-flex align-items-center" style="display:none; width: 200px; height: 200px; margin-bottom: 20px; overflow: hidden;">
@@ -356,183 +356,178 @@
 <script>
     // Function to edit product details
     const editProduct = async (productData, productId) => {
-        try {
-            const response = await fetch(`/api/products/${productId}`, {
-                method: "PUT",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify(productData),
-            });
+    try {
+        const response = await fetch(`/api/products/${productId}`, {
+            method: "PUT",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify(productData),
+        });
 
-            if (response.ok) {
-                const responseData = await response.json();
-                if (responseData.success) {
-                    // If successful, show a success message and redirect
-                    Swal.fire({
-                        icon: "success",
-                        title: "Product Updated",
-                        text: "The product has been successfully updated!",
-                        confirmButtonText: "OK",
-                    }).then(() => {
-                        window.location.href = "/admin/productmanagement";
-                    });
-                }
-            } else {
-                const errorData = await response.json();
-                // Show the error message from the server using Swal
+        if (response.ok) {
+            const responseData = await response.json();
+            if (responseData.success) {
+                // If successful, show a success message and redirect
                 Swal.fire({
-                    icon: "error",
-                    title: "Error",
-                    text: errorData.message || "Something went wrong.",
-                    confirmButtonText: "Try Again",
+                    icon: "success",
+                    title: "Product Updated",
+                    text: "The product has been successfully updated!",
+                    confirmButtonText: "OK",
                 }).then(() => {
-                    // Redirect to the current page
-                    window.location.reload();
+                    window.location.href = "/admin/productmanagement";
                 });
             }
-        } catch (error) {
-            // Handle network or unexpected errors
+        } else {
+            const errorData = await response.json();
+            // Show the error message from the server using Swal
             Swal.fire({
                 icon: "error",
-                title: "Something Went Wrong",
-                text: "Please try again later.",
-                confirmButtonText: "OK",
+                title: "Error",
+                text: errorData.message || "Something went wrong.",
+                confirmButtonText: "Try Again",
+            }).then(() => {
+                // Redirect to the current page
+                window.location.reload();
             });
         }
-    };
-</script>
-
-
-<script>
-
-    function validateAndSubmit(){
-        
-        if(validateForm()){
-            document.forms[0].submit();
-            
-        }
+    } catch (error) {
+        // Handle network or unexpected errors
+        Swal.fire({
+            icon: "error",
+            title: "Something Went Wrong",
+            text: "Please try again later.",
+            confirmButtonText: "OK",
+        });
     }
+};
 
+function validateAndSubmit() {
+    if (validateForm()) {
+        document.forms[0].submit();
+    }
+}
 
-    function viewImage1(event){
-            document.getElementById("imgView1").src = URL.createObjectURL(event.target.files[0])
-          }
+function viewImage1(event) {
+    document.getElementById("imgView1").src = URL.createObjectURL(event.target.files[0]);
+}
 
-         
-          function viewImage2(event){
-            document.getElementById("imgView2").src = URL.createObjectURL(event.target.files[0])
-          }
+function viewImage2(event) {
+    document.getElementById("imgView2").src = URL.createObjectURL(event.target.files[0]);
+}
 
-          function viewImage3(event){
-            document.getElementById("imgView3").src = URL.createObjectURL(event.target.files[0])
-          }
+function viewImage3(event) {
+    document.getElementById("imgView3").src = URL.createObjectURL(event.target.files[0]);
+}
 
-          function viewImage4(event){
-            document.getElementById("imgView4").src = URL.createObjectURL(event.target.files[0])
-          }
+function viewImage4(event) {
+    document.getElementById("imgView4").src = URL.createObjectURL(event.target.files[0]);
+}
 
-          //for processing image - crop ,changing file name
-          function viewImage(event,index){
-            let input = event.target;
-            let reader = new FileReader();
-            reader.onload = function (){
+// For processing image - crop, changing file name
+function viewImage(event, index) {
+    let input = event.target;
+    let reader = new FileReader();
+    reader.onload = function () {
+        let dataURL = reader.result;
+        let image = document.getElementById("imgView" + index);
+        image.src = dataURL;
+        
+        let cropper = new Cropper(image, {
+            aspectRatio: 1,
+            viewMode: 1,
+            guides: true,
+            background: false,
+            autoCropArea: 1,
+            Zoomable: true
+        });
 
-                let dataURL = reader.result;
-                let image = document.getElementById("imgView"+index)
+        let cropperContainer = document.querySelector("#croppedImg" + index).parentNode;
+        cropperContainer.style.display = "block";
 
-                image.src = dataURL;
-                let cropper = new Cropper(image,{
-                    aspectRatio:1,
-                    viewMode:1,
-                    guides:true,
-                    background:false,
-                    autoCropArea:1,
-                    Zoomable:true
-                })
-                let cropperContainer = document.querySelector("#croppedImg" + index).parentNode;
-                cropperContainer.style.display = "block";
+        let saveButton = document.querySelector('#saveButton' + index);
+        saveButton.addEventListener('click', async function () {
+            let croppedCanvas = cropper.getCroppedCanvas();
+            let croppedImage = document.getElementById("croppedImg" + index);
+            croppedImage.src = croppedCanvas.toDataURL('image/jpeg', 1.0);
 
-                let saveButton = document.querySelector('#saveButton'+index)
-                saveButton.addEventListener('click',async function () {
-                    let croppedCanvas = cropper.getCroppedCanvas();
-                    let croppedImage = document.getElementById("croppedImg"+index);
-                    croppedImage.src = croppedCanvas.toDataURL('image/jpeg',1.0)
+            let timestamp = new Date().getTime();
+            let fileName = `cropped-img-${timestamp}-${index}.png`;
 
-                    //giving timestamp is to save image with a unique value
-                    let timestamp = new Date().getTime();
-                    let fileName = `cropped-img-${timestamp}-${index}.png`;
+            await croppedCanvas.toBlob(blob => {
+                let input = document.getElementById('input' + index);
+                let imgFile = new File([blob], fileName, blob);
+                const fileList = new DataTransfer();
+                fileList.items.add(imgFile);
+                input.files = fileList.files;
+            });
 
-                    //blob-binary large object
-                    await croppedCanvas.toBlob(blob=>{
-                        let input = document.getElementById('input'+index)
-                        let imgFile = new File([blob],fileName,blob)
-                        const fileList = new DataTransfer();
-                        fileList.items.add(imgFile);
-                        input.files = fileList.files
+            cropperContainer.style.display = "none";
+            cropper.destroy();
+        });
+    };
+    reader.readAsDataURL(input.files[0]);
+}
 
-                    })
-                    cropperContainer.style.display= "none";
-                    cropper.destroy();
-                    
-                })
-            }
-            reader.readAsDataURL(input.files[0]);
-          }
-
-
-          const selectedImages =[];
-          document.getElementById('input1').addEventListener('change',handleFileSelect);
-          function handleFileSelect(event){
-            const addedImagesContainer = document.getElementById('addedImagesContainer')
-            addedImagesContainer.innerHTML="";
-            const files = event.target.files;
-
-            for(let i=0;i<files.length;i++){
-                const file = files[i];
-                selectedImages.push(file);
-                const thumbnail = document.createElement('div');
-                thumbnail.classList.add('thumbnail');
-                const img = document.createElement('img');
-                img.src = URL.createObjectURL(file);
-                img.alt= "thumbnail";
-                img.style.width = "50px";
-                img.style.height = "auto";
-                const removeIcon = document.createElement('span');
-                removeIcon.classList.add('remove-icon');
-                removeIcon.innerHTML = "&times";
-                removeIcon.addEventListener('click',function(){
-                    const index = selectedImages.indexOf(file);
-                    if(index!==-1){
-                        selectedImages.splice(index,1);
-                    }
-                    thumbnail.remove();
-                })
-
-                thumbnail.appendChild(img);
-                thumbnail.appendChild(removeIcon);
-                addedImagesContainer.appendChild(thumbnail);
-            }
-          }
-
- 
-
-
-
+const selectedImages = [];
 let existingProducts = [];
 
+document.addEventListener('DOMContentLoaded', async function () {
+    await fetchExistingProducts();
+    // Ensure the DOM is fully loaded before setting up event listeners
+    document.getElementById('input1').addEventListener('change', handleFileSelect);
+    document.getElementById('input2').addEventListener('change', handleFileSelect);
+    document.getElementById('input3').addEventListener('change', handleFileSelect);
+    document.getElementById('input4').addEventListener('change', handleFileSelect);
+});
+
+function handleFileSelect(event) {
+    const files = event.target.files;
+
+    for (let i = 0; i < files.length; i++) {
+        const file = files[i];
+        selectedImages.push(file);
+
+        // Create a thumbnail container for each selected file
+        const thumbnail = document.createElement('div');
+        thumbnail.classList.add('thumbnail');
+
+        // Create an image element for the thumbnail preview
+        const img = document.createElement('img');
+        img.src = URL.createObjectURL(file);
+        img.alt = "thumbnail";
+        img.style.width = "50px";
+        img.style.height = "auto";
+
+        // Create a remove icon to delete the image thumbnail
+        const removeIcon = document.createElement('span');
+        removeIcon.classList.add('remove-icon');
+        removeIcon.innerHTML = "&times";
+        removeIcon.addEventListener('click', function () {
+            const index = selectedImages.indexOf(file);
+            if (index !== -1) {
+                selectedImages.splice(index, 1);
+            }
+            thumbnail.remove();
+        });
+
+        // Append the image and remove icon to the thumbnail container
+        thumbnail.appendChild(img);
+        thumbnail.appendChild(removeIcon);
+    }
+}
 
 async function fetchExistingProducts() {
     try {
-        const response = await fetch('/api/products'); // Make a request to your backend
+        const response = await fetch('/api/products');
         const products = await response.json();
-        existingProducts = products;  // Populate existingProducts array
-
+        existingProducts = products;
     } catch (error) {
         console.error('Error fetching products:', error);
-        existingProducts= [];  // Return an empty array if there's an error
+        existingProducts = [];
     }
 }
+
 function validateForm() {
     clearErrorMessages();
     const name = document.getElementsByName('productName')[0].value;
@@ -550,10 +545,8 @@ function validateForm() {
     }
 
     const normalizedName = name.toLowerCase();
-
-    // Check if the product already exists in the database
     const productExists = existingProducts.some(
-        (product) => product.name.toLowerCase() === normalizedName
+        (product) => product.productName.toLowerCase() === normalizedName
     );
     if (productExists) {
         displayErrorMessage('productName-error', 'Product already exists.');
@@ -590,7 +583,6 @@ function validateForm() {
         isValid = false;
     }
 
-    // Check for valid image inputs
     if (!validateImageInputs()) {
         isValid = false;
     }
@@ -598,7 +590,6 @@ function validateForm() {
     return isValid;
 }
 
-// Function to validate the image inputs
 function validateImageInputs() {
     let isValid = true;
 
@@ -616,28 +607,26 @@ function validateImageInputs() {
     return isValid;
 }
 
-// Helper function to check if the selected file is a valid image format
 function isValidImageFormat(file) {
     const validFormats = ['image/png', 'image/jpeg', 'image/webp'];
     return validFormats.includes(file.type);
 }
 
-// Function to display error messages
 function displayErrorMessage(elementId, message) {
     var errorElement = document.getElementById(elementId);
     errorElement.innerText = message;
     errorElement.style.display = "block";
-    errorElement.style.color = 'red';  // Optional: Style the error message
+    errorElement.style.color = 'red';
 }
 
-// Function to clear all error messages
 function clearErrorMessages() {
     const errorElements = document.getElementsByClassName('error-message');
     Array.from(errorElements).forEach(element => {
         element.innerText = '';
-        element.style.display = "none"; // Hide error messages after clearing
+        element.style.display = "none";
     });
 }
+
 
 
           

@@ -173,6 +173,35 @@ const editCoupon = async (req, res) => {
     }
 };
 
+const searchCoupon =  async (req, res) => {
+    try {
+        const query = req.query.query;
+        
+        if (!query) {
+            return res.json(await Coupon.find()); // Return all coupons if query is empty
+        }
+
+        let searchConditions = [];
+
+        if (!isNaN(query)) {
+            // If query is a number, search in numeric fields
+            searchConditions.push(
+                { minimumPurchase: parseFloat(query) },
+                { maximumPurchase: parseFloat(query) }
+            );
+        } else {
+            // If query is text, search in couponCode (case-insensitive)
+            searchConditions.push({ couponCode: { $regex: query, $options: "i" } });
+        }
+
+        const coupons = await Coupon.find({ $or: searchConditions });
+
+        res.json(coupons);
+    } catch (error) {
+        console.error("Error searching coupons:", error);
+        res.status(500).json({ message: "Internal Server Error" });
+    }
+}
 
 
 
@@ -182,5 +211,5 @@ const editCoupon = async (req, res) => {
 module.exports={
     loadCouponManagement,
     addCoupon,couponStatus,
-    deleteCoupon,getCouponDetails,editCoupon,
+    deleteCoupon,getCouponDetails,editCoupon,searchCoupon,
 }

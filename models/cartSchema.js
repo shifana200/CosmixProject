@@ -37,7 +37,11 @@ const cartSchema = new Schema({
     PayableAmount: {
         type: Number,
         default: 0
-    }
+    },
+    appliedCoupon: { 
+        type: String,
+         default: null }  // Ensure this field exists
+
 });
 
 

@@ -292,12 +292,13 @@ button.updatebtn:active {
             <!-- Table -->
             <div class="table-container">
                 <div style="display: flex; gap: 10px; margin-bottom: 10px;">
-                  <input type="text" placeholder="Search categories" 
-                      style="flex: 1; padding: 8px; border-radius: 4px; border: 1px solid #ccc;">
-                  <button style="background-color: blue; color: white; padding: 8px 12px; border: none; border-radius: 4px; cursor: pointer;">
-                      Search
-                  </button>
-              </div>
+                    <input type="text" id="searchCategory" placeholder="Search categories"
+                        style="flex: 1; padding: 8px; border-radius: 4px; border: 1px solid #ccc;">
+                    <button id="searchButton" style="background-color: blue; color: white; padding: 8px 12px; border: none; border-radius: 4px; cursor: pointer;">
+                        Search
+                    </button>
+                </div>
+                
                 <table>
                     <thead>
                         <tr>
@@ -419,270 +420,6 @@ button.updatebtn:active {
     <!-- SweetAlert CDN -->
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
-<!-- <script>
-
-
-function confirmAction(url, message) {
-    Swal.fire({
-      title: 'Are you sure?',
-      text: message,
-      icon: 'warning',
-      showCancelButton: true,
-      confirmButtonColor: '#3085d6',
-      cancelButtonColor: '#d33',
-      confirmButtonText: 'Yes, proceed!',
-      cancelButtonText: 'Cancel',
-    }).then((result) => {
-      if (result.isConfirmed) {
-        // Redirect to the URL if confirmed
-        window.location.href = url;
-      }
-    });
-  }
-
-
-    document.getElementById("addCategorybtn").addEventListener("click", function() {
-        var form = document.getElementById("addCategoryform");
-        if (form.style.display === "none" || form.style.display === "") {
-            form.style.display = "block";
-            document.getElementById("addCategorybtn").style.display = "none"
-        } 
-    });
-
-   
-
-
-
-// Make sure there's only one handleFormSubmit function
-function handleFormSubmit(event) {
-    event.preventDefault();
-
-    if (!validateForm()) {
-        return;
-    }
-
-    const name = document.getElementsById("nameId")[0].value;
-    const description = document.getElementById("descriptionId").value;
-
-    fetch('/admin/addCategory', {
-        method: 'POST',
-        headers: {
-            'content-type': 'application/json'
-        },
-        body: JSON.stringify({ name, description })
-    })
-    .then(response => {
-        if (!response.ok) {
-            return response.json().then(err => {
-                throw new Error(err.error);
-            });
-        }
-        return response.json();
-    })
-    .then(data => {
-        Swal.fire({
-            icon: "success",
-            title: "Success",
-            text: "Category Added successfully",
-            showConfirmButton: false,
-            timer: 1500
-        });
-        setTimeout(() => {
-            location.reload();
-        }, 1500);
-    })
-    .catch(error => {
-        if (error.message === "Category already exists") {
-            Swal.fire({
-                icon: "error",
-                title: "Oops",
-                text: "Category already exists"
-            });
-        } else {
-            Swal.fire({
-                icon: "error",
-                title: "Oops",
-                text: "An error occurred while adding the category"
-            });
-        }
-    });
-}
-
-// Corrected validateForm function with trim() fix
-function validateForm() {
-    clearErrorMessages();
-    const name = document.getElementsById("nameId")[0].value.trim();
-    const description = document.getElementById('descriptionId').value.trim();
-    let isValid = true;
-
-    if (name === "") {
-        displayErrorMessage("name.error", "Please enter a name");
-        isValid = false;
-    } else if (!/^[a-zA-Z\s]+$/.test(name)) {
-        displayErrorMessage(
-            "name.error",
-            "Category name should contain only alphabetic characters"
-        );
-        isValid = false;
-    }
-    if (description === "") {
-        displayErrorMessage("description.error", "Please enter a description");
-        isValid = false;
-    }
-    return isValid;
-}
-
-function displayErrorMessage(elementId, message) {
-    var errorElement = document.getElementById(elementId);
-    errorElement.innerText = message;
-    errorElement.style.display = "block";
-}
-
-function clearErrorMessages() {
-    const errorElements = document.getElementsByClassName("error.message");
-    Array.from(errorElements).forEach((element) => {
-        element.innerText = "";
-        element.style.display = "none";
-    });
-}
-
-
-
-
-    const modal = document.getElementById('updateCategoryModal');
-    const closeModalButton = document.getElementById('closeModal');
-    const updateCategoryForm = document.getElementById('updateCategoryForm');
-
-    // Function to open the modal and pre-fill the fields
-    function openUpdateCategoryModal(categoryId, name, description) {
-        document.getElementById('categoryId').value = categoryId;
-        document.getElementById('categoryName').value = name;
-        document.getElementById('categoryDescription').value = description;
-        modal.style.display = 'block';
-    }
-
-    // Close the modal
-    closeModalButton.onclick = function() {
-        modal.style.display = 'none';
-    }
-
-    window.onclick = function(event) {
-        if (event.target === modal) {
-            modal.style.display = 'none';
-        }
-    }
-
-    // Validate form inputs
-    function validateForm() {
-        clearErrorMessages();
-        const name = document.getElementById("categoryName").value.trim();
-        const description = document.getElementById("categoryDescription").value.trim();
-        let isValid = true;
-
-        if (name === "") {
-            displayErrorMessage("name.error", "Please enter a name");
-            isValid = false;
-        } else if (!/^[a-zA-Z\s]+$/.test(name)) {
-            displayErrorMessage("name.error", "Category name should contain only alphabetic characters");
-            isValid = false;
-        }
-
-        if (description === "") {
-            displayErrorMessage("description.error", "Please enter a description");
-            isValid = false;
-        }
-
-        return isValid;
-    }
-
-    // Handle form submission
-    updateCategoryForm.onsubmit = function(event) {
-        event.preventDefault();
-
-        if (!validateForm()) {
-            return;
-        }
-
-        const categoryId = document.getElementById('categoryId').value.trim();
-        const name = document.getElementById('categoryName').value.trim();
-        const description = document.getElementById('categoryDescription').value.trim();
-
-        // Send data to the server for updating the category
-        fetch('/admin/updateCategory', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                categoryId,
-                name,
-                description,
-            }),
-        })
-        .then(response => {
-            if (!response.ok) {
-                return response.json().then(data => {
-                    throw new Error(data.message || 'Error updating category');
-                });
-            }
-            return response.json();
-        })
-        .then(data => {
-            if (data.success) {
-                // Show success message and reload
-                Swal.fire({
-                    icon: "success",
-                    title: "Success",
-                    text: "Category updated successfully",
-                    showConfirmButton: false,
-                    timer: 1500
-                }).then(() => {
-                    modal.style.display = 'none';
-                    location.reload(); // Reload the page to reflect changes
-                });
-            } else {
-                // Show an error if the server indicates failure
-                Swal.fire({
-                    icon: "error",
-                    title: "Oops",
-                    text: data.message || "An error occurred while updating the category",
-                });
-            }
-        })
-        .catch(error => {
-            // Handle errors like duplicate category
-            if (error.message === "Category already exists") {
-                Swal.fire({
-                    icon: "error",
-                    title: "Oops",
-                    text: "Category already exists",
-                });
-            } else {
-                Swal.fire({
-                    icon: "error",
-                    title: "Oops",
-                    text: error.message || "An error occurred while updating the category",
-                });
-            }
-        });
-    };
-
-    // Helper function to display error messages
-    function displayErrorMessage(elementId, message) {
-        const errorElement = document.getElementById(elementId);
-        errorElement.innerText = message;
-        errorElement.style.display = "block";
-    }
-
-    // Helper function to clear error messages
-    function clearErrorMessages() {
-        const errorElements = document.getElementsByClassName("error message");
-        Array.from(errorElements).forEach((element) => {
-            element.innerText = "";
-            element.style.display = "none";
-        });
-    }
-</script> -->
 
 
 <script>
@@ -882,6 +619,48 @@ function clearErrorMessages() {
                 });
             });
     };
+
+    
+    document.getElementById("searchButton").addEventListener("click", function () {
+        let query = document.getElementById("searchCategory").value.trim(); // Get search input value
+
+        fetch(`/admin/searchCategory?query=${query}`)
+            .then(response => response.json())
+            .then(data => {
+                let tableBody = document.querySelector("tbody");
+                tableBody.innerHTML = ""; // Clear the table
+
+                if (data.length === 0) {
+                    tableBody.innerHTML = "<tr><td colspan='5'>No categories found</td></tr>";
+                    return;
+                }
+
+                data.forEach(category => {
+                    let row = `<tr>
+                        <td>${category.name}</td>
+                        <td>${category.description}</td>
+                        <td>${category.isListed ? "Listed" : "Unlisted"}</td>
+                        <td>
+                            <button class="${category.isListed ? 'btn-unlist' : 'btn-list'}" 
+                                    onclick="confirmAction('/admin/${category.isListed ? 'unlistCategory' : 'listCategory'}?id=${category._id}', 
+                                    '${category.isListed ? 'Unlist' : 'List'} this category?')">
+                                ${category.isListed ? "Unlist" : "List"}
+                            </button>
+                        </td>
+                        <td>
+                            <button class="btn-update" onclick="openUpdateCategoryModal('${category._id}', '${category.name}', '${category.description}')">
+                                Update
+                            </button>
+                        </td>
+                    </tr>`;
+
+                    tableBody.innerHTML += row;
+                });
+            })
+            .catch(error => console.error("Error fetching categories:", error));
+    });
+
+
     </script>
 
 

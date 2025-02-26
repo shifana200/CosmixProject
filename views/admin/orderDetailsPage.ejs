@@ -3,297 +3,732 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Panel</title>
-    <link rel="stylesheet" href="/css/style.css"> 
+
+    
+	<link href="https://fonts.googleapis.com/css?family=Montserrat:300,400,500,600,700" rel="stylesheet">
+	<link href="https://fonts.googleapis.com/css?family=Rokkitt:100,300,400,700" rel="stylesheet">
+	
+	<!-- Animate.css -->
+	<link rel="stylesheet" href="css/animate.css">
+	<!-- Icomoon Icon Fonts-->
+	<link rel="stylesheet" href="css/icomoon.css">
+	<!-- Ion Icon Fonts-->
+	<link rel="stylesheet" href="css/ionicons.min.css">
+	<!-- Bootstrap  -->
+	<link rel="stylesheet" href="css/bootstrap.min.css">
+
+	<!-- Magnific Popup -->
+	<link rel="stylesheet" href="css/magnific-popup.css">
+
+	<!-- Flexslider  -->
+	<link rel="stylesheet" href="css/flexslider.css">
+
+	<!-- Owl Carousel -->
+	<link rel="stylesheet" href="css/owl.carousel.min.css">
+	<link rel="stylesheet" href="css/owl.theme.default.min.css">
+	
+	<!-- Date Picker -->
+	<link rel="stylesheet" href="css/bootstrap-datepicker.css">
+	<!-- Flaticons  -->
+	<link rel="stylesheet" href="fonts/flaticon/font/flaticon.css">
+
+	<!-- Theme style  -->
+	<link rel="stylesheet" href="/css/style.css">
+
+    <title>Dashboard Page</title>
     <style>
+        /* General Reset */
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
             font-family: Arial, sans-serif;
         }
+
         body {
             display: flex;
-            background-color: #f5f5f5;
+            flex-direction: column;
+            min-height: 100vh;
+            background-color: #ffffff;
         }
 
         /* Sidebar */
+        .container {
+            display: flex;
+            flex: 1;
+            margin-left: 0px;
+        }
+
         .sidebar {
             width: 220px;
-            background-color: #fff;
-            height: 100vh;
+            background-color: #ffffff;
+            border-right: 1px solid #ddd;
             padding: 20px;
-            box-shadow: 2px 0px 5px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         }
-        .sidebar h1 {
-            color: #84CBCB;
-            margin-bottom: 20px;
-            font-size: 24px;
-        }
+
         .sidebar ul {
-            list-style-type: none;
+            list-style: none;
         }
-        .sidebar ul li {
-            margin: 15px 0;
-            cursor: pointer;
+
+        .sidebar li {
+            margin-bottom: 15px;
+        }
+
+        .sidebar a {
+            text-decoration: none;
+            display: block;
+            padding: 10px;
             color: #333;
+            border-radius: 5px;
+            transition: background-color 0.3s, color 0.3s;
         }
-        .sidebar ul li:hover {
-            color: #84CBCB;
+
+        .sidebar a.active, .sidebar a:hover {
+            background-color: #84CBCB;
+            color: white;
         }
 
         /* Main Content */
-        .main {
+        .content {
             flex: 1;
-            display: flex;
-            flex-direction: column;
-        }
-        /* Top Header */
-        .header {
-            background-color: #84CBCB;
-            height: 50px;
-            display: flex;
-            align-items: center;
-            padding-left: 20px;
-            color: white;
-            font-size: 18px;
+            padding: 20px;
+            background-color: #ffffff;
         }
 
-        
-        /* General Styles */
-       
-
-        .colorlib-nav {
-            background-color: #84CBCB;
-            color: white;
+        .content h2 {
+            margin-bottom: 15px;
         }
 
-        .top-menu .container {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+        .content p {
+            color: #555;
+            line-height: 1.6;
         }
 
-        #colorlib-logo a {
-            color: white;
-            text-decoration: none;
-            font-size: 24px;
+        .dashboard-header {
             font-weight: bold;
+            margin-bottom: 10px;
         }
-
-        .menu-1 {
-            display: flex;
-            justify-content: flex-end;
-        }
-
-        .menu-1 ul {
-            list-style: none;
-            margin: 0;
-            padding: 0;
-        }
-
-        .menu-1 li {
-            display: inline;
-        }
-
-        .menu-1 li a {
-            color: white;
-            text-decoration: none;
-            font-size: 18px;
-            padding: 10px 20px;
-            transition: background-color 0.3s;
-        }
-
-        .menu-1 li a:hover {
-            background-color: #333;
-            border-radius: 5px;
-        }
-
-        .cart {
-            display: flex;
-            align-items: center;
-        }
-        #button-cancel{
-            background-color: rgb(218, 14, 14);
-            color: white;
-            border: none;
-            padding: 5px;
-            border-radius: 2px;
-        }
-        .card-header{
-            font-size: 20px;
-        }
-
-        .cancellation-reason-container {
-    padding: 20px;
-    border: 1px solid #ddd;
-    background-color: #f9f9f9;
-    width: 100%;
-    margin: 25px auto;
-    border-radius: 8px;
-    
+        .user-details-form {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
 }
 
-.cancellation-reason-container h3 {
-    text-align: center;
-    font-size: 1.5em;
-    margin-bottom: 15px;
+label {
+  font-weight: bold;
+  margin: 10px 0 5px;
 }
 
-.cancellation-reason-container input {
-    width: 100%;
-    padding: 10px;
-    margin-bottom: 15px;
-    border-radius: 4px;
-    border: 1px solid #ccc;
+input, textarea, select {
+  width: 100%;
+  padding: 8px;
+  margin-bottom: 15px;
+  border: 1px solid #cccccc;
+  border-radius: 4px;
+  box-sizing: border-box;
 }
 
-.buttons {
+textarea {
+  resize: vertical;
+  height: 80px;
+}
+
+.gender-container {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 15px;
+}
+
+.gender-label {
+  font-size: 16px;
+  font-weight: 400;
+  margin-bottom: 10px;
+}
+
+
+.gender-options {
     display: flex;
-    justify-content: space-between;
+    align-items: center; /* Aligns the radio buttons and labels vertically */
+    gap: 20px; /* Adds spacing between Male and Female options */
 }
 
-.buttons button {
-    padding: 10px 15px;
-    border: none;
-    border-radius: 4px;
+.gender-option {
+    display: flex;
+    align-items: center; /* Ensures the radio button and label are vertically aligned */
+}
+
+.gender-options input {
+    margin-right: 5px; /* Adds space between radio button and label */
     cursor: pointer;
 }
 
-.buttons .btn-danger {
-    background-color: #f44336;
+.gender-options label{
+    margin-top: -9px;
+}
+
+
+
+
+
+
+.submit-btn {
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  padding: 10px 15px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+        /* Footer */
+        .footer {
+            background-color: #84CBCB;
+            padding: 20px;
+            color: #333;
+        }
+
+        .footer-container {
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            color: white;
+        }
+
+        .footer-column {
+            margin-bottom: 10px;
+        }
+
+        .footer h4 {
+            margin-bottom: 10px;
+            font-size: 16px;
+            color: #fff;
+        }
+
+        .footer ul {
+            list-style: none;
+        }
+
+        .footer ul li {
+            margin-bottom: 5px;
+        }
+
+        .footer ul li a {
+            text-decoration: none;
+            color: #ffffff;
+            transition: color 0.3s;
+        }
+
+        .footer ul li a:hover {
+            color: #0056b3;
+        }
+
+        .newsletter {
+            display: flex;
+            margin-top: 10px;
+        }
+
+        .newsletter input {
+            padding: 10px;
+            flex: 1;
+            border: none;
+            border-radius: 4px 0 0 4px;
+        }
+
+        .newsletter button {
+            padding: 10px 15px;
+            background-color: black;
+            color: white;
+            border: none;
+            border-radius: 0 4px 4px 0;
+            cursor: pointer;
+        }
+
+        .newsletter button:hover {
+            opacity: 0.8;
+        }
+
+
+        .dashboard-header h1{
+            color: #52cbcb;
+        }
+
+        .dashboard-header li{
+            list-style: none;
+            padding: 20px 0px;
+            color: black;
+        }
+
+        .dashboard-header button{
+            padding: 8px 20px;
+
+            color: rgb(255, 255, 255);
+            background-color: #84CBCB;
+            border: none;
+        }
+        .edit-btn {
+            background-color: #4CAF50;
+  color: white;
+  border: none;
+  padding: 10px 15px;
+  border-radius: 4px;
+  cursor: pointer;
+
+}
+
+
+/* Order Header (Full-Width) */
+.order-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    background: #122436;
+    color: white;
+    padding: 15px 20px;
+    font-size: 16px;
+}
+
+.order-header p {
+    margin: 0;
     color: white;
 }
 
-.buttons .btn-secondary {
-    background-color: #757575;
+.left {
+    text-align: left;
+}
+
+.right {
+    text-align: right;
+}
+
+
+
+/* Products Section */
+.products-section {
+    background: white;
+    padding: 20px;
+    margin-top: 15px;
+    border-radius: 8px;
+    box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.products-section h2 {
+    color: #444;
+    margin-bottom: 10px;
+}
+
+/* Product Cards */
+.product-card {
+    display: flex;
+    align-items: center;
+    background: #ffffff;
+    padding: 10px;
+    border-radius: 8px;
+    margin-bottom: 10px;
+    box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.product-card img {
+    width: 80px;
+    height: 80px;
+    border-radius: 5px;
+    margin-right: 15px;
+}
+
+.product-info {
+    flex-grow: 1;
+}
+
+.product-info h4 {
+    margin: 0;
+    color: #333;
+}
+
+.product-info p {
+    margin: 3px 0;
+    color: #666;
+    font-size: 14px;
+}
+
+/* Address & Payment Info - Two Columns */
+.details-section {
+    display: flex;
+    gap: 15px;
+    margin-top: 15px;
+}
+
+.shipping-info, .payment-details {
+    flex: 1;
+    background: white;
+    padding: 15px;
+    border-radius: 8px;
+    box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.shipping-info h2, .payment-details h2 {
+    color: #444;
+    margin-bottom: 10px;
+}
+
+.shipping-info p, .payment-details p {
+    font-size: 14px;
+    color: #555;
+}
+
+/* Highlight total price */
+.payment-details h3 {
+    color: #e74c3c;
+    margin-top: 10px;
+}
+    
+.order-actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 15px;
+    padding: 10px 20px;
+}
+
+.order-text {
+    font-size: 16px;
+    color: white;
+    margin: 0;
+}
+
+.button-group {
+    display: flex;
+    gap: 10px;
+}
+
+.cancel-btn, .return-btn {
+    padding: 7px 10px;
+    border: none;
+    color: white;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 14px;
+    width: auto;
+    min-width: 120px;
+}
+
+.cancel-btn {
+    background: red;
+}
+
+.return-btn {
+    background: green; /* Changed to green */
+}
+
+.cancel-btn:hover {
+    background: #c0392b;
+}
+
+.return-btn:hover {
+    background: #27ae60;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .order-actions {
+        flex-direction: column;
+        text-align: center;
+    }
+
+    .button-group {
+        margin-top: 10px;
+    }
+
+    .cancel-btn, .return-btn {
+        width: 100%;
+    }
+}
+.order-tracker {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    max-width: 800px;
+    margin: 20px auto;
+}
+
+.status {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    color: #aaa;
+    font-size: 14px;
+    font-weight: bold;
+    text-align: center;
+    position: relative;
+    flex: 1;
+}
+
+.status .icon {
+    font-size: 24px;
+    background: #ddd;
+    padding: 10px;
+    border-radius: 50%;
+    margin-bottom: 5px;
+    transition: 0.3s;
+}
+
+.line {
+    flex: 1;
+    height: 3px;
+    background: #ddd;
+}
+
+.status.active .icon {
+    background: #2ecc71; /* Green for active */
     color: white;
 }
 
-.card-price-card{
-margin: 25px auto;}
+.status.active p {
+    color: #2ecc71;
+}
 
+/* Responsive Design */
+@media (max-width: 600px) {
+    .order-tracker {
+        flex-direction: column;
+    }
 
-        
+    .line {
+        width: 3px;
+        height: 30px;
+    }
+}
+
+.status-button-container {
+    display: flex;
+    justify-content: flex-end; /* Aligns the button to the right */
+    margin-top: 15px;
+}
+
+.view-status-btn {
+    background: #84CBCB; /* Blue color */
+    color: white;
+    border: none;
+    padding: 7px 10px;
+    border-radius: 5px;
+    font-size: 12px;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.view-status-btn:hover {
+    background: #84CBCB;
+}
+
+.input-error {
+    border: 1px solid red;
+    background-color: #ffe6e6;
+}
+
+.errorMessage {
+    color: red;
+    font-size: 14px;
+    margin-top: 5px;
+}
+
+.order-tracker {
+
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+    .status {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        color: gray; /* Default color */
+    }
+    .line {
+        width: 30px;
+        height: 3px;
+        background-color: gray; /* Default color */
+    }
+    .active {
+        color: green !important;
+    }
+    .active-line {
+        background-color: green !important;
+    }
+
     </style>
 </head>
 <body>
-   
+    <%- include("../../views/partials/admin/header.ejs")%>
 
-    <!-- Main Section -->
-    <div class="main">
-      <%- include("../../views/partials/admin/header.ejs")%>
-            
-      <div class="container1" style="width: 100%; padding-left: 20px;">
-        <h1>Order Details</h1>
-    
-        <!-- Product Details Section -->
-        <div class="card">
-          <p>  ORDER ID : <%= orderDetails.orderId %></p>
-          <div class="card-header">Product Details</div>
-    
-          <% orderDetails.orderedItems.forEach((item)=>{ %>
-          <div class="product-card" style="display: flex;">
-            <img    src="/uploads/<%= item.product.productImage[0]%>" alt="Product Image"  style="height: 60px; width: 50px;" >
-            <div class="product-details">
-              <h4><%=item.product.productName%></h4>
-              <p>Quantity: <%= item.quantity%></p>
-              <p>Price: ₹ <%= item.price%></p>
-            </div>
-          </div>
-          <%})%>
-    
-         
-    
-          <!-- Cancel Button -->
+
+    <!-- Container with Sidebar and Main Content -->
+    <div class="container">
+        <!-- Sidebar -->
+        
+
+
+        <!-- Main Content -->
+        
           
-        </div>
-        <div style="display: flex; justify-content: space-between; padding: 5px;">
-            <h6>Need to update the order status? </h6>
-        <button id="button-cancel" class="cancel-btn">Update</button>
-    </div>
+           
+        <div class="content">
 
-    <div>
-        <form id="order-status-form" method="POST" action="/updateStatus">
-            <div id="reasondiv" class="cancellation-reason-container" style="display: none;">
-                <h3>Order Status</h3>
-                <input type="hidden" id="order-id" name="orderId" value="<%= orderDetails._id %>"> <!-- Hidden Order ID -->
-                
-                <select id="order-status" name="status" class="form-control">
-                    <option value="Pending">Pending</option>
-                    <option value="Ordered">Ordered</option>
-                    <option value="Shipped">Shipped</option>
-                    <option value="Delivered">Delivered</option>
-                    <option value="Cancelled">Cancelled</option>
-                    <option value="Returned">Returned</option>
-                </select>
-        
-                <div class="buttons">
-                    <button type="button" id="go-back" class="btn btn-secondary">Go Back</button>
-                    <button type="submit" id="update-status" class="btn btn-primary">Update Status</button>
-                </div>
-            </div>
-        </form>
-        
-        
-        
-    </div>
-
-    
-        <!-- Price Details Section -->
-        <div class="card-price-card">
-          <div class="card-header">Price Details</div>
-          <p>Total Amount: ₹ <%= orderDetails.totalPrice%></p>
-          <p>Shipping Charge: ₹ 50</p>
-          <p>Payable Amount: ₹ <%= orderDetails.PayableAmount%></p>
-        </div>
-    
-        <!-- Shipping Details Section -->
-        <div class="card shipping-card">
-          <div class="card-header">Shipping Details</div>
-          <p><%=addressDetails.name%></p>
-          <p> Address Type : <%=addressDetails.addressType%> <br>
-            LandMark : <%= addressDetails.landMark%> <br>
-            <%= addressDetails.city%> , <%= addressDetails.district%> , <%= addressDetails.state%> - <%= addressDetails.pincode%></p>
-          <p>Contact Details : <%=addressDetails.phone%> <br>
-            Alternative Phone number : <%= addressDetails.altPhone%></p>
-        </div>
-      </div>
-      
-       
-
-        
-    </div>
-    </div>
-
-
-    <% if (typeof success !== 'undefined' && typeof message !== 'undefined') { %>
-        <script>
-            // Display SweetAlert based on the success flag and message
-            const message = '<%= message %>';
-            const success = <%= success %>;
             
-            if (success) {
-                Swal.fire({
-                    title: 'Success!',
-                    text: message,
-                    icon: 'success',
-                    confirmButtonText: 'OK'
-                });
-            } else {
-                Swal.fire({
-                    title: 'Error!',
-                    text: message,
-                    icon: 'error',
-                    confirmButtonText: 'OK'
-                });
-            }
-        </script>
-    <% } %>
-   
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+            <div class="order-header">
+                <p class="left"><strong>Order ID:</strong> <%= orderDetails.orderId %></p>
+                <p class="right"><strong>Payment Method:</strong> <%= orderDetails.paymentMethod %></p>
+            </div>
+            
+            
 
+    <!-- Products Section -->
+    <div class="products-section">
+        <h4>Product Details</h4>
+
+        <% orderDetails.orderedItems.forEach((item) => { %>
+
+        <div class="product-card">
+            <% if (item.product && item.product.productImage && item.product.productImage.length > 0) { %>
+                <img src="/uploads/<%= item.product.productImage[0] %>" alt="Product Image" style="height: 60px; width: 50px;">
+              <% } else { %>
+                <img src="/uploads/default-image.jpg" alt="No Image" style="height: 60px; width: 50px;">
+              <% } %>
+             <div class="product-info">
+                <h5><%=item.product.productName%></h5>
+                <p>Price: ₹ <%= item.price%></p>
+
+                <p>Quantity: <%= item.quantity%></p>
+                <p>Total Price: ₹ <%= item.quantity * item.price%></p>
+
+            </div>
+            
+        </div>
+        <%})%>
+
+
+        
+    </div>
+    <div style="display: flex; justify-content: space-between; padding: 5px;">
+        <h6>Need to update the order status? </h6>
+    <button id="button-cancel" class="cancel-btn">Update</button>
+</div>
+<div>
+    <form id="order-status-form" method="POST" action="/updateStatus">
+        <div id="reasondiv" class="cancellation-reason-container" style="display: none;">
+            <h3>Order Status</h3>
+            <input type="hidden" id="order-id" name="orderId" value="<%= orderDetails._id %>"> <!-- Hidden Order ID -->
+            
+            <select id="order-status" name="status" class="form-control">
+                <option value="Pending">Pending</option>
+                <option value="Ordered">Ordered</option>
+                <option value="Shipped">Shipped</option>
+                <option value="Delivered">Delivered</option>
+                <option value="Cancelled">Cancelled</option>
+                <option value="Returned">Returned</option>
+            </select>
+    
+            <div class="buttons">
+                <button type="button" id="go-back" class="btn btn-secondary">Go Back</button>
+                <button type="submit" id="update-status" class="btn btn-primary">Update Status</button>
+            </div>
+        </div>
+    </form>
+
+    <% if (orderDetails.status === 'Cancellation Pending' || orderDetails.status === 'Return Pending') { %>
+        <div class="admin-confirmation">
+            <h3>Order Request Pending</h3>
+            <p><strong>Reason:</strong> <%= orderDetails.status === 'Cancellation Pending' ? orderDetails.cancellationReason : orderDetails.returnReason %></p>
+            
+            <div class="button-group">
+                <form action="/admin/orderRequest" method="POST">
+                    <input type="hidden" name="orderId" value="<%= orderDetails._id %>">
+                    <input type="hidden" name="action" value="accept">
+                    <button type="submit" class="btn btn-success">Accept</button>
+                </form>
+                <form action="/admin/orderRequest" method="POST">
+                    <input type="hidden" name="orderId" value="<%= orderDetails._id %>">
+                    <input type="hidden" name="action" value="reject">
+                    <button type="submit" class="btn btn-danger">Reject</button>
+                </form>
+            </div>
+        </div>
+    <% } %>
+    
+    
+    
+    
+</div>
+
+    <% if (addressDetails) {%>
+
+    <!-- Address & Payment Info -->
+    <div class="details-section">
+        <div class="shipping-info">
+            <h2>Shipping Address</h2>
+            <p><strong>Address:</strong><%= addressDetails.city%> , <%= addressDetails.district%> , <%= addressDetails.state%> - <%= addressDetails.pincode%></p>
+            <p><strong>Address Type:</strong><%=addressDetails.addressType%></p>
+
+            <p><strong>Contact:</strong> <%=addressDetails.phone%></p>
+            <p><strong> Alternative Contact:</strong> <%=addressDetails.altPhone%></p>
+
+        </div>
+        <%} else {%>
+            <h6>No Address Available</h6>
+            <%}%>
+
+        <div class="payment-details">
+            <h2>Payment Details</h2>
+            <p>Subtotal: ₹ <%= orderDetails.totalPrice%></p>
+            <p>Discount: ₹ <%= orderDetails.totalPrice * orderDetails.discount /100 %></p>
+            <p>Shipping Charge: ₹50</p>
+            <p>Order Status : <%= orderDetails.status%></p>
+            <p>Payment Status : <%= orderDetails.paymentStatus%></p>
+
+            <h4>Payable Amount: ₹<%=orderDetails.PayableAmount%></h4>
+            
+
+        </div>
+    </div>
+
+    <!-- Order Actions -->
+   
+    
+
+
+    </div>
+</div>
+
+
+
+
+<% if (typeof success !== 'undefined' && typeof message !== 'undefined') { %>
     <script>
+        // Display SweetAlert based on the success flag and message
+        const message = '<%= message %>';
+        const success = <%= success %>;
+        
+        if (success) {
+            Swal.fire({
+                title: 'Success!',
+                text: message,
+                icon: 'success',
+                confirmButtonText: 'OK'
+            });
+        } else {
+            Swal.fire({
+                title: 'Error!',
+                text: message,
+                icon: 'error',
+                confirmButtonText: 'OK'
+            });
+        }
+    </script>
+<% } %>
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<script>
 
 const buttonCancel = document.getElementById('button-cancel');
 const buttonGoBack = document.getElementById('go-back');
@@ -301,92 +736,90 @@ const cancelReason = document.getElementById('reasondiv');
 const orderStatusForm = document.getElementById('order-status-form');
 
 buttonCancel.addEventListener('click', () => {
-    if (cancelReason.style.display === 'none') {
-        cancelReason.style.display = 'block';
-        buttonCancel.style.display = 'none';
-    }
+if (cancelReason.style.display === 'none') {
+    cancelReason.style.display = 'block';
+    buttonCancel.style.display = 'none';
+}
 });
 
 buttonGoBack.addEventListener('click', () => {
-    if (cancelReason.style.display === 'block') {
-        cancelReason.style.display = 'none';
-        buttonCancel.style.display = 'block';
-    }
+if (cancelReason.style.display === 'block') {
+    cancelReason.style.display = 'none';
+    buttonCancel.style.display = 'block';
+}
 });
 
 document.addEventListener("DOMContentLoaded", async function () {
-    const orderId = document.getElementById("order-id").value;
-    const orderStatusDropdown = document.getElementById("order-status");
-    const updateStatusButton = document.getElementById("update-status");
+const orderId = document.getElementById("order-id").value;
+const orderStatusDropdown = document.getElementById("order-status");
+const updateStatusButton = document.getElementById("update-status");
 
-    try {
-        const response = await fetch(`/admin/getOrderStatus?orderId=${orderId}`);
-        const result = await response.json();
+try {
+    const response = await fetch(`/admin/getOrderStatus?orderId=${orderId}`);
+    const result = await response.json();
 
-        if (result.success) {
-            const currentStatus = result.status; 
-            orderStatusDropdown.value = currentStatus; // Set the current status
+    if (result.success) {
+        const currentStatus = result.status; 
+        orderStatusDropdown.value = currentStatus; // Set the current status
 
-            // Disable dropdown & button if status is "Delivered"
-            if (currentStatus === "Delivered") {
-                orderStatusDropdown.disabled = true;
-                updateStatusButton.disabled = true;
-            }
-        } else {
-            console.error("Failed to fetch order status:", result.message);
-        }
-    } catch (error) {
-        console.error("Error fetching order status:", error);
+        // Disable dropdown & button if status is "Delivered"
+        if (currentStatus === "Delivered" || currentStatus === "Cancelled" || currentStatus === "Returned") {
+    orderStatusDropdown.disabled = true;
+    updateStatusButton.disabled = true;
+}
+    } else {
+        console.error("Failed to fetch order status:", result.message);
     }
+} catch (error) {
+    console.error("Error fetching order status:", error);
+}
 });
 
 document.getElementById("order-status-form").addEventListener("submit", async function (event) {
-    event.preventDefault(); // Prevent default form submission
+event.preventDefault(); // Prevent default form submission
 
-    const orderId = document.getElementById("order-id").value;
-    const status = document.getElementById("order-status").value;
+const orderId = document.getElementById("order-id").value;
+const status = document.getElementById("order-status").value;
 
-    try {
-        const response = await fetch("/admin/updateStatus", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify({ orderId, status })
+try {
+    const response = await fetch("/admin/updateStatus", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ orderId, status })
+    });
+
+    const result = await response.json();
+
+    if (result.success) {
+        Swal.fire({
+            icon: "success",
+            title: "Success!",
+            text: "Order status updated successfully!",
+            confirmButtonText: "OK"
+        }).then(() => {
+            location.reload(); // Refresh the page to reflect changes
         });
-
-        const result = await response.json();
-
-        if (result.success) {
-            Swal.fire({
-                icon: "success",
-                title: "Success!",
-                text: "Order status updated successfully!",
-                confirmButtonText: "OK"
-            }).then(() => {
-                location.reload(); // Refresh the page to reflect changes
-            });
-        } else {
-            Swal.fire({
-                icon: "error",
-                title: "Failed!",
-                text: "Failed to update order status: " + result.message,
-                confirmButtonText: "OK"
-            });
-        }
-
-    } catch (error) {
-        console.error("Error updating order status:", error);
+    } else {
         Swal.fire({
             icon: "error",
-            title: "Error!",
-            text: "An error occurred while updating the order status.",
+            title: "Failed!",
+            text: "Failed to update order status: " + result.message,
             confirmButtonText: "OK"
         });
     }
+
+} catch (error) {
+    console.error("Error updating order status:", error);
+    Swal.fire({
+        icon: "error",
+        title: "Error!",
+        text: "An error occurred while updating the order status.",
+        confirmButtonText: "OK"
+    });
+}
 });
-
-
-    </script>
+</script>
 </body>
 </html>

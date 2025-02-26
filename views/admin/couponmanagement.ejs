@@ -159,6 +159,12 @@
     font-size: 0.9em;
     margin-top: 2px;
 }
+.editError-message {
+    color: red;
+    font-size: 12px;
+    margin-top: 5px;
+}
+
 
 /* Common button styles for both Activate and Deactivate */
 .btn-status {
@@ -212,11 +218,20 @@ border-radius: 5px;
         <div class="content">
             <!-- Table -->
             <div class="table-container">
-                <div style="display: flex; align-items: center; margin-bottom: 10px;">
+                <!-- <div style="display: flex; align-items: center; margin-bottom: 10px;">
                     <input type="text" placeholder="Search products" style="flex: 1; padding: 8px; border-radius: 4px; border: 1px solid #ccc;">
                     <button class="btn-search">Search</button>
                     <button id="addCoupon">Add new Coupon</button>
+                </div> -->
+                <div style="display: flex; align-items: center; margin-bottom: 10px;">
+                    <input type="text" id="searchCoupon" placeholder="Search by Code, Min or Max Purchase"
+                        style="flex: 1; padding: 8px; border-radius: 4px; border: 1px solid #ccc;">
+                    <button id="searchCouponButton" style="background-color: rgb(27, 145, 204); color: white; padding: 8px 12px; border: none; border-radius: 4px; cursor: pointer;">
+                        Search
+                    </button>
+                    <button id="addCoupon">Add new Coupon</button>
                 </div>
+                
                 <table>
                     <thead>
                         <% if(coupons.length>0){%>
@@ -226,6 +241,8 @@ border-radius: 5px;
                             <th>Discount Type</th>
                             <th>Discount Value</th>
                             <th>Minimum Purchase</th>
+                            <th>Maximum Purchase</th>
+
 
                             <th>Start Date</th>
                             <th>Expiry Date</th>
@@ -244,6 +261,8 @@ border-radius: 5px;
                             <td><%= coupon.discountType %></td>
                             <td><%= coupon.discountValue %></td>
                             <td><%= coupon.minimumPurchase %></td>
+                            <td><%= coupon.maximumPurchase %></td>
+
                             <td><%= new Date(coupon.startDate).toLocaleString().split(",")[0] %></td> <!-- Already formatted start date -->
                             <td><%= new Date(coupon.expiryDate).toLocaleString().split(",")[0]%></td>
                             <td><%= coupon.usageLimit %></td>
@@ -385,7 +404,7 @@ border-radius: 5px;
     const closebtn = document.getElementById('close-form')
 
     couponbutton.addEventListener('click',()=>{
-        if(couponform.style.display="none"){
+        if(couponform.style.display==="none"){
             couponform.style.display='block';
         }else{
             couponbutton.style.display='block';
@@ -614,7 +633,6 @@ document.getElementById("couponForm").addEventListener("submit", function(event)
         }
     }
 
-
     document.addEventListener("DOMContentLoaded", function () {
     const updateButtons = document.querySelectorAll(".btn-update");
     const editContainer = document.getElementById("editCoupon-container");
@@ -652,9 +670,72 @@ document.getElementById("couponForm").addEventListener("submit", function(event)
     closeButton.addEventListener("click", function () {
         editContainer.style.display = "none";
     });
+    function validateForm() {
+    let isValid = true;
+
+    const couponCode = document.getElementById("editcouponCodeInput").value;
+    const discountValue = document.getElementById("editdiscountValue").value;
+    const minPurchase = document.getElementById("editminimumPurchase").value;
+    const maxPurchase = document.getElementById("editmaximumPurchase").value;
+    const startDate = document.getElementById("editstartTime").value;
+    const expiryDate = document.getElementById("editexpiryDate").value;
+    const usageLimit = document.getElementById("editusageLimit").value;
+
+    // Clear previous error messages
+    document.querySelectorAll(".editError-message").forEach(el => {
+        el.textContent = "";
+        el.style.color = "red"; // Make error messages visible
+    });
+
+    if (!couponCode.trim()) {
+        document.getElementById("couponCodeError").textContent = "Coupon code is required.";
+        isValid = false;
+    }
+
+    if (!discountValue || discountValue <= 0) {
+        document.getElementById("discountValueError").textContent = "Enter a valid discount value.";
+        isValid = false;
+    }
+
+    if (!minPurchase || minPurchase <= 0) {
+        document.getElementById("minimumPurchaseError").textContent = "Enter a valid minimum purchase amount.";
+        isValid = false;
+    }
+
+    if (!maxPurchase || maxPurchase <= 0 || Number(maxPurchase) < Number(minPurchase)) {
+        document.getElementById("maximumPurchaseError").textContent = "Maximum purchase must be greater than minimum purchase.";
+        isValid = false;
+    }
+
+    if (!startDate) {
+        document.getElementById("startTimeError").textContent = "Start date is required.";
+        isValid = false;
+    }
+
+    if (!expiryDate) {
+        document.getElementById("expiryDateError").textContent = "Expiry date is required.";
+        isValid = false;
+    } else if (startDate && new Date(expiryDate) <= new Date(startDate)) {
+        document.getElementById("expiryDateError").textContent = "Expiry date must be after the start date.";
+        isValid = false;
+    }
+
+    if (!usageLimit || usageLimit <= 0) {
+        document.getElementById("usageLimitError").textContent = "Enter a valid usage limit.";
+        isValid = false;
+    }
+
+    return isValid;
+}
+
 
     editForm.addEventListener("submit", function (event) {
         event.preventDefault();
+
+        if (!validateForm()) {
+            console.log("❌ Validation failed! Form not submitted.");
+            return;
+        }
 
         const formData = {
             couponId: document.getElementById("editCouponId").value,
@@ -707,7 +788,66 @@ document.getElementById("couponForm").addEventListener("submit", function(event)
         });
     });
 });
- </script>
+
+
+
+    document.getElementById("searchCouponButton").addEventListener("click", function () {
+        let query = document.getElementById("searchCoupon").value.trim();
+
+        fetch(`/admin/searchCoupon?query=${query}`)
+            .then(response => response.json())
+            .then(data => {
+                console.log("Received data:", data); // Debugging: Check what data is received
+
+                if (!Array.isArray(data)) {
+                    console.error("Expected an array, but got:", data);
+                    return;
+                }
+
+                let tableBody = document.querySelector("tbody");
+                tableBody.innerHTML = ""; // Clear table
+
+                if (data.length === 0) {
+                    tableBody.innerHTML = "<tr><td colspan='10'>No coupons found</td></tr>";
+                    return;
+                }
+
+                data.forEach(coupon => {
+                    let row = `<tr>
+                        <td>${coupon.couponCode}</td>
+                        <td>${coupon.discountType}</td>
+                        <td>${coupon.discountValue}</td>
+                        <td>${coupon.minimumPurchase}</td>
+                        <td>${coupon.maximumPurchase}</td>
+
+                        <td>${new Date(coupon.startDate).toLocaleDateString()}</td>
+                        <td>${new Date(coupon.expiryDate).toLocaleDateString()}</td>
+                        <td>${coupon.usageLimit}</td>
+                        <td>
+                            <button class="btn-status" data-coupon-id="${coupon._id}" data-active="${coupon.isActive}">
+                                ${coupon.isActive ? "Deactivate" : "Activate"}
+                            </button>
+                        </td>
+                        <td>
+                            <button class="btn-update" onclick="openUpdateModal('${coupon._id}', '${coupon.couponCode}', '${coupon.discountValue}', '${coupon.minimumPurchase}', '${coupon.maximumPurchase}')">
+                                Update
+                            </button>
+                        </td>
+                        <td>
+                            <button class="btn-delete" onclick="confirmDelete('${coupon._id}')">
+                                Delete
+                            </button>
+                        </td>
+                    </tr>`;
+
+                    tableBody.innerHTML += row;
+                });
+            })
+            .catch(error => console.error("Error fetching coupons:", error));
+    });
+
+
+    </script>
 
 </body>
 </html>

@@ -159,12 +159,30 @@ const deleteOffer = async (req, res) => {
     }
 };
 
+const searchOffer = async (req, res) => {
+    try {
+        const query = req.query.query || "";
+        console.log("Search Query:", query); // Debugging
+
+        // Find offers matching the search query (case-insensitive)
+        const offers = await Offer.find({
+            name: { $regex: query, $options: "i" }
+        }).populate("categoryOrProduct");
+
+        res.json(offers);
+    } catch (error) {
+        console.error("Error searching offers:", error);
+        res.status(500).json({ error: "Server error" });
+    }
+}
+
 
 
 
 module.exports={
     loadOfferManagement,
     addOffer,getItems,getOfferDetails,
-    updateOffer,getCategoriesOrProducts,deleteOffer,
+    updateOffer,getCategoriesOrProducts,
+    deleteOffer,searchOffer,
     
 }

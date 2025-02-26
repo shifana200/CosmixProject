@@ -38,6 +38,10 @@
 	<link rel="stylesheet" href="/css/style.css">
 
 	<style>
+    body{
+      overflow-x: hidden;
+
+    }
 		#filter-btn{
 			color: black;
 			font-weight: 500;
@@ -153,6 +157,64 @@
   color: #0056b3;
 }
 
+
+.pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 20px 0px;
+    gap: 10px;
+}
+
+.pagination a {
+    text-decoration: none;
+    color: #333;
+    background: #f0f0f0;
+    padding: 10px 15px;
+    border-radius: 50%;
+    border: 2px solid #ddd;
+    font-size: 14px;
+    font-weight: 500;
+    transition: all 0.3s ease-in-out;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 40px;
+    height: 40px;
+}
+
+.pagination a:hover {
+    background: #ddd;
+    color: #000;
+    border-color: #bbb;
+}
+
+.pagination a.active {
+    background: #84CBCB;
+    color: white;
+    font-weight: bold;
+    border-color: #84CBCB;
+    pointer-events: none;
+}
+
+/* Styling for Previous and Next (Arrows) */
+.pagination .prev,
+.pagination .next {
+    font-size: 20px;
+    font-weight: bold;
+    background: #ddd;
+    color: #333;
+    border: none;
+}
+
+.pagination .prev:hover,
+.pagination .next:hover {
+    background: #84CBCB;
+    color: white;
+}
+
+
+
 	</style>
 	</head>
 	<body>
@@ -265,6 +327,21 @@
 				</div>
 			</div>
 		</div>
+    <div class="pagination">
+      <% if (currentPage > 1) { %>
+          <a href="?page=<%= currentPage - 1 %>" class="prev">&larr;</a> 
+      <% } %>
+  
+      <% for (let i = 1; i <= totalPages; i++) { %>
+          <a href="?page=<%= i %>" class="<%= i === currentPage ? 'active' : '' %>"><%= i %></a>
+      <% } %>
+  
+      <% if (currentPage < totalPages) { %>
+          <a href="?page=<%= currentPage + 1 %>" class="next">&rarr;</a>
+      <% } %>
+  </div>
+  
+  
 
 					<div class="col-md-12 text-center">
 						<p><a href="#" class="btn btn-primary btn-lg">Shop All Products</a></p>
@@ -285,182 +362,6 @@
 
 	<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
-	<!-- <script>
-
-		
-		document.getElementById('applyFilter').addEventListener('click', function () {
-  // Get all checked checkboxes
-  const selectedCategories = Array.from(
-    document.querySelectorAll('.category-checkbox:checked')
-  ).map((checkbox) => checkbox.value.toLowerCase());
-
-  // Check if any categories are selected
-  if (selectedCategories.length === 0) {
-    alert('Please select at least one category.');
-    return;
-  }
-
-  // Create a URLSearchParams object to build the query string
-  const params = new URLSearchParams();
-  params.append('categories', selectedCategories.join(','));
-
-  // Update the URL (e.g., navigate to `/shop/filter` with query params)
-  const newUrl = `/shop/filter?${params.toString()}`;
-  window.location.href = newUrl;
-});
-
-
-document.getElementById('applyPriceFilter').addEventListener('click', function () {
-    // Collect selected price range values
-    const selectedRanges = Array.from(
-        document.querySelectorAll('input[type="checkbox"]:checked')
-    ).map(checkbox => checkbox.value);
-
-    if (selectedRanges.length === 0) {
-        alert('Please select at least one price range.');
-        return;
-    }
-
-    // Create a URLSearchParams object to build the query string
-    const params = new URLSearchParams();
-    
-    // Pass the selected price ranges as a parameter
-    params.append('priceRanges', selectedRanges.join(','));
-
-    // Assuming categories filter is also part of the URL (you can modify based on your use case)
-    const selectedCategories = Array.from(
-        document.querySelectorAll('.category-checkbox:checked')
-    ).map(checkbox => checkbox.value);
-    
-    if (selectedCategories.length > 0) {
-        params.append('categories', selectedCategories.join(','));
-    }
-
-    // Update the URL with price ranges (and categories, if any)
-    const newUrl = `/shop/filter?${params.toString()}`;
-    window.location.href = newUrl;
-});
-
-// Function to handle sorting option changes
-const handleSortChange = () => {
-    const priceSort = document.querySelector('input[name="priceSort"]:checked');
-    const productSort = document.querySelector('input[name="productSort"]:checked');
-
-    // Initialize the URL parameters object
-    const params = new URLSearchParams();
-
-    // Add selected sorting options to URL parameters if available
-    if (priceSort) {
-        params.set('priceSort', priceSort.value); // For price sorting
-    }
-    if (productSort) {
-        params.set('productSort', productSort.value); // For product sorting
-    }
-
-    // Build the new URL with the updated query string
-    const newUrl = `/shop/filter?${params.toString()}`;
-   const resultpath =  window.history.pushState({}, '', newUrl) // Update the browser URL without reloading the page
-};
-
-// Attach event listeners to all sorting options
-document.querySelectorAll('input[name="priceSort"], input[name="productSort"]').forEach(input => {
-    input.addEventListener('change', handleSortChange);
-});
-
-
-// async function addToWishlist(productId) {
-//   try {
-//      // Replace with your logged-in user's ID
-//     const response = await fetch('/add-to-wishlist', {
-//       method: 'POST',
-//       headers: {
-//         'Content-Type': 'application/json',
-//       },
-//       body: JSON.stringify({ productId }),
-//     });
-
-//     const result = await response.json();
-
-//     if (response.ok) {
-//       alert(result.message); // Display success message
-//     } else {
-//       alert(result.message); // Display error message
-//     }
-//   } catch (error) {
-//     console.error('Error adding product to wishlist:', error);
-//     alert('An error occurred while adding the product to your wishlist.');
-//   }
-// }
-
-// async function addRemoveWishlist(productId, button) {
-//     try {
-//         const response = await fetch('/addRemove-wishlist', {
-//             method: 'POST',
-//             headers: { 'Content-Type': 'application/json' },
-//             body: JSON.stringify({ productId }),
-//         });
-
-//         const result = await response.json();
-
-//         if (response.ok) {
-//             alert(result.message); // Success message
-//             button.style.color = result.isInWishlist ? 'black' : 'red'; // Change color
-//         } else {
-//             alert(result.message); // Error message
-//         }
-//     } catch (error) {
-//         console.error('Error updating wishlist:', error);
-//         alert('An error occurred while updating the wishlist.');
-//     }
-// }
-
-
-async function addRemoveWishlist(productId, button) {
-    try {
-        const response = await fetch('/addRemove-wishlist', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ productId }),
-        });
-
-        const result = await response.json();
-
-        if (response.ok) {
-            // Change button color
-			const heartIcon = button.querySelector('.fa-heart');
-
-// Change heart color based on wishlist status
-heartIcon.style.color = result.isInWishlist ? 'black' : '#ff6b6b';
-            // Show SweetAlert instead of alert
-            Swal.fire({
-                icon: 'success',
-                title: result.isInWishlist ? 'Added to Wishlist!' : 'Removed from Wishlist!',
-                text: result.message,
-                showConfirmButton: false,
-                timer: 1500 // Auto close after 1.5 seconds
-            });
-
-        } else {
-            Swal.fire({
-                icon: 'error',
-                title: 'Error!',
-                text: result.message,
-                showConfirmButton: true
-            });
-        }
-    } catch (error) {
-        console.error('Error updating wishlist:', error);
-        Swal.fire({
-            icon: 'error',
-            title: 'Oops...',
-            text: 'An error occurred while updating the wishlist.',
-            showConfirmButton: true
-        });
-    }
-}
-
-
-	</script> -->
 	
 	<script>
 

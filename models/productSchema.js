@@ -21,6 +21,14 @@ const productSchema = new Schema({
         ref:"Category",
         required:true
     },
+    offer: { 
+        type: mongoose.Schema.Types.ObjectId,
+         ref: "Offer" },
+         offerPrice: {
+            type: Number, // This will hold the price after applying the offer
+            required: true,
+          },
+
     regularPrice:{
         type:Number,
         required:true
@@ -29,7 +37,7 @@ const productSchema = new Schema({
         type:Number,
         required:true
     },
-    productOffer:{
+    offerPrice:{
         type: Number,
         default: 0
     },
@@ -52,6 +60,34 @@ const productSchema = new Schema({
         default:"Available"
     }
 },{timestamps:true})
+
+productSchema.methods.calculateOfferPrice = function () {
+    const product = this;
+    const currentDate = new Date();
+  
+    if (
+      product.offer &&
+      product.offer.status === "Active" &&
+      currentDate >= product.offer.startDate &&
+      currentDate <= product.offer.endDate
+    ) {
+      let offerPrice = product.salePrice;
+  
+      if (product.offer.discountType === "Percentage") {
+        offerPrice -= (product.salePrice * product.offer.discountValue) / 100;
+      } else if (product.offer.discountType === "Fixed Amount") {
+        offerPrice -= product.offer.discountValue;
+      }
+  
+      // Ensure that the offer price doesn't go below zero
+      offerPrice = Math.max(0, offerPrice);
+  
+      return offerPrice;
+    }
+  
+    // If no valid offer, return salePrice
+    return product.salePrice;
+  };
 
 const Product = mongoose.model("Product",productSchema)
 module.exports = Product

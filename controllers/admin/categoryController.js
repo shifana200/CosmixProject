@@ -124,6 +124,25 @@ const updateCategory = async (req, res) => {
   };
   
   
+  const searchCategory =  async (req, res) => {
+    try {
+        const query = req.query.query;
+        let categories;
+
+        if (query) {
+            categories = await Category.find({
+                name: { $regex: query, $options: "i" } // Case-insensitive search
+            });
+        } else {
+            categories = await Category.find(); // Return all categories if query is empty
+        }
+
+        res.json(categories);
+    } catch (error) {
+        console.error("Error searching categories:", error);
+        res.status(500).json({ message: "Internal Server Error" });
+    }
+}
 
 
 module.exports={
@@ -132,4 +151,5 @@ module.exports={
      getListCategory,
      getUnlistCategory,
      updateCategory,
+     searchCategory,
 }

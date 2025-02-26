@@ -137,7 +137,40 @@
   margin-top: 30%;
 }
 
+/* zooming feature */
+.zoom-container {
+    position: relative;
+    display: inline-block;
+}
 
+.zoom-image {
+    width: 100%;
+    height: auto;
+    cursor: crosshair;
+}
+
+.zoom-lens {
+    position: absolute;
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    border: 2px solid #84CBCB;
+    background: rgba(255, 255, 255, 0.3);
+    pointer-events: none;
+    display: none;
+}
+
+#zoomResult {
+    width: 300px;
+    height: 300px;
+    border: 2px solid #ddd;
+    background-repeat: no-repeat;
+    display: none;
+	z-index: 1000;
+	position: fixed; /* Always on top */
+    top: 200px; /* Adjust to set how close to the top */
+    right: 250px;
+}
 
 
 	</style>
@@ -176,56 +209,33 @@
 					<% } %>
 					<div class="col-sm-8">
 						<div class="owl-carousel">
-					
-							<div class="item">
-								<div class="product-entry border">
-									<a href="#" class="prod-img">
-										<% if (product.productImage && product.productImage.length > 0) { %>
-										<img src="/uploads/<%= product.productImage[0]%>" class="img-fluid" alt="Free html5 bootstrap 4 template">
-										<% } %>
-									</a>
-								</div>
-							</div>
-							<div class="item">
-								<div class="product-entry border">
-									<a href="#" class="prod-img">
-										<% if (product.productImage && product.productImage.length > 0) { %>
-											<img src="/uploads/<%= product.productImage[1]%>" class="img-fluid " alt="Free html5 bootstrap 4 template">
-											<% } %>
-										
-										
-									</a>
-								</div>
-							</div>
-							<div class="item">
-								<div class="product-entry border">
-									<a href="#" class="prod-img">
-										<% if (product.productImage && product.productImage.length > 0) { %>
-											<img src="/uploads/<%= product.productImage[2]%>" class="img-fluid" alt="Free html5 bootstrap 4 template">
-											<% } %>
-									</a>
-								</div>
-							</div>
-							<div class="item">
-								<div class="product-entry border">
-									<a href="#" class="prod-img">
-										<% if (product.productImage && product.productImage.length > 0) { %>
-											<img src="/uploads/<%= product.productImage[3]%>" class="img-fluid"  alt="Free html5 bootstrap 4 template">
-											<% } %>
-									</a>
-								</div>
-							</div>
-						</div>
+							<% for (let i = 0; i < product.productImage.length; i++) { %>
+								<div class="item">
+									<div class="product-entry border">
+										<div class="zoom-container">
+											<a href="#" class="prod-img">
+												<img src="/uploads/<%= product.productImage[i] %>" 
+													 class="img-fluid zoom-image" 
+													 alt="Product Image">
 
-						<div class="zoom-result"></div>
-						
-					
+											</a>
+											<div class="zoom-lens"></div>
+										</div>
+									</div>
+								</div>
+							<% } %>
+						</div>
+						<div id="zoomResult"></div>
+
 					</div>
+					
+
 					<div class="col-sm-4">
 						<div class="product-desc">
 							<h3><%=product.productName%></h3>
 							<p class="price">
-								<span style="color: black; font-weight: bold;">₹ <%= product.salePrice%> <strike style="color: gray; font-size: 13px;"> ₹<%=product.regularPrice%></strike> </span> 
+								<span style="color: black; font-weight: bold;">₹<%= product.offerPrice ? product.offerPrice : product.salePrice %></h3>
+									<strike style="color: gray; font-size: 13px;"> ₹<%=product.regularPrice%></strike> </span> 
 								
 									<p style="color: black;">In Stock : <%= product.quantity%></p>
 									<% if (product.quantity === 0) { %>
@@ -235,6 +245,7 @@
 									  <% } %>
 							
 							</p>
+
 							<p><%=product.description%></p>
 							
 							</div>
@@ -260,8 +271,7 @@
 								<!-- <button style="background-color: black; color: white; padding: 5px; border-radius: 9px;">Add to Cart</button> -->
 							</form>
 								
-										<button style="border: none; background-color: #ffffff;">
-										<i class="fa-solid fa-heart" id="heart-button"></i>	</button>								 
+																	 
 
 									  
 
@@ -488,6 +498,42 @@ $(document).ready(function(){
 
 
 
+	document.addEventListener("DOMContentLoaded", function () {
+    const zoomImages = document.querySelectorAll(".zoom-image");
+    const zoomLens = document.querySelector(".zoom-lens");
+    const zoomResult = document.getElementById("zoomResult");
+
+    zoomImages.forEach((image) => {
+        image.addEventListener("mousemove", function (event) {
+            const { left, top, width, height } = image.getBoundingClientRect();
+            const lensSize = zoomLens.offsetWidth / 2;
+
+            let x = event.pageX - left - window.scrollX - lensSize;
+            let y = event.pageY - top - window.scrollY - lensSize;
+
+            if (x < 0) x = 0;
+            if (y < 0) y = 0;
+            if (x > width - zoomLens.offsetWidth) x = width - zoomLens.offsetWidth;
+            if (y > height - zoomLens.offsetHeight) y = height - zoomLens.offsetHeight;
+
+            zoomLens.style.left = `${x}px`;
+            zoomLens.style.top = `${y}px`;
+
+            const zoomFactor = 2;
+            zoomResult.style.backgroundSize = `${width * zoomFactor}px ${height * zoomFactor}px`;
+            zoomResult.style.backgroundPosition = `-${x * zoomFactor}px -${y * zoomFactor}px`;
+
+            zoomLens.style.display = "block";
+            zoomResult.style.display = "block";
+            zoomResult.style.backgroundImage = `url(${image.src})`;
+        });
+
+        image.addEventListener("mouseleave", function () {
+            zoomLens.style.display = "none";
+            zoomResult.style.display = "none";
+        });
+    });
+});
 			</script>
 
 
