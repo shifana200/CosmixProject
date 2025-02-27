@@ -40,12 +40,12 @@ async (accessToken,refreshToken,profile,done)=>{
 
 
 passport.serializeUser((user, done) => {
-    done(null, user._id); // Pass only the user._id
+    done(null, user._id); 
 });
 
 
 passport.deserializeUser((id, done) => {
-    User.findById(id) // Use the ObjectId directly to find the user
+    User.findById(id)
         .then(user => {
             done(null, user);
         })

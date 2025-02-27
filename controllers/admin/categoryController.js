@@ -75,47 +75,32 @@ const getUnlistCategory = async(req,res)=>{
 
 }
 
-// Update Category Route
-// const updateCategory =async (req, res) => {
-//     const { categoryId, name, description } = req.body;
-  
-//     // Find and update the category in the database
-//     Category.findByIdAndUpdate(categoryId, { name, description }, { new: true })
-//       .then(updatedCategory => {
-//         res.json(updatedCategory);
-//       })
-//       .catch(err => {
-//         res.status(500).send('Error updating category');
-//       });
-//   }
-
 const updateCategory = async (req, res) => {
     const { categoryId, name, description } = req.body;
   
     try {
-      // Check if the category name already exists (case insensitive), excluding the current category
       const existingCategory = await Category.findOne({
-        name: { $regex: new RegExp(`^${name}$`, 'i') }, // Case-insensitive regex
-        _id: { $ne: categoryId }, // Exclude the current category
+        name: { $regex: new RegExp(`^${name}$`, 'i') }, 
+        _id: { $ne: categoryId }, 
       });
   
       if (existingCategory) {
-        // If the category name already exists, send an error response
+        
         return res.status(400).json({ success: false, message: 'Category already exists' });
       }
   
-      // Update the category if no duplicate is found
+      
       const updatedCategory = await Category.findByIdAndUpdate(
         categoryId,
         { name, description },
-        { new: true } // Return the updated document
+        { new: true } 
       );
   
       if (!updatedCategory) {
         return res.status(404).json({ success: false, message: 'Category not found' });
       }
   
-      // Send a success response
+      
       res.json({ success: true, message: 'Category updated successfully', category: updatedCategory });
     } catch (err) {
       console.error(err);
@@ -131,10 +116,10 @@ const updateCategory = async (req, res) => {
 
         if (query) {
             categories = await Category.find({
-                name: { $regex: query, $options: "i" } // Case-insensitive search
+                name: { $regex: query, $options: "i" } 
             });
         } else {
-            categories = await Category.find(); // Return all categories if query is empty
+            categories = await Category.find();
         }
 
         res.json(categories);

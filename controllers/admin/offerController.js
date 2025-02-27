@@ -16,18 +16,16 @@ const loadOfferManagement = async(req,res)=>{
   }
 }
 
+
 const addOffer =  async (req, res) => {
     try {
-        
-
-
     const { offerName, offerType, categoryProduct, discountType, discountValue, startDate, endDate, description } = req.body;
     console.log("----------------",req.body)
 
     const newOffer = new Offer({
-        name: offerName,               // Map offerName to name
-        type: offerType,               // Map offerType to type
-        categoryOrProduct: categoryProduct,  // Map categoryProduct to categoryOrProduct
+        name: offerName,              
+        type: offerType,              
+        categoryOrProduct: categoryProduct, 
         discountType: discountType,
         discountValue: discountValue,
         startDate: startDate,
@@ -46,7 +44,7 @@ const addOffer =  async (req, res) => {
 const getItems = async (req, res) => {
     try {
         const { type } = req.query;
-        console.log("🔥 Selected Type:", type);
+        console.log(" Selected Type:", type);
 
         let items = [];
 
@@ -55,20 +53,19 @@ const getItems = async (req, res) => {
         } else if (type === "Product") {
             items = await Product.find({}, "_id productName");  
 
-            // ✅ Rename `productName` to `name`
             items = items.map(item => ({
                 _id: item._id,
-                name: item.productName // ✅ Ensures consistency with category data
+                name: item.productName 
             }));
         } else {
             return res.status(400).json({ success: false, message: "Invalid type provided" });
         }
 
-        console.log("✅ Fetched Items:", items);
+        console.log(" Fetched Items:", items);
         res.json({ success: true, items });
 
     } catch (error) {
-        console.error("❌ Error fetching items:", error);
+        console.error(" Error fetching items:", error);
         res.status(500).json({ success: false, message: "Error fetching items" });
     }
 };
@@ -162,9 +159,8 @@ const deleteOffer = async (req, res) => {
 const searchOffer = async (req, res) => {
     try {
         const query = req.query.query || "";
-        console.log("Search Query:", query); // Debugging
+        console.log("Search Query:", query);
 
-        // Find offers matching the search query (case-insensitive)
         const offers = await Offer.find({
             name: { $regex: query, $options: "i" }
         }).populate("categoryOrProduct");

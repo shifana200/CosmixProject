@@ -1,16 +1,10 @@
 const Coupon = require('../../models/couponSchema')
+
 function formatDate(dateString) {
     const date = new Date(dateString); 
     return date.toISOString().split("T")[0];
-     // Ensure it's in correct date object format
-    // const day = String(date.getDate()).padStart(2, '0');
-    // const month = String(date.getMonth() + 1).padStart(2, '0');
-    // const year = date.getFullYear().toString().slice(-2);  // Get the last two digits of the year
-    // return `${day}/${month}/${year}`;
+    
 }
-
-
-
 
 const loadCouponManagement = async(req,res)=>{
     if(req.session.admin){
@@ -36,7 +30,7 @@ const addCoupon = async (req, res) => {
             startDate, expiryDate, usageLimit 
         } = req.body;
 
-        // Check if the coupon already exists
+        
         const existingCoupon = await Coupon.findOne({ couponCode });
         if (existingCoupon) {
             return res.status(400).send("Coupon code already exists.");
@@ -48,20 +42,20 @@ const addCoupon = async (req, res) => {
             const formattedStartDate = formatDate(startDate);
             const formattedExpiryDate = formatDate(expiryDate);
             
-        // Create new coupon
+        
         const newCoupon = new Coupon({
             couponCode,
             discountType,
             discountValue,
             minimumPurchase,
             maximumPurchase,
-            startDate: formattedStartDate,  // This will automatically store it in UTC
+            startDate: formattedStartDate,
             expiryDate: formattedExpiryDate,
             usageLimit
         });
 
-        await newCoupon.save(); // Save to database
-        res.redirect("/admin/couponmanagement"); // Redirect to coupons list
+        await newCoupon.save(); 
+        res.redirect("/admin/couponmanagement"); 
     } catch (error) {
         console.error("Error adding coupon:", error);
         res.status(500).send("Server Error");
@@ -71,9 +65,8 @@ const addCoupon = async (req, res) => {
 const couponStatus =  async (req, res) => {
     try {
         const couponId = req.params.id;
-        const { isActive } = req.body; // Get the new active status
+        const { isActive } = req.body; 
 
-        // Find and update the coupon's isActive status
         const coupon = await Coupon.findByIdAndUpdate(couponId, { isActive }, { new: true });
 
         if (!coupon) {
@@ -92,7 +85,6 @@ const deleteCoupon = async (req, res) => {
     try {
         const couponId = req.params.id;
         
-        // Find the coupon by ID and delete it
         const deletedCoupon = await Coupon.findByIdAndDelete(couponId);
 
         if (!deletedCoupon) {
@@ -141,8 +133,6 @@ const editCoupon = async (req, res) => {
 
         console.log("Received data:", req.body);
 
-
-        // Check if couponId exists
         if (!couponId) {
             return res.status(400).json({ success: false, message: "Coupon ID is missing" });
         }
@@ -159,7 +149,7 @@ const editCoupon = async (req, res) => {
                 expiryDate: new Date(editExpiryDate),
                 usageLimit: editUsageLimit
             },
-            { new: true } // Return the updated document
+            { new: true } 
         );
 
         if (!updatedCoupon) {
@@ -178,19 +168,17 @@ const searchCoupon =  async (req, res) => {
         const query = req.query.query;
         
         if (!query) {
-            return res.json(await Coupon.find()); // Return all coupons if query is empty
+            return res.json(await Coupon.find()); 
         }
 
         let searchConditions = [];
 
         if (!isNaN(query)) {
-            // If query is a number, search in numeric fields
             searchConditions.push(
                 { minimumPurchase: parseFloat(query) },
                 { maximumPurchase: parseFloat(query) }
             );
         } else {
-            // If query is text, search in couponCode (case-insensitive)
             searchConditions.push({ couponCode: { $regex: query, $options: "i" } });
         }
 
@@ -202,10 +190,6 @@ const searchCoupon =  async (req, res) => {
         res.status(500).json({ message: "Internal Server Error" });
     }
 }
-
-
-
-
 
 
 module.exports={

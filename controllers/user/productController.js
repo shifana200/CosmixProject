@@ -17,21 +17,21 @@ const Order = require('../../models/orderSchema')
 
   const loadShopPage = async (req, res) => {
     try {
-        const { category, price ,newArrival  , sort , page =1} = req.query; // Extract category & price from query params
-        const limit = 12; // 12 products per page
+        const { category, price ,newArrival  , sort , page =1} = req.query; 
+        const limit = 12; 
         const skip = (page - 1) * limit;
 
-        let categoryFilter = {}; // Category filter
-        let priceFilter = {}; // Price filter
-        let sortOption = {}; // Sorting option
-         // Default limit for regular pagination
+        let categoryFilter = {}; 
+        let priceFilter = {}; 
+        let sortOption = {}; 
+         
         let skipOption = 0;
 
         console.log("==== SHOP PAGE FILTER LOG ====");
         console.log("Category Query:", category);
         console.log("Price Query:", price);
 
-        // 1️⃣ Handle Category Filter (Case-Insensitive)
+        
         if (category) {
             const categoryDoc = await Category.findOne({ 
                 name: { $regex: new RegExp("^" + category + "$", "i") } 
@@ -46,14 +46,14 @@ const Order = require('../../models/orderSchema')
             }
         }
 
-        // 2️⃣ Handle Price Filter (Sorting & Ranges)
+        
         if (price) {
             switch (price.toLowerCase()) {
                 case "low-to-high":
-                    sortOption = { salePrice: 1 }; // Sort by price (ascending)
+                    sortOption = { salePrice: 1 }; 
                     break;
                 case "high-to-low":
-                    sortOption = { salePrice: -1 }; // Sort by price (descending)
+                    sortOption = { salePrice: -1 }; 
                     break;
                 case "under-500":
                     priceFilter.salePrice = { $lt: 500 };
@@ -75,18 +75,17 @@ const Order = require('../../models/orderSchema')
 
 
         if (newArrival) {
-          sortOption = { createdAt: -1 }; // Sort by createdAt field (most recent first)
-           // Limit to only 9 products
+          sortOption = { createdAt: -1 }; 
       }
 
 
       if (sort) {
         switch (sort.toLowerCase()) {
           case "name-asc":
-            sortOption.productName = 1; // A-Z order
+            sortOption.productName = 1; 
             break;
           case "name-desc":
-            sortOption.productName = -1; // Z-A order
+            sortOption.productName = -1; 
             break;
           default:
             console.log("Invalid sort filter!");
@@ -104,13 +103,13 @@ const Order = require('../../models/orderSchema')
             ...priceFilter,
         });
 
-        // 3️⃣ Fetch Products with Filters
+        
         const products = await Product.find({
             isBlocked: false,
-            ...categoryFilter,  // Apply category filter
-            ...priceFilter      // Apply price filter
+            ...categoryFilter,  
+            ...priceFilter      
         }).collation({ locale: 'en', strength: 1 }).sort(sortOption).skip(skip) 
-        .limit(limit); // Apply sorting
+        .limit(limit); 
 
         console.log("Products Found:", products.length);
         const totalPages = Math.ceil(totalProducts / limit);
@@ -127,21 +126,29 @@ const Order = require('../../models/orderSchema')
 const searchProducts= async (req, res) => {
     try {
         const searchTerm = req.query.query;
-         const limit = 12; // 12 products per page
-        const skip = (page - 1) * limit;  // Get the search term from query parameter
+        const page = parseInt(req.query.page) || 1; // Get page number from query or default to 1
+
+         const limit = 12; 
+        const skip = (page - 1) * limit;
+
         if (!searchTerm) {
-            return res.redirect('/shop');  // If no search term, redirect to the shop page
+            return res.redirect('/shop');
         }
 
-        // Perform search in the product database
+        const totalProducts = await Product.countDocuments({
+            productName: { $regex: searchTerm, $options: 'i' }
+        });
+        
         const results = await Product.find({
         
-                 productName: { $regex: searchTerm, $options: 'i' }   // Case-insensitive search in product name
+                 productName: { $regex: searchTerm, $options: 'i' }   
             
-        });
+        }).skip(skip).limit(limit);
 
-        // Render the shop page with search results
-        res.render('shopPage', { products: results, searchTerm });  // Pass results and search term to shop page
+        const totalPages = Math.ceil(totalProducts / limit);
+
+        res.render('shopPage', { products: results, searchTerm,  currentPage: page, 
+            totalPages});  
     } catch (error) {
         console.error(error);
         res.status(500).json({ success: false, message: "Search error" });
@@ -149,9 +156,6 @@ const searchProducts= async (req, res) => {
 }
 
 
-
- 
-  
   module.exports={
     loadShopPage,searchProducts,
     

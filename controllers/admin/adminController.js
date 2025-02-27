@@ -16,40 +16,6 @@ const loadLogin = (req,res) =>{
     }res.render("login",{message:null})
 }
 
-// const logIn = async (req,res)=>{
-//     try {
-        
-// const {email,password} = req.body
-// const admin = await User.findOne({email,isAdmin:true})
-// console.log(req.body)
-// console.log(email)
-// console.log(admin)
-
-// if(admin){
-//     const passwordMatch = await bcrypt.compare(password,admin.password)
-    
-// if(passwordMatch){
-//     console.log("password correct,redirecting")
-//     req.session.admin = true;
-//     console.log(req.session.admin)
-
-//     return res.render("dashboard" , {
-//         message: 'Login successful!',
-//         success: true})
-// }else{
-//     return res.render('login',{message:'Invalid credentials. Please try again.' , success:false})
-    
-// }
-// }else{
-//     return res.render('login',{message:'Unexprected error occurd .' , success : false})
-    
-// }
-//     } catch (error) {
-//         console.log("login error", error)
-//         return res.redirect('/pageNotFound')
-//     }
-// }
-
 const logIn = async (req, res) => {
     try {
       const { email, password } = req.body;
@@ -90,39 +56,24 @@ const logIn = async (req, res) => {
   
 
 
-
-//  const loadUserManagement = async(req,res)=>{
-//     if(req.session.admin){
-//        try {
-//            res.render('usermanagement')
-//        } catch (error) {
-//            res.redirect('/pageNotFound')
-//        }
-//    }
-// }
-
-// Example controller function
 const loadUserManagement = async (req, res) => {
     try {
-        const page = parseInt(req.query.page) || 1; // Get the current page from query params, default to 1
-        const limit = 5; // Number of items per page
+        const page = parseInt(req.query.page) || 1; 
+        const limit = 5; 
         const skip = (page - 1) * limit;
 
 
-        const totalUsers = await User.countDocuments(); // Get the total count of users
+        const totalUsers = await User.countDocuments(); 
         const totalPages = Math.ceil(totalUsers / limit);
 
-
-        // Use async/await with the find method
         const users = await User.find({})
         .skip(skip)
-        .limit(limit); // Find all users (or you can adjust the query)
+        .limit(limit); 
         
-        // Render the usermanagement page with the user data
         res.render('usermanagement', {
-            data: users, // Pass the 'users' as 'data' to the view
-            totalPages: totalPages, // Example for pagination, adjust as needed
-            currentPage: page, // Current page, adjust as needed
+            data: users, 
+            totalPages: totalPages, 
+            currentPage: page, 
         });
     } catch (err) {
         console.error(err);
@@ -135,31 +86,13 @@ const loadUserManagement = async (req, res) => {
 
  const loadProductManagement =  async (req, res) => {
     try {
-        // Fetching all products, including their category (if necessary)
         const products = await Product.find().populate('category');
-        // Render the productmanagement page, passing the products to be displayed
         res.render('productmanagement', { products });
     } catch (error) {
         console.error("Error fetching products", error);
         res.status(500).json({ error: "An error occurred while fetching the products." });
     }
 };
-
-
-
-// const loadCategoryManagement = async(req,res)=>{
-//      if(req.session.admin){
-//        try {
-//            res.render('categorymanagement')
-//        } catch (error) {
-//            res.redirect('/pageNotFound')
-//        }
-//    }
-// }
-
-
-
-
 
 
 const logout = async(req,res)=>{
@@ -181,47 +114,6 @@ const logout = async(req,res)=>{
     }
 }
 
-// const loadOrderDetailsPage = async (req, res) => {
-//     try {
-//         const orderId = req.params.id;
-//         console.log('**************************');
-//         console.log("Order ID:", orderId);
-
-//         const orderDetails = await Order.findById(orderId).populate('orderedItems.product');
-
-//         if (!orderDetails) {
-//             console.log("Order not found");
-//             return res.redirect('/pageNotFound');
-//         }
-
-//         // Fetch the address document using orderDetails.addressId
-//         const addressDocument = await Address.findById(orderDetails.addressId);
-
-//         if (!addressDocument) {
-//             console.log("Address document not found");
-//             return res.redirect('/pageNotFound');
-//         }
-
-//         // Extract the specific address from the address array
-//         const addressDetails = addressDocument.address.find(addr => addr._id.toString() === orderDetails.addressId.toString());
-
-//         if (!addressDetails) {
-//             console.log("Address not found inside the address document");
-//             return res.redirect('/pageNotFound');
-//         }
-
-//         console.log('Order Details:', orderDetails);
-//         console.log('Address Details:', addressDetails);
-//         console.log('**************************');
-
-//         res.render('orderDetailsPage', { orderDetails, addressDetails });
-
-//     } catch (error) {
-//         console.error("Error opening order details:", error);
-//         return res.redirect('/pageNotFound');
-//     }
-// };
-
 const approveOrderRequest = async (req, res) => {
   try {
       const { orderId, approvalStatus } = req.body;
@@ -236,7 +128,6 @@ const approveOrderRequest = async (req, res) => {
           if (orderDetails.status === 'Cancellation Pending') {
               orderDetails.status = 'Cancelled';
 
-              // Restore stock if necessary
               for (let item of orderDetails.orderedItems) {
                   const product = await Product.findById(item.product);
                   if (product) {
@@ -245,7 +136,7 @@ const approveOrderRequest = async (req, res) => {
                   }
               }
 
-              // Wallet Refund Logic
+              
               if (orderDetails.paymentMethod === 'Online Payment') {
                   let userWallet = await Wallet.findOne({ userId: orderDetails.userId });
 
@@ -270,7 +161,7 @@ const approveOrderRequest = async (req, res) => {
           } else if (orderDetails.status === 'Return Pending') {
               orderDetails.status = 'Returned';
 
-              // Wallet Refund Logic
+              
               if (orderDetails.paymentMethod === 'Online Payment') {
                   let userWallet = await Wallet.findOne({ userId: orderDetails.userId });
 
@@ -294,7 +185,6 @@ const approveOrderRequest = async (req, res) => {
               }
           }
       } else {
-          // If the admin rejects the request, revert to its original status
           if (orderDetails.status === 'Cancellation Pending') {
               orderDetails.status = 'Ordered';
           } else if (orderDetails.status === 'Return Pending') {
@@ -317,13 +207,9 @@ const approveOrderRequest = async (req, res) => {
 module.exports = {
     loadLogin,
     logIn,
-    
     PageNotFound,
     loadUserManagement,
     loadProductManagement,
-
     approveOrderRequest,
-
-
     logout,
 }

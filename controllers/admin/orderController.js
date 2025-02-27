@@ -9,12 +9,12 @@ const Wallet = require('../../models/walletSchema')
 const loadOrderManagement = async (req, res) => {
     if (req.session.admin) {
         try {
-            const page = parseInt(req.query.page) || 1; // Get the current page from query params, default to 1
-            const limit = 5; // Number of orders per page
+            const page = parseInt(req.query.page) || 1; 
+            const limit = 5; 
             const skip = (page - 1) * limit;
 
-            const totalOrders = await Order.countDocuments(); // Get total number of orders
-            const totalPages = Math.ceil(totalOrders / limit); // Calculate total pages
+            const totalOrders = await Order.countDocuments(); 
+            const totalPages = Math.ceil(totalOrders / limit); 
 
             const orders = await Order.find()
                 .populate('userId')
@@ -42,7 +42,6 @@ const loadOrderDetailsPage = async (req, res) => {
         console.log('**************************');
         console.log(" Order ID:", orderId);
 
-        // Find the order and populate product details
         const orderDetails = await Order.findById(orderId).populate('orderedItems.product');
 
         if (!orderDetails) {
@@ -58,10 +57,9 @@ const loadOrderDetailsPage = async (req, res) => {
             return res.redirect('/pageNotFound');
         }
 
-        // Fetch the address document where the address ID is inside the array
         const addressDocument = await Address.findOne(
             { "address._id": orderDetails.addressId }, 
-            { "address.$": 1 } // Fetch only the matched address
+            { "address.$": 1 } 
         );
 
         if (!addressDocument || !addressDocument.address.length) {
@@ -71,8 +69,8 @@ const loadOrderDetailsPage = async (req, res) => {
 
         const addressDetails = addressDocument.address[0];
 
-        console.log('✅ Order Details:', orderDetails);
-        console.log('✅ Address Details:', addressDetails);
+        console.log('Order Details:', orderDetails);
+        console.log(' Address Details:', addressDetails);
         console.log('**************************');
 
         res.render('orderDetailsPage', { orderDetails, addressDetails });
@@ -95,34 +93,29 @@ const updateOrderStatus = async (req, res) => {
         console.log(" Order ID:", orderId);
         console.log(" New Status:", status);
 
-        // Validate input
         if (!orderId || !status) {
             return res.status(400).json({ success: false, message: "Invalid request data." });
         }
 
-        // Find the current order
         const existingOrder = await Order.findById(orderId);
 
         if (!existingOrder) {
             return res.status(404).json({ success: false, message: "Order not found." });
         }
 
-        // Prevent status change if already "Delivered"
         if (existingOrder.status === "Delivered") {
             return res.status(403).json({ success: false, message: "Order has already been delivered and cannot be changed." });
         }
 
         let updateData = { status };
 
-        // If the order is COD and being delivered, update payment status to "Paid"
         if (status === "Delivered" && existingOrder.paymentMethod === "COD" && existingOrder.paymentStatus === "pending") {
             updateData.paymentStatus = "Paid";
         }
 
-        // Update order status
         const updatedOrder = await Order.findByIdAndUpdate(orderId, updateData, { new: true });
 
-        console.log("✅ Order Updated:", updatedOrder);
+        console.log(" Order Updated:", updatedOrder);
         return res.status(200).json({ success: true, message: "Order status updated successfully.", updatedOrder });
 
     } catch (error) {
@@ -175,11 +168,11 @@ const confirmOrderRequest = async (req, res) => {
 
             }
         }  else if (action === "reject") {
-            // If rejected, reset the status to its previous state
+            
             if (order.status === "Cancellation Pending") {
                 order.status = order.cancellationReason ? "Ordered" : "Shipped";
             } else if (order.status === "Return Pending") {
-                order.status = "Delivered"; // Reset to Delivered if return request was rejected
+                order.status = "Delivered"; 
             }
         }
         order.cancellationReason = null;
@@ -225,14 +218,12 @@ const searchOrder = async (req, res) => {
         let searchCriteria = {};
 
         if (!query) {
-            return res.json([]); // Return empty array if query is not provided
+            return res.json([]); 
         }
 
         if (!isNaN(query)) {
-            // If query is a number, it could be an orderId or status
             searchCriteria = { $or: [{ orderId: query }, { status: query }] };
         } else {
-            // If query is text, search in username
             const users = await User.find({ name: { $regex: query, $options: "i" } }).select("_id");
             const userIds = users.map(user => user._id);
 

@@ -8,10 +8,9 @@ const sharp = require('sharp');
 
 
 
-// Define the directory path
+
 const productImagesDir = path.join('public', 'uploads', 'product-images');
 
-// Check if the directory exists, and create it if not
 if (!fs.existsSync(productImagesDir)) {
     fs.mkdirSync(productImagesDir, { recursive: true });
     console.log('Directory created:', productImagesDir);
@@ -86,69 +85,6 @@ const addProducts = async(req,res)=>{
     }
 }
 
-
-
-
-// const addProducts = async (req, res) => {
-//     try {
-
-//         console.log("-------------------------------------------------------------------")
-//       const products = req.body;
-
-//       console.log('Received product data:', products);
-//       console.log('Received files:', req.files);
-  
-//       const productExists = await Product.findOne({ productName: products.productName });
-//       if (productExists) {
-//         return res.status(400).json({ error: 'Product already exists' });
-//       }
-  
-//       const images = [];
-//       if (req.files && req.files.length > 0) {
-//         for (let i = 0; i < req.files.length; i++) {
-//           const originalImagePath = req.files[i].path;
-//           const resizedImagePath = path.join('public', 'uploads', 'product-images', req.files[i].filename);
-//           try {
-//             await sharp(originalImagePath).resize({ width: 440, height: 440 }).toFile(resizedImagePath);
-//             images.push(req.files[i].filename);
-//           } catch (resizeError) {
-//             console.error('Error resizing image:', resizeError);
-//             return res.status(500).json({ error: 'Error resizing image' });
-//           }
-//         }
-//       }
-  
-//       const categoryId = await Category.findOne({ name: products.category });
-//       if (!categoryId) {
-//         return res.status(400).json({ error: 'Invalid category name' });
-//       }
-  
-//       const newProduct = new Product({
-//         productName: products.productName,
-//         description: products.description,
-//         details: products.details,
-//         category: categoryId._id,
-//         regularPrice: products.regularPrice,
-//         salePrice: products.salePrice,
-//         createdOn: new Date(),
-//         quantity: products.quantity,
-//         productImage: images,
-//         status: 'Available',
-//       });
-  
-//       await newProduct.save();
-//       return res.redirect('/admin/productmanagement');
-//     } catch (error) {
-//       console.error('Error saving product:', error);
-//       return res.status(500).json({ error: 'Internal server error' });
-//     }
-//   };
-  
-
-
-
-
-
 const blockProduct = async(req,res)=>{
     try {
         let id = req.query.id;
@@ -158,7 +94,6 @@ const blockProduct = async(req,res)=>{
         res.redirect('/pageNotFound')
     }
 }
-
 
 const unblockProduct = async (req,res)=>{
     try {
@@ -170,28 +105,22 @@ const unblockProduct = async (req,res)=>{
     }
 }
 
-
-
 const getProducts = async (req, res) => {
     try {
-        const page = parseInt(req.query.page) || 1; // Default to page 1 if no page is provided
-        const limit = parseInt(req.query.limit) || 7; // Default to 10 items per page if no limit is provided
+        const page = parseInt(req.query.page) || 1; 
+        const limit = parseInt(req.query.limit) || 7; 
         const skip = (page - 1) * limit;
 
-        // Query the products for the current page
         const products = await Product.find()
             .skip(skip)
             .limit(limit)
              .sort({ createdAt: -1 }) 
             .populate('category')
 
-        // Calculate the total number of pages
         const totalItems = await Product.countDocuments();
         const totalPages = Math.ceil(totalItems / limit);
 
-        
-        // Pass the products, currentPage, totalPages, and limit to the EJS view
-        res.render('productmanagement', {
+            res.render('productmanagement', {
             products,
             currentPage: page,
             totalPages: totalPages,
@@ -199,36 +128,28 @@ const getProducts = async (req, res) => {
         });console.log(products)
 
     } catch (error) {
-        // If there's an error, redirect to a "Page Not Found" page
         res.redirect('/pageNotFound');
     }
 };
 
 
-
 const getEditProduct = async (req, res) => {
     try {
-        const id = req.query.id; // Ensure the ID is correctly received
+        const id = req.query.id; 
         console.log("Product ID from query:", id);
 
-        // Fetch the product details using the ID
         const product = await Product.findOne({ _id: id });
-
-
-        // Fetch the list of categories for the dropdown
         const category = await Category.find({});
 
-        // Render the form with the product and category data
         res.render('editProduct', {
-            product: product, // Pass the product data
-            cat: category     // Pass the category list
+            product: product,
+            cat: category 
         });
     } catch (error) {
     
         res.redirect('/pageNotFound');
     }
 };
-
 
 const editProduct = async(req,res)=>{
     try {
@@ -279,10 +200,6 @@ const editProduct = async(req,res)=>{
     }
 }
 
-
-
-
-
 const deleteSingleImage = async(req,res)=>{
     try {
         
@@ -307,16 +224,15 @@ const searchProducts =  async (req, res) => {
     try {
         const query = req.query.query;
         if (!query) {
-            return res.json([]); // Return an empty array if no query is provided
+            return res.json([]); 
         }
 
-        // Perform a search in MongoDB for product name or category
         const products = await Product.find({
             $or: [
-                { productName: { $regex: query, $options: "i" } },  // Case-insensitive search
+                { productName: { $regex: query, $options: "i" } },
                 { "category.name": { $regex: query, $options: "i" } }
             ]
-        }).populate("category"); // Ensure category is populated
+        }).populate("category"); 
 
         res.json(products);
     } catch (error) {

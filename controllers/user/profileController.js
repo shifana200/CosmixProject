@@ -19,7 +19,6 @@ const loadUserDashboard =  async (req, res) => {
     try {
         const userId = req.session.user;
         const userData = await User.findById(userId);
-        //const addressData = await Address.findOne({userId: userId});
 
         return res.render('userdashboard',{user:userData,})
     } catch (error) {
@@ -28,40 +27,25 @@ const loadUserDashboard =  async (req, res) => {
     }
 }
 
-// const loadUserOrder =  async (req, res) => {
-//     try {
-//         const userId = req.session.user;
-//         const orderDetails = await Order.find({userId}).populate('orderedItems.product').sort({createdAt: -1});
-//         console.log("---------------------")
-//         console.log(orderDetails)
-//         return res.render('userorders',{orderDetails})
-//     } catch (error) {
-//         console.log("user orders page not loading", error)
-//         res.status(500).send('Server error')
-//     }
-// }
-
 const loadUserOrder = async (req, res) => {
     try {
         const userId = req.session.user;
-        const page = parseInt(req.query.page) || 1; // Get current page from query params
-        const limit = 2; // Number of orders per page
+        const page = parseInt(req.query.page) || 1; 
+        const limit = 2; 
         const skip = (page - 1) * limit;
 
-        // Fetch orders with pagination
+        
         const orderDetails = await Order.find({ userId })
             .populate('orderedItems.product')
             .sort({ createdAt: -1 })
             .skip(skip)
             .limit(limit);
 
-        // Get total orders count
+        
         const totalOrders = await Order.countDocuments({ userId });
-
-        // Calculate total pages
         const totalPages = Math.ceil(totalOrders / limit);
 
-        // Render the page with pagination data
+        
         return res.render('userorders', { orderDetails, totalPages, currentPage: page });
     } catch (error) {
         console.log("user orders page not loading", error);
@@ -156,10 +140,10 @@ const addNewAddress = async(req,res) =>{
         }
 
         if (source === 'checkout') {
-            // Redirect to checkout page or another page
-            return res.redirect('/checkout');  // For example
+            
+            return res.redirect('/checkout');  
         } else {
-            // Redirect to address page or show success message
+            
             return res.redirect('/myaddress');
         }
     } catch (error) {
@@ -189,14 +173,13 @@ const editAddress =async (req,res)=>{
         const data = req.body;
         const addressId =  req.params.id;
         const userId = req.session.user._id;
-        // const addressId = req.query.id;
         const user = req.session.user;
 
         console.log(data)
         console.log(addressId)
         const findAddress = await Address.findOne({"address._id":addressId})
         if(!findAddress){
-            //res.redirect('/pageNotFound')
+            
         }
         const result = await Address.updateOne(
             {"address._id":addressId},
@@ -244,22 +227,22 @@ const updateProfile = async (req, res) => {
     const { name, phone } = req.body;
 
     try {
-        // Log the data coming in
+        
         console.log("Received data:", req.body);
 
-        // Update the user in the database
+        
         const updatedUser = await User.findByIdAndUpdate(
             req.session.user._id,
             { name, phone },
             { new: true, runValidators: true }
         );
 
-        // Check if the update was successful
+        
         if (!updatedUser) {
             return res.status(400).json({ success: false, message: 'Profile not updated' });
         }
 
-        // Send the updated user data as JSON
+        
         res.status(200).json({ success: true, user: updatedUser });
 
     } catch (err) {
@@ -274,7 +257,7 @@ const loadOrderDetails = async (req, res) => {
         console.log('**************************');
         console.log(" Order ID:", orderId);
 
-        // Find the order and populate product details
+        
         const orderDetails = await Order.findById(orderId)
         .populate('orderedItems.product')
         .populate('userId', 'name');
@@ -292,10 +275,10 @@ const loadOrderDetails = async (req, res) => {
             return res.redirect('/pageNotFound');
         }
 
-        // Fetch the address document where the address ID is inside the array
+        
         const addressDocument = await Address.findOne(
             { "address._id": orderDetails.addressId }, 
-            { "address.$": 1 } // Fetch only the matched address
+            { "address.$": 1 } 
         );
 
         if (!addressDocument || !addressDocument.address.length) {
@@ -305,8 +288,8 @@ const loadOrderDetails = async (req, res) => {
 
         const addressDetails = addressDocument.address[0];
 
-        console.log('✅ Order Details:', orderDetails);
-        console.log('✅ Address Details:', addressDetails);
+        console.log('Order Details:', orderDetails);
+        console.log(' Address Details:', addressDetails);
         console.log('**************************');
 
         res.render('orderDetails', { orderDetails, addressDetails , userName: orderDetails.userId?.name });
@@ -317,294 +300,11 @@ const loadOrderDetails = async (req, res) => {
     }
 };
 
-// const returnOrder = async (req, res) => {
-//     try {
-//         const { returnReason } = req.body;
-//         const orderId = req.query.id;
-
-//         console.log('**************************');
-//         console.log("Return Order - Order ID:", orderId);
-
-//         const orderDetails = await Order.findById(orderId).populate('orderedItems.product');
-
-//         if (!orderDetails) {
-//             console.log("Order not found");
-//             return res.render('orderDetails', { success: false, message: 'Order not found' });
-//         }
-
-//         console.log("Found Order Details:", orderDetails);
-
-//         if (!orderDetails.addressId) {
-//             console.log("Order does not contain an address ID");
-//             return res.render('orderDetails', { success: false, message: 'Order address not found' });
-//         }
-
-    
-
-
-//         // Fetch the address document
-//         const addressDocument = await Address.findOne(
-//             { "address._id": orderDetails.addressId },
-//             { "address.$": 1 }
-//         );
-
-//         if (!addressDocument || !addressDocument.address.length) {
-//             console.log("Address document not found for ID:", orderDetails.addressId);
-//             return res.render('orderDetails', { success: false, message: 'Shipping address not found' });
-//         }
-
-//         const addressDetails = addressDocument.address[0];
-
-//         console.log('✅ Address Details:', addressDetails);
-
-//         // Check if the order is already cancelled or returned
-//         if (orderDetails.status === 'Cancelled' || orderDetails.status === 'Returned') {
-//             return res.render('orderDetails', {
-//                 success: false,
-//                 message: `Order is already ${orderDetails.status.toLowerCase()}.`,
-//                 orderDetails,
-//                 addressDetails
-//             });
-//         }
-
-//         // Update order status
-//         orderDetails.status = 'Return Pending';
-//         orderDetails.returnReason = returnReason;
-//         await orderDetails.save();
-
-//         console.log('✅ Return initiated successfully');
-
-//         // Wallet Refund Logic
-//         if (orderDetails.status === 'Delivered' || orderDetails.paymentMethod === 'Online Payment') {
-//             let userWallet = await Wallet.findOne({ userId: orderDetails.userId });
-
-//             const refundTransaction = {
-//                 amount: orderDetails.PayableAmount,
-//                 transactionType: 'Return',
-//                 timestamp: new Date()
-//             };
-
-//             if (userWallet) {
-//                 userWallet.walletAmount += orderDetails.PayableAmount;
-//                 userWallet.transactions.push(refundTransaction);
-//                 await userWallet.save();
-//                 console.log(`💰 Wallet updated! New Balance: ${userWallet.walletAmount}`);
-//             } else {
-//                 userWallet = await Wallet.create({
-//                     userId: orderDetails.userId,
-//                     walletAmount: orderDetails.PayableAmount,
-//                     transactions: [refundTransaction]
-//                 });
-//                 console.log(`💰 New wallet created! Balance: ${userWallet.walletAmount}`);
-//             }
-//         }
-
-//         res.render('orderDetails', {
-//             success: true,
-//             message: 'Return initiated successfully',
-//             orderDetails,
-//             addressDetails
-//         });
-
-//     } catch (error) {
-//         console.error("Error returning order:", error);
-//         res.render('orderDetails', { success: false, message: 'Server error' });
-//     }
-// };
-
-
-// const cancelOrder = async (req, res) => {
-//     try {
-//         const { cancellationReason } = req.body;
-//         const orderId = req.query.id;
-
-//         console.log('**************************');
-//         console.log("Cancel Order - Order ID:", orderId);
-
-//         const orderDetails = await Order.findById(orderId).populate('orderedItems.product');
-
-//         if (!orderDetails) {
-//             console.log("Order not found");
-//             return res.render('orderDetails', { success: false, message: 'Order not found' });
-//         }
-
-//         console.log("Found Order Details:", orderDetails);
-
-//         if (!orderDetails.addressId) {
-//             console.log("Order does not contain an address ID");
-//             return res.render('orderDetails', { success: false, message: 'Order address not found' });
-//         }
-
-//         // Fetch the address document
-//         const addressDocument = await Address.findOne(
-//             { "address._id": orderDetails.addressId },
-//             { "address.$": 1 }
-//         );
-
-//         if (!addressDocument || !addressDocument.address.length) {
-//             console.log("Address document not found for ID:", orderDetails.addressId);
-//             return res.render('orderDetails', { success: false, message: 'Shipping address not found' });
-//         }
-
-//         const addressDetails = addressDocument.address[0];
-
-//         console.log('✅ Address Details:', addressDetails);
-
-//         // Check if the order is already cancelled or returned
-//         if (orderDetails.status === 'Cancelled' || orderDetails.status === 'Returned') {
-//             return res.render('orderDetails', {
-//                 success: false,
-//                 message: `Order is already ${orderDetails.status.toLowerCase()}.`,
-//                 orderDetails,
-//                 addressDetails
-//             });
-//         }
-
-//         // Restore stock if necessary
-//         if (orderDetails.status === 'Ordered') {
-//             for (let item of orderDetails.orderedItems) {
-//                 const product = await Product.findById(item.product);
-//                 if (product) {
-//                     product.quantity += item.quantity;
-//                     await product.save();
-//                 }
-//             }
-//         }
-
-//         // Update order status
-//         orderDetails.status = 'Cancellation Pending';
-//         orderDetails.cancellationReason = cancellationReason;
-//         await orderDetails.save();
-
-//         console.log('✅ Order cancelled successfully');
-
-//         // Wallet Refund Logic
-//         if (orderDetails.status === 'Delivered' || orderDetails.paymentMethod === 'Online Payment') {
-//             let userWallet = await Wallet.findOne({ userId: orderDetails.userId });
-
-//             const refundTransaction = {
-//                 amount: orderDetails.PayableAmount,
-//                 transactionType: 'Cancellation',
-//                 timestamp: new Date()
-//             };
-
-//             if (userWallet) {
-//                 userWallet.walletAmount += orderDetails.PayableAmount;
-//                 userWallet.transactions.push(refundTransaction);
-//                 await userWallet.save();
-//                 console.log(`💰 Wallet updated! New Balance: ${userWallet.walletAmount}`);
-//             } else {
-//                 userWallet = await Wallet.create({
-//                     userId: orderDetails.userId,
-//                     walletAmount: orderDetails.PayableAmount,
-//                     transactions: [refundTransaction]
-//                 });
-//                 console.log(`💰 New wallet created! Balance: ${userWallet.walletAmount}`);
-//             }
-//         }
-
-//         res.render('orderDetails', {
-//             success: true,
-//             message: 'Order cancelled successfully',
-//             orderDetails,
-//             addressDetails
-//         });
-
-//     } catch (error) {
-//         console.error("Error cancelling order:", error);
-//         res.render('orderDetails', { success: false, message: 'Server error' });
-//     }
-// };
-
-
-
-
-
-
-
-
-
-// const generateInvoice = async (req, res) => {
-//     try {
-//         const { orderId } = req.params;
-
-//         // Fetch order details with populated user and product details
-//         const order = await Order.findById(orderId)
-//             .populate("orderedItems.product")
-//             .populate("userId");
-
-//         if (!order) {
-//             return res.status(404).send("Order not found");
-//         }
-
-//         // Create PDF document
-//         const doc = new PDFDocument({ margin: 50 });
-//         res.setHeader("Content-Disposition", `attachment; filename=invoice-${order.orderId}.pdf`);
-//         res.setHeader("Content-Type", "application/pdf");
-//         doc.pipe(res);
-
-//         // === Header ===
-//         doc.fontSize(22).text("Cosmix", { align: "center", underline: true }).moveDown(1.5);
-
-//         // === Order Details Section ===
-//         doc.fontSize(12);
-//         doc.text(`Order ID: ${order.orderId}`);
-//         doc.text(`Customer Name: ${order.userId.name || "N/A"}`);
-//         doc.text(`Payment Status: ${order.paymentStatus}`);
-//         doc.moveDown(1.5);
-
-//         // === Table Headers ===
-//         const tableTop = doc.y; // Store Y position for table
-//         doc
-//             .font("Helvetica-Bold")
-//             .text("Product Name", 50, tableTop)
-//             .text("Price", 250, tableTop)
-//             .text("Quantity", 350, tableTop)
-//             .text("Total Price", 450, tableTop);
-
-//         doc.moveDown(1);
-
-//         // === Table Rows ===
-//         let subtotal = 0;
-//         order.orderedItems.forEach((item, index) => {
-//             const rowY = tableTop + (index + 1) * 20;
-//             const totalItemPrice = item.quantity * item.price;
-//             subtotal += totalItemPrice;
-
-//             doc
-//                 .font("Helvetica")
-//                 .text(item.product.productName, 50, rowY , { width: 180, ellipsis: true })
-//                 .text(`Rs ${item.price.toFixed(2)}`, 250, rowY)
-//                 .text(item.quantity.toString(), 350, rowY)
-//                 .text(`₹ ${totalItemPrice.toFixed(2)}`, 450, rowY);
-//         });
-
-//         doc.moveDown(2);
-
-//         // === Summary Section (Align Right) ===
-//         const gstAmount = subtotal * 0.18;
-//         const payableAmount = subtotal - order.discount + gstAmount;
-
-//         doc
-//             .font("Helvetica-Bold")
-//             .text(`Subtotal: Rs${subtotal.toFixed(2)}`, 400, doc.y)
-//             .text(`Discount: Rs${order.discount.toFixed(2)}`, 400, doc.y + 15)
-//             .text(`GST (18%): Rs${gstAmount.toFixed(2)}`, 400, doc.y + 15)
-//             .text(`Payable Amount: Rs${payableAmount.toFixed(2)}`, 400, doc.y + 15);
-
-//         doc.end();
-//     } catch (error) {
-//         console.error("PDF Generation Error:", error);
-//         res.status(500).send("Failed to generate invoice");
-//     }
-// };
-
-
 const generateInvoice = async (req, res) => {
     try {
         const { orderId } = req.params;
 
-        // Fetch order details
+        
         const order = await Order.findById(orderId)
             .populate("orderedItems.product")
             .populate("userId");
@@ -613,23 +313,23 @@ const generateInvoice = async (req, res) => {
             return res.status(404).send("Order not found");
         }
 
-        // Create PDF document
+        
         const doc = new PDFDocument({ margin: 50 });
         res.setHeader("Content-Disposition", `attachment; filename=invoice-${order.orderId}.pdf`);
         res.setHeader("Content-Type", "application/pdf");
         doc.pipe(res);
 
-        // === Header ===
+        
         doc.fontSize(22).text("Cosmix", { align: "center", underline: true }).moveDown(1.5);
 
-        // === Order Details ===
+    
         doc.fontSize(12);
         doc.text(`Order ID: ${order.orderId}`);
         doc.text(`Customer Name: ${order.userId.name || "N/A"}`);
         doc.text(`Payment Status: ${order.paymentStatus}`);
         doc.moveDown(1.5);
 
-        // 
+        
         let startY = doc.y;
         const columnX = { product: 50, price: 250, quantity: 350, total: 450 };
 
@@ -651,7 +351,7 @@ const generateInvoice = async (req, res) => {
             const quantity = item.quantity.toString();
             const totalItemPrice = `Rs ${(item.quantity * item.price).toFixed(2)}`;
 
-            // Calculate max height of text
+            
             const productNameHeight = doc.heightOfString(productName, { width: 180 });
             const rowHeight = Math.max(20, productNameHeight + 5); 
 
@@ -667,14 +367,14 @@ const generateInvoice = async (req, res) => {
             doc.text(quantity, columnX.quantity, startY);
             doc.text(totalItemPrice, columnX.total, startY);
 
-            startY += rowHeight; // Move to next row
+            startY += rowHeight; 
         });
 
         doc.moveDown(2);
 
-        // === Summary Section (Align Right) ===
+
         const gstAmount = subtotal * 0.3;
-        // const payableAmount = subtotal - order.discount + gstAmount;
+        
 
         doc
             .font("Helvetica-Bold")
@@ -708,7 +408,7 @@ const returnOrder = async (req, res) => {
         }
         const addressDocument = await Address.findOne(
             { "address._id": orderDetails.addressId }, 
-            { "address.$": 1 } // Fetch only the matched address
+            { "address.$": 1 } 
         );
 
         if (!addressDocument || !addressDocument.address.length) {
@@ -720,7 +420,7 @@ const returnOrder = async (req, res) => {
 
         const orderCreatedAt = new Date(orderDetails.createdAt);
         const returnDeadline = new Date(orderCreatedAt);
-        returnDeadline.setDate(returnDeadline.getDate() + 7); // Add 7 days to order creation date
+        returnDeadline.setDate(returnDeadline.getDate() + 7); 
         const isReturnExpired = new Date() > returnDeadline;
 
 
@@ -743,7 +443,7 @@ const returnOrder = async (req, res) => {
             });
         }
 
-        // Set status to Pending Approval
+        
         orderDetails.status = 'Return Pending';
         orderDetails.returnReason = returnReason;
         await orderDetails.save();
@@ -798,7 +498,7 @@ const cancelOrder = async (req, res) => {
             });
         }
 
-        // Set status to Pending Approval
+        
         orderDetails.status = 'Cancellation Pending';
         orderDetails.cancellationReason = cancellationReason;
         await orderDetails.save();
@@ -815,7 +515,6 @@ const cancelOrder = async (req, res) => {
     }
 };
 
-// Admin Approval Function
 const approveOrderRequest = async (req, res) => {
     try {
         const { orderId, approvalStatus } = req.body;
@@ -830,7 +529,7 @@ const approveOrderRequest = async (req, res) => {
             if (orderDetails.status === 'Cancellation Pending') {
                 orderDetails.status = 'Cancelled';
 
-                // Restore stock if necessary
+                
                 for (let item of orderDetails.orderedItems) {
                     const product = await Product.findById(item.product);
                     if (product) {
@@ -839,7 +538,7 @@ const approveOrderRequest = async (req, res) => {
                     }
                 }
 
-                // Wallet Refund Logic
+                
                 if (orderDetails.paymentMethod === 'Online Payment') {
                     let userWallet = await Wallet.findOne({ userId: orderDetails.userId });
 
@@ -864,7 +563,7 @@ const approveOrderRequest = async (req, res) => {
             } else if (orderDetails.status === 'Return Pending') {
                 orderDetails.status = 'Returned';
 
-                // Wallet Refund Logic
+                
                 if (orderDetails.paymentMethod === 'Online Payment') {
                     let userWallet = await Wallet.findOne({ userId: orderDetails.userId });
 
@@ -888,7 +587,6 @@ const approveOrderRequest = async (req, res) => {
                 }
             }
         } else {
-            // If the admin rejects the request, revert to its original status
             if (orderDetails.status === 'Cancellation Pending') {
                 orderDetails.status = 'Ordered';
             } else if (orderDetails.status === 'Return Pending') {

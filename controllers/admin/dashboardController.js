@@ -4,14 +4,13 @@ const Order = require('../../models/orderSchema')
 const User = require('../../models/userSchema')
 const Product = require('../../models/productSchema')
 const moment = require("moment");
-const PDFDocument = require("pdfkit"); 
-const excelJS = require("exceljs"); 
+
 
 
 const loadDashboard = async (req, res) => {
     if (req.session.admin) {
         try {
-            // Fetch all users and products
+           
             const users = await User.find();
             const products = await Product.find();
             const orders = await Order.find();
@@ -30,36 +29,33 @@ const loadDashboard = async (req, res) => {
 
             const revenueAmount = totalRevenue.length > 0 ? totalRevenue[0].totalRevenue : 0;
 
-            // Calculate total sales and total discount
+           
             let totalSales = 0;
             let totalDiscount = 0;
 
             orders.forEach(order => {
-                totalSales += order.totalPrice;  // Ensure field name matches schema
+                totalSales += order.totalPrice;  
                 totalDiscount += order.discount;
             });
 
-            // Get today's date
+           
             const today = new Date();
             today.setHours(0, 0, 0, 0);
 
-            // Get start of the week (last 7 days)
+            
             const lastWeek = new Date();
             lastWeek.setDate(today.getDate() - 7);
 
-            // Get start of the month
+           
             const firstDayOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
-
-            // Get start of the year
             const firstDayOfYear = new Date(today.getFullYear(), 0, 1);
 
-            // Filter sales data
+            
             const dailySales = orders.filter(order => new Date(order.createdOn) >= today);
             const weeklySales = orders.filter(order => new Date(order.createdOn) >= lastWeek);
             const monthlySales = orders.filter(order => new Date(order.createdOn) >= firstDayOfMonth);
             const yearlySales = orders.filter(order => new Date(order.createdOn) >= firstDayOfYear);
 
-            // Calculate total amounts for each period
             const calculateTotal = (orders) => orders.reduce((sum, order) => sum + order.totalPrice, 0);
 
             const totalDailySales = calculateTotal(dailySales);
@@ -67,7 +63,6 @@ const loadDashboard = async (req, res) => {
             const totalMonthlySales = calculateTotal(monthlySales);
             const totalYearlySales = calculateTotal(yearlySales);
 
-            // Render the dashboard page
             res.render("dashboard", {
                 users,
                 orders,
@@ -127,19 +122,17 @@ const salesReport = async (req, res) => {
                 return res.status(400).json({ message: "Invalid filter option" });
         }
 
-        // Fetch orders within the selected date range and populate user details
         const orders = await Order.find({
             createdOn: { $gte: start, $lte: end },
-            status: "Delivered"  // Filter for delivered orders only
+            status: "Delivered"  
         }).populate("userId", "name").sort({createdAt:-1}); 
 
-        // Format response data correctly
         const reportData = orders.map(order => ({
-            orderId: order.orderId,   // Ensure you use the correct field name
-            customerName: order.userId ? order.userId.name : "Guest",  // Fetch populated user name
-            PayableAmount: order.PayableAmount || 0.00,  // Use correct schema field
-            discount: order.discount || 0,  // Ensure discount field is fetched correctly
-            date: order.createdOn.toISOString().split('T')[0] // Format date
+            orderId: order.orderId,   
+            customerName: order.userId ? order.userId.name : "Guest", 
+            PayableAmount: order.PayableAmount || 0.00,  
+            discount: order.discount || 0,  
+            date: order.createdOn.toISOString().split('T')[0] 
         }));
 
         res.json({ success: true, reportData });
@@ -154,9 +147,8 @@ const salesReport = async (req, res) => {
 
 const getTopSellingProducts = async (req, res) => {
     try {
-        const { filter } = req.query; // 'daily', 'monthly', 'yearly'
+        const { filter } = req.query; 
 
-        // Get the start and end date based on the selected filter
         let startDate, endDate;
         if (filter === 'daily') {
             startDate = moment().startOf('day').toDate();
@@ -171,15 +163,15 @@ const getTopSellingProducts = async (req, res) => {
 
         console.log(`Filtering orders between ${startDate} and ${endDate}`);
 
-        // Find all orders that are delivered within the selected date range
+        
         const orders = await Order.find({
             status: 'Delivered',
             createdOn: { $gte: startDate, $lte: endDate }
-        }).populate('orderedItems.product'); // Populate the product details
+        }).populate('orderedItems.product'); 
 
         console.log(`Found ${orders.length} orders`);
 
-        // Calculate total sold for each product
+        
         const productSales = {};
         orders.forEach(order => {
             order.orderedItems.forEach(item => {
@@ -197,13 +189,13 @@ const getTopSellingProducts = async (req, res) => {
 
         console.log('Product sales data:', productSales);
 
-        // Convert to an array for sorting and response
+        
         const topSellingProducts = Object.values(productSales);
-        topSellingProducts.sort((a, b) => b.totalSold - a.totalSold); // Sort by total sold
+        topSellingProducts.sort((a, b) => b.totalSold - a.totalSold); 
 
         console.log('Sorted top selling products:', topSellingProducts);
 
-        res.json(topSellingProducts); // Send the data as JSON
+        res.json(topSellingProducts);
     } catch (err) {
         console.error(err);
         res.status(500).json({ error: 'Internal Server Error' });
@@ -213,11 +205,10 @@ const getTopSellingProducts = async (req, res) => {
   
 const getTopCategories = async (req, res) => {
     try {
-      const { filter } = req.query; // 'daily', 'monthly', or 'yearly'
+      const { filter } = req.query; 
   
-      const dateFilter = getDateFilter(filter); // Function to get date filter based on daily, monthly, yearly
+      const dateFilter = getDateFilter(filter); 
   
-      // Aggregate the orders to get the top categories
       const topCategories = await Order.aggregate([
         { $unwind: '$orderedItems' },
         { $lookup: { from: 'products', localField: 'orderedItems.product', foreignField: '_id', as: 'productDetails' } },
@@ -227,7 +218,7 @@ const getTopCategories = async (req, res) => {
         { $match: { createdAt: { $gte: dateFilter.startDate, $lt: dateFilter.endDate } } },
         { $group: { _id: '$categoryDetails._id', categoryName: { $first: '$categoryDetails.name' }, totalSold: { $sum: '$orderedItems.quantity' } } },
         { $sort: { totalSold: -1 } },
-        { $limit: 6 } // Assuming we have 6 categories in total
+        { $limit: 6 } 
       ]);
   
       res.json(topCategories);
@@ -237,27 +228,26 @@ const getTopCategories = async (req, res) => {
     }
   };
   
-  // Helper function to generate date range for daily, monthly, yearly filters
   const getDateFilter = (filter) => {
     const now = new Date();
     let startDate, endDate;
   
     switch (filter) {
       case 'daily':
-        startDate = new Date(now.setHours(0, 0, 0, 0)); // Start of today
-        endDate = new Date(now.setHours(23, 59, 59, 999)); // End of today
+        startDate = new Date(now.setHours(0, 0, 0, 0)); 
+        endDate = new Date(now.setHours(23, 59, 59, 999)); 
         break;
       case 'monthly':
-        startDate = new Date(now.getFullYear(), now.getMonth(), 1); // Start of the current month
-        endDate = new Date(now.getFullYear(), now.getMonth() + 1, 0); // End of the current month
+        startDate = new Date(now.getFullYear(), now.getMonth(), 1); 
+        endDate = new Date(now.getFullYear(), now.getMonth() + 1, 0); 
         break;
       case 'yearly':
-        startDate = new Date(now.getFullYear(), 0, 1); // Start of the current year
-        endDate = new Date(now.getFullYear(), 12, 31); // End of the current year
+        startDate = new Date(now.getFullYear(), 0, 1); 
+        endDate = new Date(now.getFullYear(), 12, 31); 
         break;
       default:
-        startDate = new Date(0); // Beginning of time for undefined filters
-        endDate = new Date(); // Now
+        startDate = new Date(0); 
+        endDate = new Date(); 
     }
   
     return { startDate, endDate };

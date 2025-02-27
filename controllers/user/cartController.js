@@ -22,7 +22,6 @@ const loadCart = async (req, res) => {
 
       const users = await User.findOne({userId})
 
-      // Fetch the user's cart
       const cart = await Cart.findOne({ userId }).populate('items.productId');
 
       if (!cart || cart.items.length === 0) {
@@ -39,12 +38,10 @@ const loadCart = async (req, res) => {
           });
       }
 
-      // Calculate subtotal from cart.items using stored totalPrice
       let subtotal = cart.items.reduce((total, item) => {
           return total + (item.totalPrice || 0);
       }, 0);
 
-      // Ensure subtotal is a valid number
       if (isNaN(subtotal)) subtotal = 0;
 
       console.log("Subtotal:", subtotal);
@@ -52,10 +49,10 @@ const loadCart = async (req, res) => {
         isActive: true,
         startDate: { $lte: new Date() },
         expiryDate: { $gte: new Date() },
-        minimumPurchase: { $lte: subtotal }, // Ensure subtotal is greater than or equal to minimumPurchase
+        minimumPurchase: { $lte: subtotal }, 
         $or: [
-          { maximumPurchase: { $gte: subtotal } }, // Ensure subtotal is less than or equal to maximumPurchase
-          { maximumPurchase: { $exists: false } } // If maximumPurchase doesn't exist, include the coupon
+          { maximumPurchase: { $gte: subtotal } }, 
+          { maximumPurchase: { $exists: false } } 
         ]
       });
 
@@ -64,7 +61,6 @@ const loadCart = async (req, res) => {
     const additionalCharge = 50;
     const totalAmount = subtotal - discount + additionalCharge;
 
-    // Clear session error after displaying it
     const couponError = req.session.couponError || null;
     req.session.couponError = null;
     
@@ -108,7 +104,6 @@ const addCart = async (req, res) => {
           return res.status(404).send("Product not found");
       }
 
-      // Find or create cart
       let cart = await Cart.findOne({ userId });
 
       if (!cart) {
@@ -123,7 +118,6 @@ const addCart = async (req, res) => {
           });
       }
 
-      // Check if the product already exists in the cart
       const existingItem = cart.items.find(
           (item) => item.productId.toString() === productId
       );
@@ -144,24 +138,23 @@ const addCart = async (req, res) => {
       console.log("++++++++++++");
       console.log(cart);
 
-      // Remove product from wishlist if it exists
       const wishlist = await Wishlist.findOne({ userId });
 
-      if (wishlist && Array.isArray(wishlist.products)) {  // ✅ Check if wishlist exists & has products
+      if (wishlist && Array.isArray(wishlist.products)) {  
           const productIndex = wishlist.products.findIndex(
               (item) => item.productId.toString() === productId
           );
 
           if (productIndex !== -1) {
-              wishlist.products.splice(productIndex, 1); // Remove from wishlist
+              wishlist.products.splice(productIndex, 1); 
               await wishlist.save();
-              console.log("✅ Product removed from wishlist");
+              console.log("Product removed from wishlist");
           }
       }
 
       res.redirect("/cart");
   } catch (error) {
-      console.error("❌ Error adding to cart:", error);
+      console.error(" Error adding to cart:", error);
       res.status(500).send("Server error");
   }
 };
@@ -177,30 +170,23 @@ const updateQuantity = async (req, res) => {
     console.log("Product ID:", productId);
     console.log("Quantity:", quantity);
 
-    // Find the user's cart
     const cart = await Cart.findOne({ userId });
 
-    // If no cart is found, return an error
     if (!cart) {
       return res.status(404).json({ message: 'Cart not found' });
     }
 
-    // Find the product in the cart by productId
     const product = cart.items.find(item => item.productId.toString() === productId);
 
-    // If the product is not found, return an error
     if (!product) {
       return res.status(404).json({ message: 'Product not found in cart' });
     }
 
-    // Update the quantity of the product and recalculate the totalPrice
     product.quantity = quantity;
     product.totalPrice = product.price * quantity;
 
-    // Save the updated cart
     await cart.save();
 
-    // Return success response with the updated cart
     res.status(200).json({ message: 'Quantity updated successfully', updatedCart: cart });
   } catch (error) {
     console.error("Error updating quantity:", error);
@@ -226,7 +212,6 @@ const updateQuantity = async (req, res) => {
     }
   }
 
-// POST route to handle apply and remove coupon actions
 
 const applyCoupon = async (req, res) => {
   try {
@@ -244,24 +229,20 @@ const applyCoupon = async (req, res) => {
       return res.redirect('/cart');
     }
 
-    // If 'Apply Coupon' is clicked
     if (couponCode) {
       const coupon = await Coupon.findOne({ couponCode, isActive: true });
 
       if (coupon) {
         const subtotal = cart.items.reduce((total, item) => total + (item.totalPrice || 0), 0);
 
-        // Check if the subtotal is within the coupon's valid range
         if (coupon.minimumPurchase <= subtotal && (coupon.maximumPurchase >= subtotal || !coupon.maximumPurchase)) {
           const discount = coupon.discountType === 'percentage'
             ? (subtotal * coupon.discountValue) / 100
             : coupon.discountValue;
 
-          // Store the applied coupon in the session
           req.session.appliedCoupon = couponCode;
           req.session.discount = discount;
 
-          // Update the Cart model to store the applied coupon
           cart.appliedCoupon = couponCode;
           cart.discount = discount;
           await cart.save();
@@ -277,14 +258,11 @@ const applyCoupon = async (req, res) => {
       }
     }
 
-    // If 'Remove Coupon' is clicked
     if (removeCoupon) {
-      // Remove coupon from session
       delete req.session.appliedCoupon;
       delete req.session.discount;
       req.session.couponError = 'Coupon has been removed.';
 
-      // Remove the applied coupon from the database
       cart.appliedCoupon = null;
       cart.discount = 0;
       await cart.save();
@@ -298,12 +276,6 @@ const applyCoupon = async (req, res) => {
     res.status(500).send('Server Error');
   }
 };
-
-
-
-
-
-
 
   module.exports={
     loadCart,addCart,deleteCart,updateQuantity,applyCoupon,
