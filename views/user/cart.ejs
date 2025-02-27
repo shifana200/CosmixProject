@@ -104,7 +104,7 @@
 			<div class="container">
 				<div class="row">
 					<div class="col">
-						<p class="bread"><span><a href="http://localhost:4001">Home</a></span> / <span>Shopping Cart</span></p>
+						<p class="bread"><span><a href="/">Home</a></span> / <span>Shopping Cart</span></p>
 					</div>
 				</div>
 			</div>
@@ -161,7 +161,7 @@
 
 						<div class="product-cart d-flex   quantity-update" data-product-id="<%=item.productId%>">
 							<div class="one-forth">
-								<div class="product-img" style="background-image: url(/uploads/<%= item.productId.productImage[0] %>);">
+								<div class="product-img" style="background-image: url(/uploads/<%= item.productId.productImage[0] %>)";>
 								</div>
 								<div class="display-tc">
 									<h3><%= item.productId.productName %></h3>

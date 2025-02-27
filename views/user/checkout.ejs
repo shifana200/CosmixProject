@@ -129,7 +129,7 @@
 			<div class="container">
 				<div class="row">
 					<div class="col">
-						<p class="bread"><span><a href="http://localhost:4000">Home</a></span> / <span>Checkout</span></p>
+						<p class="bread"><span><a href="/">Home</a></span> / <span>Checkout</span></p>
 					</div>
 				</div>
 			</div>
@@ -142,7 +142,7 @@
 					<div class="col-sm-10 offset-md-1">
 						<div class="process-wrap">
 							<div class="process text-center active">
-								<a href="http://localhost:4000/cart">
+								<a href="/cart">
 									<p><span>01</span></p>
 								<h3>Shopping Cart</h3>
 								</a>
@@ -382,92 +382,6 @@
 		<a href="#" class="js-gotop"><i class="ion-ios-arrow-up"></i></a>
 	</div>
 
-
-
-	<!-- <script>
-		// Get references to elements
-const addressDiv = document.getElementById('addressdiv');
-const addAddressDiv = document.getElementById('addAddress');
-const editAddressDiv = document.getElementById('editAddress');
-const showAddAddressBtn = document.getElementById('showaddAddress');
-const editAddressBtn = document.getElementById('edit-Address');
-const cancelBtn = document.getElementById('cancel');
-const cancelEditBtn = document.getElementById('cancelEdit');
-
-// Show the "Add Address" form
-showAddAddressBtn.addEventListener('click', function() {
-    addressDiv.style.display = 'none';  // Hide address list
-    addAddressDiv.style.display = 'block';  // Show Add Address form
-});
-
-// Show the "Edit Address" form
-editAddressBtn.addEventListener('click', function() {
-    addressDiv.style.display = 'none';  // Hide address list
-    editAddressDiv.style.display = 'block';  // Show Edit Address form
-});
-
-// Cancel button in "Add Address" form
-cancelBtn.addEventListener('click', function() {
-    addAddressDiv.style.display = 'none';  // Hide Add Address form
-    addressDiv.style.display = 'block';  // Show address list
-});
-
-// Cancel button in "Edit Address" form
-cancelEditBtn.addEventListener('click', function() {
-    editAddressDiv.style.display = 'none';  // Hide Edit Address form
-    addressDiv.style.display = 'block';  // Show address list
-});
-
-
-
-document.getElementById('updateAddressBtn').addEventListener('click', function() {
-    // Get the selected radio button's ID or value
-    const selectedRadio = document.querySelector('input[name="address"]:checked');
-    let selectedAddress;
-
-    if (selectedRadio) {
-        // Get the address ID from the selected radio button
-        const selectedAddressId = selectedRadio.getAttribute('data-id');
-        
-        // Assuming `userAddress.address` is available and contains the list of addresses
-        selectedAddress = userAddress.address.find(address => address._id === selectedAddressId);
-    }
-
-    // If no address is selected, default to the first address (0th index)
-    if (!selectedAddress) {
-        selectedAddress = userAddress.address[0];
-    }
-
-    // Update the address content div with the selected or 0th index address
-    const addressContentDiv = document.getElementById('addressContentDiv');
-    addressContentDiv.innerHTML = `
-        <div class="radio-section" style="display: flex; align-items: center; justify-content: space-between; padding: 10px;">
-            <div style="display: flex; align-items: center; gap: 5px;">
-                <input type="radio" name="address" id="address1" data-id="${selectedAddress._id}" checked>
-                <h6 style="background-color: #47abb8; color: #fff; margin: 0; padding: 5px 10px; border-radius: 4px;">
-                    ${selectedAddress.addressType}
-                </h6>
-            </div>
-        </div>
-        <strong>${selectedAddress.name}</strong>
-        <p>Phone: ${selectedAddress.phone} <br/>
-           Alt Phone: ${selectedAddress.altPhone}</p>
-        <p>
-            ${selectedAddress.city}, ${selectedAddress.landMark},<br/>
-            ${selectedAddress.district}, ${selectedAddress.state} - 
-            <strong>${selectedAddress.pincode}</strong>
-        </p>
-    `;
-});
-
-  
-    
-
-
-
-
-	</script> -->
-
 	
 	<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 	<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
@@ -477,7 +391,6 @@ document.getElementById('updateAddressBtn').addEventListener('click', function()
 	<script>
 		document.addEventListener("DOMContentLoaded", function() {
 
-		// Get references to elements
 const addressDiv = document.getElementById('addressdiv');
 const addAddressDiv = document.getElementById('addAddress');
 const editAddressDiv = document.getElementById('editAddress');
@@ -489,7 +402,6 @@ const updateAddressBtn = document.getElementById('updateAddressBtn');
 const addressForm = document.getElementById('addressForm');
 
 
-// Show the "Add Address" form
 showAddAddressBtn.addEventListener('click', function() {
     addressDiv.style.display = 'none';  // Hide address list
     addAddressDiv.style.display = 'block';  // Show Add Address form

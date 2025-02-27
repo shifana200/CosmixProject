@@ -10,7 +10,7 @@
 <body>
   <div class="container">
     <div class="left-panel">
-      <a href="http://localhost:4000/signup" class="back-arrow">←</a>
+      <a href="/signup" class="back-arrow">←</a>
       <h1>Verify your Account</h1>
       <p>The One-Time Password is sent. Please Enter your OTP.</p>
      
@@ -152,27 +152,21 @@ function submitOtp(otp) {
 
 
 
-// Function to handle resend OTP
 function resendOtp() {
-  // Clear the existing countdown timer
-  clearInterval(window.timerId); // Assuming window.timerId stores the countdown interval ID
+  clearInterval(window.timerId); 
 
-  // Reset OTP input fields and countdown
-  document.querySelectorAll("#otp input").forEach(input => input.value = ''); // Clear OTP fields
-  document.getElementById("otp").disabled = false; // Enable OTP input fields
-  document.getElementById("countdown").classList.remove("expired"); // Remove expired class from countdown
+  document.querySelectorAll("#otp input").forEach(input => input.value = ''); 
+  document.getElementById("otp").disabled = false; 
+  document.getElementById("countdown").classList.remove("expired"); 
 
-  // Disable Resend OTP button temporarily
   const resendButton = document.getElementById("resendOtp");
   resendButton.style.pointerEvents = "none"; 
   resendButton.style.color = "gray"; 
 
-  // Restart the countdown timer
   const countdownDisplay = document.getElementById("countdown");
-  const durationInSeconds = 30; // Timer duration (30 seconds or your choice)
+  const durationInSeconds = 30; 
   startTimer(durationInSeconds, countdownDisplay);
 
-  // Make AJAX request to resend OTP
   fetch('/resend-otp', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' }
@@ -209,46 +203,40 @@ function resendOtp() {
 
 
 
-// Timer Function to manage countdown
 function startTimer(duration, display) {
-  let timer = duration; // Duration in seconds
+  let timer = duration; 
   let minutes, seconds;
 
-  // Store the countdown ID globally to clear the interval later
   window.timerId = setInterval(function () {
     minutes = Math.floor(timer / 60);
     seconds = timer % 60;
 
-    // Format time as MM:SS
+    
     display.textContent = `${minutes < 10 ? '0' + minutes : minutes}:${seconds < 10 ? '0' + seconds : seconds}`;
 
-    // If timer reaches zero, stop the countdown and enable resend button
     if (--timer < 0) {
-      clearInterval(window.timerId); // Stop the timer
+      clearInterval(window.timerId); 
       document.getElementById("resendOtp").disabled = false;
       document.getElementById("resendOtp").style.pointerEvents = "auto";
-      document.getElementById("resendOtp").style.color = "blue"; // Make the button visible again
+      document.getElementById("resendOtp").style.color = "blue"; 
     }
-  }, 1000); // Run every 1 second
+  }, 1000); 
 }
 
-// Start Timer When Page Loads
+
 window.onload = function () {
   const countdownDisplay = document.getElementById("countdown");
-  const durationInSeconds = 30; // 30 seconds countdown
+  const durationInSeconds = 30; 
   startTimer(durationInSeconds, countdownDisplay);
 };
 
-// Add event listener for resend OTP button
+
 document.getElementById("resendOtp").addEventListener("click", function(event) {
-  event.preventDefault(); // Prevent default link behavior (navigation)
+  event.preventDefault(); 
   resendOtp();
 });
 
-
-
-
-    </script>
+</script>
     
     
 

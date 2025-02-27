@@ -93,7 +93,7 @@
 			<div class="container">
 				<div class="row">
 					<div class="col">
-						<p class="bread"><span><a href="http://localhost:4000">Home</a></span> / <span>My Wishlist</span></p>
+						<p class="bread"><span><a href="/">Home</a></span> / <span>My Wishlist</span></p>
 					</div>
 				</div>
 			</div>
@@ -129,7 +129,7 @@
 								<form action="/addCart" method="post">
 									<input type="hidden" name="productId" value="<%= product._id %>">
 									<input type="hidden" name="quantity" id="hiddenQuantity" value="1">
-								<button class="addCart-btn"><i class="icon-shopping-cart"></i>   Add to Cart</a></button>
+								<button class="addCart-btn"><i class="icon-shopping-cart"></i> Add to Cart </a></button>
 								</form>
 							</div>
 						</div>
@@ -137,19 +137,11 @@
 					<%})%>
 					<%}%>
 					
-
-
-					
-					
-				
 					<div class="w-100"></div>
-					
-					
-					
 				</div>
 				<div class="row">
 					<div class="col-md-12 text-center">
-						<p><a href="http://localhost:4000/shop" class="btn btn-primary btn-lg">Shop All Products</a></p>
+						<p><a href="/shop" class="btn btn-primary btn-lg">Shop All Products</a></p>
 					</div>
 				</div>
 			</div>

@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard Page</title>
     <style>
-        /* General Reset */
+        
         * {
             margin: 0;
             padding: 0;
@@ -20,7 +20,7 @@
             background-color: #f4f4f4;
         }
 
-        /* Sidebar */
+        
         .container {
             display: flex;
             flex: 1;
@@ -56,7 +56,7 @@
             color: white;
         }
 
-        /* Main Content */
+        
         .content {
             flex: 1;
             padding: 20px;
@@ -78,18 +78,18 @@
         }
 
         
-/* Main Container */
+
 .wallet-container {
   background-color: #ffffff;
   border-radius: 10px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  width: 100%; /* Full width */
+  width: 100%; 
   margin: 30px auto;
   padding: 20px;
   box-sizing: border-box;
 }
 
-/* Wallet Title */
+
 .wallet-title {
   font-size: 24px;
   font-weight: bold;
@@ -97,7 +97,7 @@
   color: #333;
 }
 
-/* Wallet Balance */
+
 .wallet-balance {
   background-color: #002b62;
   color: #ffffff;
@@ -106,11 +106,11 @@
   margin-bottom: 20px;
   font-size: 16px;
   font-weight: bold;
-  width: 100%; /* Full width */
+  width: 100%; 
   box-sizing: border-box;
 }
 
-/* Flexbox Layout for Left and Right Sides */
+
 .wallet-content {
   display: flex;
   justify-content: space-between;
@@ -118,9 +118,8 @@
   width: 100%;
 }
 
-/* Left Side Styling */
 .wallet-left {
-  flex: 1; /* Takes available space */
+  flex: 1;
 }
 
 .wallet-left label {
@@ -155,9 +154,9 @@
   opacity: 0.9;
 }
 
-/* Right Side Styling */
+
 .wallet-right {
-  flex: 1; /* Takes remaining space */
+  flex: 1;
 }
 
 .payment-title {
@@ -179,7 +178,7 @@
   margin-right: 10px;
 }
 
-/* Buttons Section */
+
 .wallet-buttons {
   display: flex;
   gap: 10px;
@@ -210,7 +209,7 @@
   opacity: 0.9;
 }
 
-        /* Footer */
+        
         .footer {
             background-color: #84CBCB;
             padding: 20px;
@@ -279,23 +278,19 @@
     </style>
 </head>
 <body>
-    <!-- Container with Sidebar and Main Content -->
+  
     <div class="container">
-        <!-- Sidebar -->
         <%- include("../../views/partials/user/usersidebar.ejs")%>
 
 
-        <!-- Main Content -->
         <div class="wallet-container">
             <h2 class="wallet-title">Add Money To Wallet</h2>
           
-            <!-- Wallet Balance Section -->
             <div class="wallet-balance">
               Wallet Balance Rs 900.00
             </div>
           
             <div class="wallet-content">
-              <!-- Left Side: Input Fields -->
               <div class="wallet-left">
                 <label for="amount">Add Amount</label>
                 <input type="text" id="amount" placeholder="Enter amount">
@@ -306,7 +301,6 @@
                 <button class="apply-btn">Apply</button>
               </div>
           
-              <!-- Right Side: Payment Methods -->
               <div class="wallet-right">
                 <label class="payment-title">Payment Method</label>
                 <div class="payment-options">
@@ -326,7 +320,6 @@
           
     </div>
 
-    <!-- Footer -->
     <%- include("../../views/partials/user/userfooter.ejs")%>
 
   
