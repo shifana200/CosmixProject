@@ -15,14 +15,13 @@ const multer = require('multer');
 
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {
-      cb(null, 'uploads/'); // specify the folder where files will be saved
+      cb(null, 'uploads/');
     },
     filename: function (req, file, cb) {
-      cb(null, Date.now() + '-' + file.originalname); // Generate a unique file name
+      cb(null, Date.now() + '-' + file.originalname); 
     }
   });
   
-  // Create an instance of multer with the storage configuration
   const uploads = multer({ storage: storage });
 
 
@@ -38,9 +37,6 @@ router.get('/logout',adminAuth,adminController.logout)
 //dashboard management
 router.get('/dashboard',adminAuth,dashboardController.loadDashboard)
 router.get('/sales-report',adminAuth,dashboardController.salesReport)
-// router.get('/sales-report',adminAuth,dashboardController.salesReport)
-// router.get("/sales-report/pdf",adminAuth,dashboardController.salesReportPdf)
-// router.get("/sales-report/excel",adminAuth,dashboardController.salesReportExcel)
 router.get('/top-selling-products', dashboardController.getTopSellingProducts);
 router.get('/top-selling-categories', dashboardController.getTopCategories);
 

@@ -61,7 +61,7 @@ const loadHomepage = async (req, res) => {
 
 const loadSignIn = async (req, res) => {
   try {
-    return res.render("signin", { message: req.session.message });
+    return res.render("signIn", { message: req.session.message });
   } catch (error) {
     console.log("Signin page not loading", error);
     res.status(500).send("Server error");
