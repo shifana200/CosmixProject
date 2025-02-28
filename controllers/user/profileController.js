@@ -10,6 +10,9 @@ const Wallet = require('../../models/walletSchema')
 const PDFDocument = require("pdfkit");
 const fs = require("fs");
 const createTable = require("pdfkit-table");
+const bcrypt = require("bcrypt");
+
+
 
 
 
@@ -498,6 +501,8 @@ const cancelOrder = async (req, res) => {
             });
         }
 
+       
+
         
         orderDetails.status = 'Cancellation Pending';
         orderDetails.cancellationReason = cancellationReason;
@@ -604,6 +609,127 @@ const approveOrderRequest = async (req, res) => {
     }
 };
 
+const loadchangePassword = async(req,res)=>{
+    try {
+        res.render('changePassword')
+    } catch (error) {
+        console.error(error)
+        res.redirect('/pageNotFound')
+    }
+}
+
+
+
+// const changePassword = async (req, res) => {
+//     try {
+//         const { currentPassword, newPassword, confirmPassword } = req.body;
+//         const userSession = req.session.user; // User details stored in session
+
+//         if (!userSession || !userSession._id) {
+//             return res.status(401).json({ success: false, message: "Unauthorized. Please log in." });
+//         }
+
+//         // Fetch user from the database
+//         const user = await User.findById(userSession._id);
+//         if (!user) {
+//             return res.status(404).json({ success: false, message: "User not found" });
+//         }
+
+//         // Check if the current password matches the stored hashed password
+//         const isMatch = await bcrypt.compare(currentPassword, user.password);
+//         if (!isMatch) {
+//             return res.status(400).json({ success: false, message: "The current password is incorrect" });
+//         }
+
+//         // Validate new password length and character requirements
+//         const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/;
+//         if (!passwordRegex.test(newPassword)) {
+//             return res.status(400).json({
+//                 success: false,
+//                 message: "New password must be at least 8 characters long and contain at least one letter and one number",
+//             });
+//         }
+
+//         // Ensure new password and confirm password match
+//         if (newPassword !== confirmPassword) {
+//             return res.status(400).json({ success: false, message: "New password and confirm password do not match" });
+//         }
+
+//         // Hash the new password
+//         const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+//         // Update user's password in the database
+//         user.password = hashedPassword;
+//         await user.save();
+
+//         return res.status(200).json({ success: true, message: "Password changed successfully" });
+
+//     } catch (error) {
+//         console.error("Error changing password:", error);
+//         res.status(500).json({ success: false, message: "Internal server error" });
+//     }
+// };
+
+const changePassword = async (req, res) => {
+    try {
+        const { currentPassword, newPassword, confirmPassword } = req.body;
+        const userSession = req.session.user; // User details stored in session
+
+        let errors = {};
+
+        if (!userSession || !userSession._id) {
+            return res.status(401).json({ success: false, message: "Unauthorized. Please log in." });
+        }
+
+        // Fetch user from the database
+        const user = await User.findById(userSession._id);
+        if (!user) {
+            return res.status(404).json({ success: false, message: "User not found" });
+        }
+
+        // Validate required fields
+        if (!currentPassword) errors.currentPassword = "Current password is required";
+        if (!newPassword) errors.newPassword = "New password is required";
+        if (!confirmPassword) errors.confirmPassword = "Confirm password is required";
+
+        if (Object.keys(errors).length > 0) {
+            return res.status(400).json({ success: false, errors });
+        }
+
+        // Check if the current password matches the stored hashed password
+        const isMatch = await bcrypt.compare(currentPassword, user.password);
+        if (!isMatch) {
+            return res.status(400).json({ success: false, errors: { currentPassword: "The current password is incorrect" } });
+        }
+
+        // Validate new password length and character requirements
+        const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/;
+        if (!passwordRegex.test(newPassword)) {
+            return res.status(400).json({
+                success: false,
+                errors: { newPassword: "Password must be at least 8 characters long and contain at least one letter and one number" },
+            });
+        }
+
+        // Ensure new password and confirm password match
+        if (newPassword !== confirmPassword) {
+            return res.status(400).json({ success: false, errors: { confirmPassword: "Passwords do not match" } });
+        }
+
+        // Hash the new password
+        const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+        // Update user's password in the database
+        user.password = hashedPassword;
+        await user.save();
+
+        return res.status(200).json({ success: true, message: "Password changed successfully" });
+
+    } catch (error) {
+        console.error("Error changing password:", error);
+        res.status(500).json({ success: false, message: "Internal server error" });
+    }
+};
 
 
 
@@ -616,7 +742,8 @@ module.exports = {
     loadUserAddress,loadWalletTransactions,loadWalletAddmoney,
     loadUpdateProfile,loadUserOrder,
     addNewAddress,editAddress,loadEditAddress,updateProfile,deleteAddress,
-    loadOrderDetails,cancelOrder,returnOrder,generateInvoice,
+    loadOrderDetails,cancelOrder,returnOrder,generateInvoice,loadchangePassword,
+    changePassword,
     
     
 }

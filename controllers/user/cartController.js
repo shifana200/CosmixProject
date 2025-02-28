@@ -112,8 +112,8 @@ const addCart = async (req, res) => {
               items: [{ 
                   productId, 
                   quantity, 
-                  price: product.regularPrice, 
-                  totalPrice: product.regularPrice * quantity 
+                  price: product.salePrice, 
+                  totalPrice: product.salePrice * quantity 
               }]
           });
       }
@@ -129,8 +129,8 @@ const addCart = async (req, res) => {
           cart.items.push({
               productId,
               quantity,
-              price: product.regularPrice,
-              totalPrice: product.regularPrice * quantity
+              price: product.salePrice,
+              totalPrice: product.salePrice * quantity
           });
       }
 

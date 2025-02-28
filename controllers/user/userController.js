@@ -187,7 +187,14 @@ const verifyOtp = async (req, res) => {
         password: passwordHash,
         otp,
         otpExpiration: new Date(Date.now() + 5 * 60 * 1000),
+      
       });
+
+      if (user.googleId) { // Only add googleId if it exists
+        newUser.googleId = user.googleId;
+    }
+    
+    
 
       await newUser.save();
 

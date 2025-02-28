@@ -45,6 +45,9 @@ router.post('/payWithWallet',userController.payWithWallet)
 
 router.post('/logout',userController.logout)
 router.post('/update-profile',profileController.updateProfile)
+router.get('/changePassword',profileController.loadchangePassword)
+router.post("/change-password",profileController.changePassword);
+
 
 
 

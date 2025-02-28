@@ -150,7 +150,7 @@ const updateOrderStatus = async (req, res) => {
 const confirmOrderRequest = async (req, res) => {
     try {
         const { orderId, action } = req.body;
-        const order = await Order.findById(orderId);
+        const order = await Order.findById(orderId).populate("orderedItems.product");
 
         if (!order) {
             return res.status(404).send("Order not found");
@@ -160,6 +160,16 @@ const confirmOrderRequest = async (req, res) => {
             if (order.status === "Cancellation Pending") {
                 order.status = "Cancelled";
                 await processWalletRefund(order, "Cancellation");
+
+                for (let item of order.orderedItems) {
+                    if (item.product) {
+                        const product = await Product.findById(item.product._id); // Fetch full product document
+                        if (product) {
+                            product.quantity += item.quantity;
+                            await product.save();
+                        }
+                    }
+                }
                 
             } else if (order.status === "Return Pending") {
                 order.status = "Returned";

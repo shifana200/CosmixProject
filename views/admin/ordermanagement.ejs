@@ -213,7 +213,8 @@
                         <% orders.forEach((order)=>{ %>
                         <tr>
                             <td><%= order.orderId%></td>
-                            <td><%= order.userId.name%></td>
+
+                            <td><%= order.userId ? order.userId.name : 'Unknown User' %></td>
                             <td><%= order.status%></td>
                             <td><%= order.paymentMethod%></td>
                             <td> ₹<%= order.PayableAmount%></td>
