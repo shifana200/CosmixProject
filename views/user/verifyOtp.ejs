@@ -64,8 +64,8 @@
     }
 
     form button {
-      width: 100%;
-      padding: 12px;
+      width: 50%;
+      padding: 5px;
       background-color: #007bff;
       color: #fff;
       border: none;
@@ -105,14 +105,7 @@
       position: relative;
       width: 100%;
     }
-    .error-message {
-    color: red;
-    display: none;
-    font-size: 12px;
-    position: absolute;
-    margin-top: 5px;
-    left: 0;
-  }
+   
   .input-container {
     position: relative;
   }
@@ -146,6 +139,28 @@
   cursor: pointer;
 }
 
+#resendOtpBtn {
+      width: 50%;
+      margin-top: 3px;
+      padding: 10px;
+      background-color: #007bff;
+      color: white;
+      border: none;
+      cursor: pointer;
+      font-size: 14px;
+      border-radius: 4px;
+      display: block;
+    }
+    #resendOtpBtn:disabled {
+      background-color: gray;
+      cursor: not-allowed;
+    }
+    .message {
+      color: red;
+      font-size: 14px;
+      margin-top: 10px;
+    }
+
 
   </style>
 </head>
@@ -153,11 +168,21 @@
   <div class="container">
     <div class="form-section">
       <h2>Verify OTP</h2>
-      <form action="/verify-otp" method="POST">
+
+      
+
+      <form id="otpForm" action="/verify-otp" method="POST">
         <input type="text" name="otp" placeholder="Enter OTP" required />
-        <button type="submit">Verify</button>
-        <p><%= message %></p>
+        <% if (message) { %>
+          <p class="message" style="color: red;"><%= message %></p>
+        <% } %>
+        <div style="display: flex; gap: 40px;">
+        <button type="submit">Verify OTP</button>
       </form>
+      <button id="resendOtpBtn" onclick="resendOtp()" disabled>Resend OTP (30s)</button>
+
+    </div>
+
 
   
     
@@ -167,7 +192,64 @@
       <img src="/images/signin.jpg" alt="Right Side Image">
     </div>
   </div>
-
-
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script> 
+  <script>
+    let countdown = 30; // Initial countdown time
+    let timer;
+  
+    function startTimer() {
+      const resendBtn = document.getElementById("resendOtpBtn");
+      resendBtn.disabled = true; // Disable button initially
+  
+      timer = setInterval(() => {
+        if (countdown > 0) {
+          resendBtn.innerText = `Resend OTP (${countdown}s)`;
+          countdown--;
+        } else {
+          clearInterval(timer);
+          resendBtn.disabled = false;
+          resendBtn.innerText = "Resend OTP";
+        }
+      }, 1000);
+    }
+  
+    async function resendOtp() {
+      try {
+        const response = await fetch("/resend-otp", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        });
+  
+        const result = await response.json();
+  
+        if (response.ok) {
+          Swal.fire({
+          icon: "success",
+          title: "OTP Sent!",
+          text: result.message,
+          timer: 2000, 
+          showConfirmButton: false
+        });
+          countdown = 30; // Reset countdown
+          startTimer();
+        } else {
+          throw new Error(result.message || "Error resending OTP");
+        }
+      } catch (error) {
+        Swal.fire({
+        icon: "error",
+        title: "Oops!",
+        text: error.message,
+        timer: 2000, 
+        showConfirmButton: false
+      });
+      }
+    }
+  
+    startTimer(); // Start countdown when page loads
+  </script>
+  
 </body>
 </html>

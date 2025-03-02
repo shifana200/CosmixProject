@@ -164,6 +164,11 @@ const loadEditAddress = async (req,res)=>{
         console.log(userId)
         console.log(userAddress)
         console.log("------------------------------------------")
+
+        if (!userAddress) {
+            return res.render('useraddress', { userAddress: { address: [] } });
+        }
+
          return res.render('useraddress',{userAddress:userAddress})
          
     } catch (error) {
@@ -175,15 +180,18 @@ const editAddress =async (req,res)=>{
     try {
         const data = req.body;
         const addressId =  req.params.id;
-        const userId = req.session.user._id;
-        const user = req.session.user;
+        const userId = req.session.user;
 
         console.log(data)
         console.log(addressId)
+
         const findAddress = await Address.findOne({"address._id":addressId})
         if(!findAddress){
-            
+            console.log("address not found")
+            return res.redirect('/pageNotFound')
         }
+
+
         const result = await Address.updateOne(
             {"address._id":addressId},
         {$set:{
@@ -202,8 +210,8 @@ const editAddress =async (req,res)=>{
 
         }}
     )
-    
-    res.redirect('/myaddress')
+
+        return res.redirect('/myaddress')
         
     } catch (error) {
         console.error("Error in edit Address",error)

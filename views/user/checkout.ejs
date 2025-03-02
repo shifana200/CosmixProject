@@ -640,14 +640,14 @@ const verifyPayment = async (paymentData, cartId) => {
                 text: "Payment successful! Redirecting...",
                 showConfirmButton: false,
                 timer: 1500
-            }).then(() => {
-                window.location.href = `/ordercomplete?orderId=${result.orderId}`;
-            });
+            })
+            window.location.href = `/ordercomplete?orderId=${result.orderId}`;
+            
         } else {
             Swal.fire({ icon: "error", text: "Payment verification failed.", showConfirmButton: false, timer: 1500 })
-            .then(()=>{
-                window.location.href = "/failedPayement"
-            })
+            
+                window.location.href = '/failedPayment';
+            
         }
     } catch (error) {
         console.error("Error verifying payment:", error);

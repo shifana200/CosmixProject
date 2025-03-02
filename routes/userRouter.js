@@ -111,6 +111,7 @@ router.delete('/removeFromWishlist',wishlistController.removeFromWishlist)
 
 router.post('/createOrder',userController.createOrder)
 router.post('/verifyPayment',userController.verifyPayment)
+router.get('/failedPayment',userController.loadFailedPaymentPage)
 
 
 router.get('/auth/google', (req, res, next) => {

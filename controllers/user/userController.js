@@ -132,7 +132,7 @@ const verifyRegister = async (req, res) => {
       return res.render("signUp", { error: "User already exists" });
     }
 
-    
+    req.session.isSignup = true; 
     req.session.userData = { name, email, password, phone, referralCode };
 
     
@@ -155,6 +155,125 @@ const verifyRegister = async (req, res) => {
   }
 };
 
+// const verifyOtp = async (req, res) => {
+//   try {
+//     const otpArray = req.body.otp;
+//     const otp = Array.isArray(otpArray) ? otpArray.join("") : otpArray;
+
+//     const user = req.session.userData; 
+//     if (!user) {
+//       console.error("No user data found in session.");
+//       req.session.errorMessage = "Session expired or invalid. Please try again.";
+//       return res.render("verify-otp", { message: req.session.errorMessage });
+//     }
+
+//     if (Date.now() > req.session.otpExpiration) {
+//       console.error("OTP has expired");
+//       req.session.errorMessage = "OTP has expired. Please request a new one.";
+//       return res.render("verify-otp", { message: req.session.errorMessage });
+//     }
+
+//     if (otp !== req.session.userOtp) {
+//       console.error("Invalid OTP");
+//       req.session.errorMessage = "Invalid OTP. Please try again.";
+//       return res.status(400).render("verify-otp", { message: req.session.errorMessage });
+//     }
+
+//     console.log("OTP matched:", otp);
+
+//     req.session.userOtp = null;
+//     req.session.otpExpiration = null;
+
+//        // **Check if request is for signup or forgot password**
+//     if (req.session.isSignup) {
+//       // **Signup Flow**
+//       const user = req.session.userData;
+//       const passwordHash = await securePassword(user.password);
+
+      
+//       const newUser = new User({
+//         name: user.name,
+//         email: user.email,
+//         phone: user.phone,
+//         password: passwordHash,
+//         otp,
+//         otpExpiration: new Date(Date.now() + 5 * 60 * 1000),
+      
+//       });
+
+//       if (user.googleId) newUser.googleId = user.googleId;
+//       await newUser.save();
+    
+    
+      
+//       req.session.user = newUser;
+//       req.session.userData = null;
+      
+
+    
+//       if (user.referralCode) {
+//         const referrer = await User.findOne({ referralCode: user.referralCode });
+
+//         if (referrer) {
+          
+//           let userWallet = await Wallet.findOne({ userId: newUser._id });
+//           if (!userWallet) {
+//             userWallet = new Wallet({
+//               userId: newUser._id,
+//               walletAmount: 50,
+//               transactions: [{ amount: 50, transactionType: "Referral", timestamp: new Date() }],
+//             });
+//           } else {
+//             userWallet.walletAmount += 50;
+//             userWallet.transactions.push({ amount: 50, transactionType: "Referral", timestamp: new Date() });
+//           }
+//           await userWallet.save();
+//           console.log(`₹50 added to ${newUser.name}'s wallet for referral.`);
+
+      
+//           let referrerWallet = await Wallet.findOne({ userId: referrer._id });
+//           if (!referrerWallet) {
+//             referrerWallet = new Wallet({
+//               userId: referrer._id,
+//               walletAmount: 50,
+//               transactions: [{ amount: 50, transactionType: "Referral", timestamp: new Date() }],
+//             });
+//           } else {
+//             referrerWallet.walletAmount += 50;
+//             referrerWallet.transactions.push({ amount: 50, transactionType: "Referral", timestamp: new Date() });
+//           }
+//           await referrerWallet.save();
+//           console.log(`₹50 added to ${referrer.name}'s wallet for referral.`);
+
+          
+//           newUser.referredBy = referrer._id;
+//           await newUser.save();
+//         }
+//       }
+
+//       req.session.errorMessage = "OTP verified successfully!";
+
+//       const products = await Product.find().catch((err) => {
+//         console.error("Error fetching products:", err);
+//         return [];
+//       });
+
+//       return res.render("home", { products, user: newUser });
+//     }
+    
+//     else {
+//       console.error("Invalid OTP");
+//       req.session.errorMessage = "Invalid OTP. Please try again.";
+//       return res.status(400).render("verify-otp", { message: req.session.errorMessage });
+//     }
+
+//   } catch (error) {
+//     console.error("Error Verifying OTP:", error);
+//     req.session.errorMessage = "An unexpected error occurred. Please try again.";
+//     return res.status(500).render("verify-otp", { message: req.session.errorMessage });
+//   }
+// };
+
 const verifyOtp = async (req, res) => {
   try {
     const otpArray = req.body.otp;
@@ -176,10 +295,10 @@ const verifyOtp = async (req, res) => {
     if (otp === req.session.userOtp) {
       console.log("OTP matched:", otp);
 
-      
+
       const passwordHash = await securePassword(user.password);
 
-      
+
       const newUser = new User({
         name: user.name,
         email: user.email,
@@ -198,20 +317,20 @@ const verifyOtp = async (req, res) => {
 
       await newUser.save();
 
-      
+
       req.session.userOtp = null;
       req.session.otpExpiration = null;
 
-      
+
       req.session.user = newUser;
       req.session.userData = null;
 
-    
+
       if (user.referralCode) {
         const referrer = await User.findOne({ referralCode: user.referralCode });
 
         if (referrer) {
-          
+
           let userWallet = await Wallet.findOne({ userId: newUser._id });
           if (!userWallet) {
             userWallet = new Wallet({
@@ -226,7 +345,7 @@ const verifyOtp = async (req, res) => {
           await userWallet.save();
           console.log(`₹50 added to ${newUser.name}'s wallet for referral.`);
 
-      
+
           let referrerWallet = await Wallet.findOne({ userId: referrer._id });
           if (!referrerWallet) {
             referrerWallet = new Wallet({
@@ -241,7 +360,7 @@ const verifyOtp = async (req, res) => {
           await referrerWallet.save();
           console.log(`₹50 added to ${referrer.name}'s wallet for referral.`);
 
-          
+
           newUser.referredBy = referrer._id;
           await newUser.save();
         }
@@ -429,7 +548,7 @@ const loadProductDetails = async (req, res) => {
     const product = await Product.findById(id).populate('offer'); 
 
     if (!product) {
-      return res.status(404).send("Product not found");
+      return res.redirect('/pageNotFound');
     }
 
     
@@ -455,7 +574,7 @@ const loadProductDetails = async (req, res) => {
     res.render("product-detail", { product, relatedProducts });
   } catch (err) {
     console.error(err);
-    res.status(500).send("Server Error");
+    res.redirect('/pageNotFound');
   }
 };
 
@@ -911,7 +1030,7 @@ const createOrder = async (req, res) => {
 
       // Calculate Payable Amount: Subtotal + Additional Charge - Discount
       const additionalCharge = 50; // Can be dynamic if needed
-      const payableAmount = subtotal + additionalCharge - discount; // Corrected Payable Amount calculation
+      const payableAmount =Math.round( subtotal + additionalCharge - discount); // Corrected Payable Amount calculation
 
       console.log("Subtotal:", subtotal);
       console.log("Additional Charge:", additionalCharge);
@@ -984,7 +1103,7 @@ const verifyPayment = async (req, res) => {
             return res.status(400).json({ 
                 success: false, 
                 message: `Payment failed: ${item.product.name} is out of stock.`,
-                redirect: "/failedPayment"
+                
             });
         }
     }
@@ -1025,8 +1144,9 @@ const verifyPayment = async (req, res) => {
         await order.save();
         await Cart.findByIdAndDelete(cartId);
 
+        console.log("here it is working....")
 
-       res.status(400).json({ success: false, message: "Payment verification failed.",redirect:"/failedPayment" });
+       res.render('paymentFailedPage',{ success: false, message: "Payment verification failed.",redirect:"/failedPayment" });
        
       }
   } catch (error) {
@@ -1181,32 +1301,66 @@ const loadForgetPassword = async (req, res) => {
 
 
 
+// const sendOtp = async (req, res) => {
+//   try {
+//     const { email } = req.body;
+//     const user = await User.findOne({ email });
+
+//     if (!user) {
+//       return res.status(400).send("User not found")
+//     }
+
+//     const otp = crypto.randomInt(100000, 999999).toString();
+//     user.otp = otp;
+//     user.otpExpiration = Date.now() + 5 * 60 * 1000; 
+
+//     console.log(`Generated OTP for ${email}:`, otp);
+
+//     await user.save();
+
+//     await sendOTP(email, otp);
+
+//     req.session.resetEmail = email;
+//     req.session.otpExpiration = user.otpExpiration;
+
+//     res.redirect("/verify-otp");
+//   } catch (error) {
+//     console.error("Error sending OTP:", error);
+//     res.redirect("/pageNotFound");
+//   }
+// };
+
+
 const sendOtp = async (req, res) => {
   try {
-    const { email } = req.body;
-    const user = await User.findOne({ email });
+      const { email } = req.body;
+      const user = await User.findOne({ email });
 
-    if (!user) {
-      return res.status(400).send("User not found")
-    }
+      if (!user) {
+          return res.status(400).json({ success: false, message: "User not found" });
+      }
 
-    const otp = crypto.randomInt(100000, 999999).toString();
-    user.otp = otp;
-    user.otpExpiration = Date.now() + 5 * 60 * 1000; 
+      // Store user details in session for password reset
+      req.session.isSignup = false;
+      req.session.userData = { email };
 
-    console.log(`Generated OTP for ${email}:`, otp);
+      // Generate OTP
+      const otp = generateOtp();
+      req.session.userOtp = otp;
+      req.session.otpExpiration = Date.now() + 5 * 60 * 1000;
 
-    await user.save();
+      // Send OTP via email
+      const emailSent = await sendVerificationEmail(email, otp);
+      if (!emailSent) {
+        return res.status(500).json({ success: false, message: "Failed to send OTP" });
+      }
 
-    await sendOTP(email, otp);
+      console.log("OTP Sent:", otp);
 
-    req.session.resetEmail = email;
-    req.session.otpExpiration = user.otpExpiration;
-
-    res.redirect("/verify-otp");
+      return res.redirect("/verify-otp");
   } catch (error) {
-    console.error("Error sending OTP:", error);
-    res.redirect("/pageNotFound");
+      console.error("Error in forgot password:", error);
+      res.status(500).json({ success: false, message: "Internal server error" });
   }
 };
 
@@ -1220,22 +1374,35 @@ const loadVerifyOtp = async (req, res) => {
 const passwordVerifyOtp = async (req, res) => {
   try {
     const { otp } = req.body;
-    const email = req.session.resetEmail;
+    const email = req.session.userData?.email;
+
 
     if (!email) {
       return res.redirect("/forgot-password");
     }
 
-    const user = await User.findOne({ email });
-
-    if (!user || user.otp !== otp || Date.now() > user.otpExpiration) {
-      return res.render("verifyOtp", { message: "Invalid or expired OTP" });
+    if (!req.session.userOtp || Date.now() > req.session.otpExpiration) {
+      return res.render("verifyOtp", { message: "OTP expired. Please request a new one." });
     }
 
-    user.otp = null;
-    user.otpExpiration = null;
-    await user.save();
+    if (otp !== req.session.userOtp) {
+      return res.render("verifyOtp", { message: "Invalid OTP. Please try again." });
+    }
 
+    // const user = await User.findOne({ email });
+
+    // if (!user || user.otp !== otp || Date.now() > user.otpExpiration) {
+    //   return res.render("verifyOtp", { message: "Invalid or expired OTP" });
+    // }
+
+    // user.otp = null;
+    // user.otpExpiration = null;
+    // await user.save();
+
+    // req.session.otpVerified = true;
+
+    req.session.userOtp = null;
+    req.session.otpExpiration = null;
     req.session.otpVerified = true;
 
     res.redirect("/reset-password");
@@ -1259,7 +1426,7 @@ const loadResetPassword = async (req, res) => {
 const updatePassword = async (req, res) => {
   try {
     const { password, confirmPassword } = req.body;
-    const email = req.session.resetEmail;
+    const email = req.session.userData?.email;
 
     if (!email) {
       return res.redirect("/forgot-password");
@@ -1291,7 +1458,15 @@ const updatePassword = async (req, res) => {
   }
 };
 
-
+const loadFailedPaymentPage = async (req,res)=>{
+  try {
+    res.render('paymentFailedPage')
+    
+  } catch (error) {
+    console.error(error)
+    res.redirect('/pageNotFound')
+  }
+}
 
 module.exports = {
   loadHomepage,
@@ -1330,4 +1505,5 @@ module.exports = {
   loadResetPassword,
   updatePassword,
   getOrderDetails,payWithWallet,
+  loadFailedPaymentPage
 };
