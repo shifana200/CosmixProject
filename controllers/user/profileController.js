@@ -20,10 +20,14 @@ const bcrypt = require("bcrypt");
 
 const loadUserDashboard =  async (req, res) => {
     try {
+       if(req.session.user){
         const userId = req.session.user;
         const userData = await User.findById(userId);
 
         return res.render('userdashboard',{user:userData,})
+       } else {
+        return res.redirect('/')
+       }
     } catch (error) {
         console.log("user dashboard page not loading", error)
         res.redirect('/pageNotFound')

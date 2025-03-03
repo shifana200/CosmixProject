@@ -21,6 +21,7 @@ const upload = multer();
 
 const checkBan= require("./middleware/checkban");
 const Razorpay = require('razorpay');
+const { preventBack } = require('./middleware/auth');
 
 
 connectDB();
@@ -159,6 +160,8 @@ app.get('/user/details', (req, res) => {
       res.status(401).json({ error: 'User not authenticated' });
   }
 });
+
+app.use(preventBack)
 
 // Catch-all route for undefined pages (404)
 app.use((req, res) => {

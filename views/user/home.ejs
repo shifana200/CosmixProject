@@ -240,7 +240,30 @@
 	<script src="js/jquery.stellar.min.js"></script>
 	<!-- Main -->
 	<script src="js/main.js"></script>
+	<script>
 
+(function() {
+        // Prevent back navigation
+        window.history.pushState(null, "", window.location.href);
+        window.onpopstate = function() {
+            window.history.pushState(null, "", window.location.href);
+        };
+
+        // Check if user is logged out and disable back button
+        if (!sessionStorage.getItem("isLoggedIn")) {
+            sessionStorage.clear();
+            localStorage.clear();
+            history.replaceState(null, "", "/");
+        }
+
+        // Detect back navigation and redirect to home
+        if (window.performance && window.performance.getEntriesByType("navigation")[0]?.type === "back_forward") {
+            location.replace("/");
+        }
+    })();
+		</script>
+	
+	
 	</body>
 </html>
 

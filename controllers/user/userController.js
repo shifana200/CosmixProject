@@ -325,6 +325,8 @@ const verifyOtp = async (req, res) => {
       req.session.user = newUser;
       req.session.userData = null;
 
+      req.session.isSignup = null; // Remove signup session
+
 
       if (user.referralCode) {
         const referrer = await User.findOne({ referralCode: user.referralCode });
@@ -513,21 +515,46 @@ const loadAbout = async (req, res) => {
     res.status(500).send("Server error");
   }
 };
+// const logout = async (req, res) => {
+//   console.log("Before destroying session:", req.session);
 
-const logout = async (req, res) => {
-  try {
-    req.session.destroy((err) => {
+//   req.session.destroy((err) => {
+//       if (err) {
+//           console.log("Session destruction error:", err.message);
+//           return res.redirect("/pageNotFound");
+//       }
+
+//       console.log("After destroying session:", req.session); // This should print undefined
+
+//       // Clear cookies (important for some browsers)
+//       res.clearCookie('connect.sid');
+
+//       return res.redirect('/home'); 
+//   });
+// }
+
+const logout = (req, res) => {
+  console.log("Logout function called");
+
+  req.session.destroy((err) => {
       if (err) {
-        console.log("Session destruction Error", err.message);
-        return res.redirect("/pageNotFound");
+          console.log("Session destruction error:", err.message);
+          return res.redirect("/pageNotFound");
       }
-      return res.redirect("/signin");
-    });
-  } catch (error) {
-    console.log("Logout error", error);
-    res.redirect("/pageNotFound");
-  }
+
+      console.log("Session successfully destroyed");
+
+      // Clear cookies explicitly
+      res.clearCookie("connect.sid", { path: "/" });
+      res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, private');
+      res.setHeader('Pragma', 'no-cache');
+      res.setHeader('Expires', '-1');
+
+      return res.redirect('/'); // Redirect to home after logout
+  });
 };
+
+
 
 const loadContact = async (req, res) => {
   try {
@@ -1254,9 +1281,13 @@ const payWithWallet = async (req, res) => {
 const getOrderDetails = async (req, res) => {
   try {
       const { orderId } = req.body;
+      console.log(orderId,'hjjj');
+      
       const order = await Order.findOne({ orderId, paymentStatus: "pending" })
       .populate("orderedItems.product")
             .populate("userId"); 
+            console.log('ppp',order);
+            
 
       if (!order) {
           return res.status(404).json({ success: false, message: "Order not found or already paid" });

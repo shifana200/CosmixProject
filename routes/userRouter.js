@@ -2,7 +2,7 @@ const express = require('express')
 const router = express.Router();
 const userController = require('../controllers/user/userController');
 const passport = require('passport');
-const {checkBlockedStatus, userAuth}  = require('../middleware/auth');
+const {preventBack, userAuth}  = require('../middleware/auth');
 const checkBan = require('../middleware/checkban');
 const profileController = require('../controllers/user/profileController');
 const productController = require('../controllers/user/productController')
@@ -18,14 +18,15 @@ const walletController = require('../controllers/user/walletController')
 
 
 router.get("/pageNotFound",userController.pageNotFound)
-router.get("/",userController.loadHomepage)
-router.get("/signin",userController.loadSignIn)
-router.post("/signin",userController.loginUser)
-router.get('/signup',userController.loadSignUp)
-router.post('/signup',userController.verifyRegister)
-router.get('/verify',userController.loadOtpPage)
-router.post('/verify',userController.verifyOtp)
+router.get("/",preventBack,userController.loadHomepage)
+router.get("/signin",preventBack,userController.loadSignIn)
+router.post("/signin",preventBack,userController.loginUser)
+router.get('/signup',preventBack,userController.loadSignUp)
+router.post('/signup',preventBack,userController.verifyRegister)
+router.get('/verify',preventBack,userController.loadOtpPage)
+router.post('/verify',preventBack,userController.verifyOtp)
 router.get('/logout',userController.logout)
+
 router.get('/banPage',userController.loadBanPage)
 router.get('/pageError',userController.loadPageError)
 
@@ -43,7 +44,6 @@ router.get('/checkout',userController.loadOrderCheckout)
 router.post('/placeOrder',userController.placeOrder)
 router.post('/payWithWallet',userController.payWithWallet)
 
-router.post('/logout',userController.logout)
 router.post('/update-profile',profileController.updateProfile)
 router.get('/changePassword',profileController.loadchangePassword)
 router.post("/change-password",profileController.changePassword);

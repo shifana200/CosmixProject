@@ -86,7 +86,7 @@ router.get('/getItems',adminAuth,offerController.getItems)
 router.get('/getOffer/:id',adminAuth,offerController.getOfferDetails)
 router.post('/editOffer',adminAuth,offerController.updateOffer)
 router.get('/getCategoriesOrProducts',adminAuth,offerController.getCategoriesOrProducts);
-router.delete("/deleteOffer/:id", offerController.deleteOffer);
+router.delete("/deleteOffer/:id",adminAuth,offerController.deleteOffer);
 router.get('/searchOffer',adminAuth,offerController.searchOffer)
 
 //order maangement
@@ -94,7 +94,7 @@ router.get('/ordermanagement',adminAuth,orderController.loadOrderManagement)
 router.get('/ordermanagement/:id',adminAuth,orderController.loadOrderDetailsPage)
 router.post('/updateStatus',adminAuth,orderController.updateOrderStatus)
 router.get('/getOrderStatus',adminAuth,orderController.getOrderStatus)
-router.post('/orderRequest', orderController.confirmOrderRequest);
+router.post('/orderRequest',adminAuth, orderController.confirmOrderRequest);
 router.get('/searchOrders',adminAuth,orderController.searchOrder)
 
 module.exports = router;

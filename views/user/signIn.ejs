@@ -312,6 +312,19 @@
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <script>
+    
+(function() {
+        // Push a new state when the page loads
+        history.pushState(null, null, location.href);
+
+        // Prevent back navigation
+        window.onpopstate = function () {
+            history.pushState(null, null, location.href);
+        };
+    })();
+
+  </script>
+  <script>
  
  <% if (message) { %>
   Swal.fire({
@@ -339,6 +352,8 @@ togglePasswordButton.addEventListener('click',()=>{
       }
 
 })
+
+
   </script>
   
 
