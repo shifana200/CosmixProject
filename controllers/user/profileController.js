@@ -743,8 +743,161 @@ const changePassword = async (req, res) => {
     }
 };
 
+const cancelSingleOrder = async (req,res)=>{
+    const { orderId, productId } = req.params;
+  
+    if (!mongoose.Types.ObjectId.isValid(orderId)) {
+        return res.status(400).json({ success: false, message: "Invalid order ID" });
+    }
+
+    if (!mongoose.Types.ObjectId.isValid(productId)) {
+        return res.status(400).json({ success: false, message: "Invalid product ID" });
+    }
+    try {
+        const order = await Order.findById(orderId);
+        if (!order) return res.status(404).json({ success: false, message: "Order not found" });
+
+        const productIndex = order.orderedItems.findIndex(p => p.product.toString() === productId);
+        if (productIndex === -1) {
+            return res.status(400).json({ success: false, message: "Product not found in order" });
+        }
+
+        const product = order.orderedItems[productIndex];
+
+        if (product.currentStatus !== "ordered") {
+            return res.status(400).json({ success: false, message: "Product cannot be cancelled" });
+        }
+
+        
+        product.currentStatus = "Cancelled";
+
+        
+        order.totalPrice -= product.price;
+        order.PayableAmount -= product.price;
+
+        const cancelledProduct = await Product.findById(product.product);
+        if (cancelledProduct) {
+            cancelledProduct.quantity += product.quantity;
+            await cancelledProduct.save();
+        }
+
+        const allCancelled = order.orderedItems.every(item => item.currentStatus === "Cancelled");
+        if (allCancelled) {
+            order.status = "Cancelled";
+        }
+
+        await order.save();
+
+        if (order.paymentMethod === "Online Payment" || order.paymentMethod === 'Wallet') {
+            let userWallet = await Wallet.findOne({ userId: order.userId });
+
+            const refundTransaction = {
+                amount: product.price,  // Refund only the canceled product's price
+                transactionType: "Cancellation",
+                timestamp: new Date()
+            };
+
+            if (userWallet) {
+                userWallet.walletAmount += product.price;
+                userWallet.transactions.push(refundTransaction);
+                await userWallet.save();
+            } else {
+                userWallet = await Wallet.create({
+                    userId: order.userId,
+                    walletAmount: product.price,
+                    transactions: [refundTransaction]
+                });
+            }
+        }
+      
+
+        res.json({ success: true, message: "Product cancelled successfully" });
+    } catch (error) {
+        console.error("Error cancelling product:", error);
+        res.status(500).json({ success: false, message: "Internal Server Error" });
+    }
+  
+}
+
+const returnSingleProduct = async (req, res) => {
+    const { orderId, productId } = req.params;
+
+    if (!mongoose.Types.ObjectId.isValid(orderId)) {
+        return res.status(400).json({ success: false, message: "Invalid order ID" });
+    }
+
+    if (!mongoose.Types.ObjectId.isValid(productId)) {
+        return res.status(400).json({ success: false, message: "Invalid product ID" });
+    }
+
+    try {
+        const order = await Order.findById(orderId);
+        if (!order) return res.status(404).json({ success: false, message: "Order not found" });
+
+        const productIndex = order.orderedItems.findIndex(p => p.product.toString() === productId);
+        if (productIndex === -1) {
+            return res.status(400).json({ success: false, message: "Product not found in order" });
+        }
+
+        const product = order.orderedItems[productIndex];
+
+        if (product.currentStatus !== "ordered") {
+            return res.status(400).json({ success: false, message: "Product cannot be returned" });
+        }
+
+        product.currentStatus = "Returned";
 
 
+        
+        // Update total price after return
+        order.totalPrice -= product.price;
+        order.PayableAmount -= product.price;
+
+        // Restock the returned product
+        const returnedProduct = await Product.findById(product.product);
+        if (returnedProduct) {
+            returnedProduct.quantity += product.quantity;
+            await returnedProduct.save();
+        }
+
+        // Refund to wallet if payment was online
+        if (order.paymentMethod === "Online Payment" || order.status === 'Delivered' || order.paymentMethod === 'Wallet') {
+            let userWallet = await Wallet.findOne({ userId: order.userId });
+
+            const refundTransaction = {
+                amount: product.price,  // Refund only the returned product's price
+                transactionType: "Return",
+                timestamp: new Date()
+            };
+
+            if (userWallet) {
+                userWallet.walletAmount += product.price;
+                userWallet.transactions.push(refundTransaction);
+                await userWallet.save();
+            } else {
+                userWallet = await Wallet.create({
+                    userId: order.userId,
+                    walletAmount: product.price,
+                    transactions: [refundTransaction]
+                });
+            }
+        }
+
+        // If all products are returned, update order status
+        const allReturned = order.orderedItems.every(p => p.currentStatus === "Returned");
+        if (allReturned) {
+            order.status = "Returned";
+        }
+
+
+        await order.save();
+
+        res.json({ success: true, message: "Product returned successfully" });
+    } catch (error) {
+        console.error("Error processing return:", error);
+        res.status(500).json({ success: false, message: "Internal Server Error" });
+    }
+};
 
 
 
@@ -755,7 +908,7 @@ module.exports = {
     loadUpdateProfile,loadUserOrder,
     addNewAddress,editAddress,loadEditAddress,updateProfile,deleteAddress,
     loadOrderDetails,cancelOrder,returnOrder,generateInvoice,loadchangePassword,
-    changePassword,
+    changePassword,cancelSingleOrder,returnSingleProduct,
     
     
 }

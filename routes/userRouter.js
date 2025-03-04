@@ -91,6 +91,9 @@ router.post('/cancel-order', userAuth, profileController.cancelOrder);
 router.post('/return-order', userAuth, profileController.returnOrder);
 router.get('/generate-invoice/:orderId',userAuth,profileController.generateInvoice)
 router.post("/getOrderDetails",userAuth,userController.getOrderDetails);
+router.post('/orders/cancel/:orderId/:productId',userAuth,profileController.cancelSingleOrder)
+router.post('/orders/return/:orderId/:productId', userAuth, profileController.returnSingleProduct);
+
 
 
 

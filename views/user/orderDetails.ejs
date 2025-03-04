@@ -556,6 +556,37 @@ textarea {
         background-color: green !important;
     }
 
+    .cancelButton {
+        background-color: red;
+        color: white;
+        border: none;
+        padding: 5px 10px;
+        border-radius: 5px;
+    }
+
+    .cancelButton:hover{
+        background-color: rgb(164, 29, 29);
+    }
+
+    .returnButton{
+        background-color: green;
+        color: white;
+        border: none;
+        padding: 5px 10px;
+        border-radius: 5px;
+    }
+
+    .returnButton:hover{
+        background-color: rgb(25, 167, 25);
+    }
+
+    .completePaymentButton{
+        background-color: rgb(22, 22, 97) ;
+        color: white;
+        padding: 5px 10px;
+        border-radius: 5px;
+        border: none;
+    }
     </style>
 </head>
 <body>
@@ -600,9 +631,33 @@ textarea {
 
                 <p>Quantity: <%= item.quantity%></p>
                 <p>Total Price: ₹ <%= item.quantity * item.price%></p>
-
+                
             </div>
-            
+            <% if (item.currentStatus === 'ordered')  { %>
+                <button class="cancelButton" data-order-id="<%=orderDetails._id%>" data-product-id="<%=item.product._id%>">Cancel</button>
+            <% }else if(item.currentStatus === 'Cancelled'){ %>
+                <p style="color: red;">Cancelled</p>
+                <%}%>
+
+            <% 
+            const orderCreatedAt = new Date(orderDetails.createdAt);
+            const returnDeadline = new Date(orderCreatedAt);
+            returnDeadline.setDate(returnDeadline.getDate() + 7);
+            const isReturnExpired = new Date() > returnDeadline;
+            %>
+        
+                <% if (orderDetails.status === "Delivered" && !isReturnExpired && item.currentStatus === 'ordered') { %>
+                    <button class="returnButton" data-order-id="<%= orderDetails._id %>" data-product-id="<%= item.product._id %>">
+                        Return
+                    </button>
+                <% } else if (isReturnExpired) { %>
+                    <p>Return period expired</p>
+                <% } else if (item.currentStatus === "Returned") { %>
+                    <p style="color: red;">Returned</p>
+                <% } %>
+                          
+    
+
         </div>
         <%})%>
 
@@ -736,7 +791,7 @@ textarea {
             <% if (orderDetails.paymentMethod === 'Online Payment' && orderDetails.paymentStatus === 'pending') { %>
                 <div class="payment-actions">
                         <input type="hidden" name="orderId" value="<%= orderDetails.orderId %>">
-                        <button onclick="handlePayment('<%= orderDetails.orderId %>')">Complete Payment</button>
+                        <button class="completePaymentButton" onclick="handlePayment('<%= orderDetails.orderId %>')">Complete Payment</button>
                     </div>
             <% } %>
             
@@ -753,6 +808,8 @@ textarea {
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+
 
 <% if (typeof success !== 'undefined' && typeof message !== 'undefined') { %>
     <script>
@@ -775,12 +832,13 @@ textarea {
                 confirmButtonText: 'OK'
             });
         }
-    </script>
 <% } %>
-<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+</script>
+
 
 
 <script>
+
     const buttonCancel = document.getElementById('button-cancel');
 const buttonReturn = document.getElementById('button-return');
 const cancelReasonDiv = document.getElementById('reasondiv');
@@ -838,12 +896,12 @@ document.getElementById('return-form').addEventListener('submit', function (even
     const reasonText = reasonInput.value.trim();
 
     if (reasonText.length < 5) {
-        event.preventDefault(); // Prevent form submission
-        errorMessage.style.display = 'block'; // Show error message
-        reasonInput.classList.add('input-error'); // Add error styling
+        event.preventDefault(); 
+        errorMessage.style.display = 'block'; 
+        reasonInput.classList.add('input-error');
     } else {
-        errorMessage.style.display = 'none'; // Hide error if valid
-        reasonInput.classList.remove('input-error'); // Remove error styling
+        errorMessage.style.display = 'none'; 
+        reasonInput.classList.remove('input-error'); 
     }
 });
 
@@ -851,20 +909,20 @@ document.getElementById('cancel-form').addEventListener('submit', function (even
     const reasonInput = document.getElementById('cancellation-reason');
     const errorMessage = document.getElementById('cancel-errorMessage');
 
-    // Trim input value to remove extra spaces
+    
     const reasonText = reasonInput.value.trim();
 
     if (reasonText.length < 5) {
-        event.preventDefault(); // Prevent form submission
-        errorMessage.style.display = 'block'; // Show error message
-        reasonInput.classList.add('input-error'); // Add error styling
+        event.preventDefault(); 
+        errorMessage.style.display = 'block'; 
+        reasonInput.classList.add('input-error'); 
     } else {
-        errorMessage.style.display = 'none'; // Hide error if valid
-        reasonInput.classList.remove('input-error'); // Remove error styling
+        errorMessage.style.display = 'none'; 
+        reasonInput.classList.remove('input-error'); 
     }
 });
 document.addEventListener("DOMContentLoaded", function () {
-        const orderStatus = "<%= orderDetails.status %>"; // Get the order status dynamically from backend
+        const orderStatus = "<%= orderDetails.status %>"; 
         const statusElements = document.querySelectorAll(".status");
         const lines = document.querySelectorAll(".line");
         let statusReached = false;
@@ -970,6 +1028,92 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
 }
+
+
+
+document.addEventListener("DOMContentLoaded", function () {
+    document.querySelectorAll(".cancelButton").forEach(button => {
+        button.addEventListener("click", function () {
+            const orderId = this.getAttribute("data-order-id");
+            const productId = this.getAttribute("data-product-id");
+
+            console.log(orderId)
+            console.log(productId)
+
+
+            Swal.fire({
+                title: "Are you sure?",
+                text: "Do you want to cancel this product?",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonColor: "#d33",
+                cancelButtonColor: "#3085d6",
+                confirmButtonText: "Yes, Cancel it!"
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    fetch(`/orders/cancel/${orderId}/${productId}`, {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            Swal.fire("Cancelled!", data.message, "success")
+                                .then(() => location.reload()); // Refresh the page
+                        } else {
+                            Swal.fire("Error!", data.message, "error");
+                        }
+                    })
+                    .catch(error => {
+                        console.error("Error:", error);
+                        Swal.fire("Error!", "Something went wrong.", "error");
+                    });
+                }
+            });
+        });
+    });
+});
+
+
+document.addEventListener("DOMContentLoaded", function () {
+    document.querySelectorAll(".returnButton").forEach(button => {
+        button.addEventListener("click", function () {
+            const orderId = this.getAttribute("data-order-id");
+            const productId = this.getAttribute("data-product-id");
+
+            Swal.fire({
+                title: "Are you sure?",
+                text: "Do you want to return this product?",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonColor: "#d33",
+                cancelButtonColor: "#3085d6",
+                confirmButtonText: "Yes, Return it!"
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    fetch(`/orders/return/${orderId}/${productId}`, {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            Swal.fire("Returned!", data.message, "success")
+                                .then(() => location.reload()); // Refresh the page
+                        } else {
+                            Swal.fire("Error!", data.message, "error");
+                        }
+                    })
+                    .catch(error => {
+                        console.error("Error:", error);
+                        Swal.fire("Error!", "Something went wrong.", "error");
+                    });
+                }
+            });
+        });
+    });
+});
+
 
 
 
