@@ -28,15 +28,8 @@ const orderSchema = new Schema({
             required:true,
             enum:["Cancelled" ,"Returned","ordered"],
             default:"ordered"
-        },
-        cancelReason:{
-            type:String,
-            default:"None"
-        },
-        returnReason:{
-            type:String,
-            default:"None"
         }
+        
     }],
     totalPrice:{
         type:Number,

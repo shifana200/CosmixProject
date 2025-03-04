@@ -633,7 +633,7 @@ textarea {
                 <p>Total Price: ₹ <%= item.quantity * item.price%></p>
                 
             </div>
-            <% if (item.currentStatus === 'ordered')  { %>
+            <% if (orderDetails.status === "Ordered" || orderDetails.status === "Shipped" && item.currentStatus === 'ordered')  { %>
                 <button class="cancelButton" data-order-id="<%=orderDetails._id%>" data-product-id="<%=item.product._id%>">Cancel</button>
             <% }else if(item.currentStatus === 'Cancelled'){ %>
                 <p style="color: red;">Cancelled</p>

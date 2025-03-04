@@ -632,60 +632,10 @@ const loadchangePassword = async(req,res)=>{
 
 
 
-// const changePassword = async (req, res) => {
-//     try {
-//         const { currentPassword, newPassword, confirmPassword } = req.body;
-//         const userSession = req.session.user; // User details stored in session
-
-//         if (!userSession || !userSession._id) {
-//             return res.status(401).json({ success: false, message: "Unauthorized. Please log in." });
-//         }
-
-//         // Fetch user from the database
-//         const user = await User.findById(userSession._id);
-//         if (!user) {
-//             return res.status(404).json({ success: false, message: "User not found" });
-//         }
-
-//         // Check if the current password matches the stored hashed password
-//         const isMatch = await bcrypt.compare(currentPassword, user.password);
-//         if (!isMatch) {
-//             return res.status(400).json({ success: false, message: "The current password is incorrect" });
-//         }
-
-//         // Validate new password length and character requirements
-//         const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/;
-//         if (!passwordRegex.test(newPassword)) {
-//             return res.status(400).json({
-//                 success: false,
-//                 message: "New password must be at least 8 characters long and contain at least one letter and one number",
-//             });
-//         }
-
-//         // Ensure new password and confirm password match
-//         if (newPassword !== confirmPassword) {
-//             return res.status(400).json({ success: false, message: "New password and confirm password do not match" });
-//         }
-
-//         // Hash the new password
-//         const hashedPassword = await bcrypt.hash(newPassword, 10);
-
-//         // Update user's password in the database
-//         user.password = hashedPassword;
-//         await user.save();
-
-//         return res.status(200).json({ success: true, message: "Password changed successfully" });
-
-//     } catch (error) {
-//         console.error("Error changing password:", error);
-//         res.status(500).json({ success: false, message: "Internal server error" });
-//     }
-// };
-
 const changePassword = async (req, res) => {
     try {
         const { currentPassword, newPassword, confirmPassword } = req.body;
-        const userSession = req.session.user; // User details stored in session
+        const userSession = req.session.user; 
 
         let errors = {};
 
@@ -693,13 +643,11 @@ const changePassword = async (req, res) => {
             return res.status(401).json({ success: false, message: "Unauthorized. Please log in." });
         }
 
-        // Fetch user from the database
         const user = await User.findById(userSession._id);
         if (!user) {
             return res.status(404).json({ success: false, message: "User not found" });
         }
 
-        // Validate required fields
         if (!currentPassword) errors.currentPassword = "Current password is required";
         if (!newPassword) errors.newPassword = "New password is required";
         if (!confirmPassword) errors.confirmPassword = "Confirm password is required";
@@ -708,13 +656,11 @@ const changePassword = async (req, res) => {
             return res.status(400).json({ success: false, errors });
         }
 
-        // Check if the current password matches the stored hashed password
         const isMatch = await bcrypt.compare(currentPassword, user.password);
         if (!isMatch) {
             return res.status(400).json({ success: false, errors: { currentPassword: "The current password is incorrect" } });
         }
 
-        // Validate new password length and character requirements
         const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/;
         if (!passwordRegex.test(newPassword)) {
             return res.status(400).json({
@@ -723,15 +669,12 @@ const changePassword = async (req, res) => {
             });
         }
 
-        // Ensure new password and confirm password match
         if (newPassword !== confirmPassword) {
             return res.status(400).json({ success: false, errors: { confirmPassword: "Passwords do not match" } });
         }
 
-        // Hash the new password
         const hashedPassword = await bcrypt.hash(newPassword, 10);
 
-        // Update user's password in the database
         user.password = hashedPassword;
         await user.save();
 
@@ -792,7 +735,7 @@ const cancelSingleOrder = async (req,res)=>{
             let userWallet = await Wallet.findOne({ userId: order.userId });
 
             const refundTransaction = {
-                amount: product.price,  // Refund only the canceled product's price
+                amount: product.price, 
                 transactionType: "Cancellation",
                 timestamp: new Date()
             };
@@ -849,23 +792,20 @@ const returnSingleProduct = async (req, res) => {
 
 
         
-        // Update total price after return
         order.totalPrice -= product.price;
         order.PayableAmount -= product.price;
 
-        // Restock the returned product
         const returnedProduct = await Product.findById(product.product);
         if (returnedProduct) {
             returnedProduct.quantity += product.quantity;
             await returnedProduct.save();
         }
 
-        // Refund to wallet if payment was online
         if (order.paymentMethod === "Online Payment" || order.status === 'Delivered' || order.paymentMethod === 'Wallet') {
             let userWallet = await Wallet.findOne({ userId: order.userId });
 
             const refundTransaction = {
-                amount: product.price,  // Refund only the returned product's price
+                amount: product.price,  
                 transactionType: "Return",
                 timestamp: new Date()
             };
@@ -883,7 +823,6 @@ const returnSingleProduct = async (req, res) => {
             }
         }
 
-        // If all products are returned, update order status
         const allReturned = order.orderedItems.every(p => p.currentStatus === "Returned");
         if (allReturned) {
             order.status = "Returned";

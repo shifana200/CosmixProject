@@ -71,9 +71,7 @@ router.post('/send-otp', userController.verifyOtp);
 router.get('/shop',productController.loadShopPage);
 
 
-// router.get('/cart/:userId/coupons',userAuth,cartController.getCoupons)
 router.post('/apply-coupon',userAuth,cartController.applyCoupon)
-// router.post('/remove-coupon',userAuth,cartController.removeCoupon)
 
 
 
@@ -127,8 +125,8 @@ router.get(
     '/auth/google/callback',
     passport.authenticate('google', { failureRedirect: '/signup' }),
     (req, res) => {
-        req.session.user = req.user;  // Save user info in session
-        req.session.save();           // Ensure session is saved
+        req.session.user = req.user;  
+        req.session.save();          
         console.log("User saved in session:", req.session.user);
         res.redirect('/');
     }
