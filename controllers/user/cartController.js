@@ -118,12 +118,15 @@ const addCart = async (req, res) => {
           });
       }
 
-      const existingItem = cart.items.find(
+      
+        const existingItem = cart.items.find(
           (item) => item.productId.toString() === productId
-      );
+        );
+      
+
 
       if (existingItem) {
-          existingItem.quantity += parseInt(quantity);
+          existingItem.quantity += quantity;
           existingItem.totalPrice = existingItem.quantity * existingItem.price;
       } else {
           cart.items.push({
